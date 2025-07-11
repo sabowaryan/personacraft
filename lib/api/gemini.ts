@@ -1,4 +1,6 @@
-// Client API pour Google Gemini
+// Client API pour Google Gemini avec vraie intégration
+
+import { GoogleGenerativeAI } from '@google/generative-ai';
 
 export interface GeminiRequest {
   prompt: string;
@@ -28,34 +30,58 @@ export interface GeminiError {
 }
 
 export class GeminiClient {
-  private baseUrl: string;
-  private apiKey: string;
+  private genAI: GoogleGenerativeAI;
+  private model: any;
 
   constructor(apiKey?: string) {
-    this.baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
-    this.apiKey = apiKey || process.env.GEMINI_API_KEY || '';
+    const key = apiKey || process.env.GEMINI_API_KEY || '';
+    if (!key) {
+      throw new Error('Clé API Gemini manquante');
+    }
+    
+    this.genAI = new GoogleGenerativeAI(key);
+    this.model = this.genAI.getGenerativeModel({ model: 'gemini-pro' });
   }
 
   async generateContent(request: GeminiRequest): Promise<GeminiResponse> {
     try {
-      const response = await fetch(`${this.baseUrl}/api/gemini`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          ...(this.apiKey && { 'Authorization': `Bearer ${this.apiKey}` })
-        },
-        body: JSON.stringify(request)
+      const { prompt, parameters = {} } = request;
+      
+      // Configuration du modèle
+      const generationConfig = {
+        temperature: parameters.temperature || 0.8,
+        topK: 40,
+        topP: 0.95,
+        maxOutputTokens: parameters.maxTokens || 2048,
+      };
+
+      // Génération du contenu
+      const result = await this.model.generateContent({
+        contents: [{ role: 'user', parts: [{ text: prompt }] }],
+        generationConfig,
       });
 
-      if (!response.ok) {
-        const errorData: GeminiError = await response.json().catch(() => ({ error: 'Unknown error' }));
-        throw new Error(errorData.error || `HTTP ${response.status}: ${response.statusText}`);
-      }
+      const response = await result.response;
+      const text = response.text();
 
-      return await response.json();
+      // Estimation des tokens (approximation)
+      const promptTokens = Math.ceil(prompt.length / 4);
+      const completionTokens = Math.ceil(text.length / 4);
+
+      return {
+        content: text,
+        usage: {
+          promptTokens,
+          completionTokens,
+          totalTokens: promptTokens + completionTokens
+        },
+        model: 'gemini-pro',
+        finishReason: 'stop'
+      };
+
     } catch (error) {
-      console.error('Gemini API Error:', error);
-      throw new Error(`Failed to generate content: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      console.error('Erreur Gemini API:', error);
+      throw new Error(`Échec génération Gemini: ${error instanceof Error ? error.message : 'Erreur inconnue'}`);
     }
   }
 
@@ -73,10 +99,25 @@ export class GeminiClient {
     const response = await this.generateContent(request);
     
     try {
-      return JSON.parse(response.content);
+      // Nettoyer la réponse pour extraire le JSON
+      let jsonContent = response.content.trim();
+      
+      // Supprimer les balises markdown si présentes
+      jsonContent = jsonContent.replace(/```json\n?/g, '').replace(/```\n?/g, '');
+      
+      // Trouver le JSON dans la réponse
+      const jsonStart = jsonContent.indexOf('{');
+      const jsonEnd = jsonContent.lastIndexOf('}') + 1;
+      
+      if (jsonStart !== -1 && jsonEnd > jsonStart) {
+        jsonContent = jsonContent.substring(jsonStart, jsonEnd);
+      }
+
+      return JSON.parse(jsonContent);
     } catch (parseError) {
-      console.error('Failed to parse Gemini response as JSON:', parseError);
-      throw new Error('Invalid JSON response from Gemini API');
+      console.error('Erreur parsing JSON Gemini:', parseError);
+      console.log('Contenu reçu:', response.content);
+      throw new Error('Réponse JSON invalide de Gemini');
     }
   }
 
@@ -103,15 +144,14 @@ export class GeminiClient {
     demographics: { ageRange: string; location: string },
     culturalData?: any
   ): string {
-    return `
-Génère un persona marketing authentique et détaillé avec ces paramètres :
+    return `Tu es un expert en marketing et en création de personas. Génère un persona marketing authentique et détaillé.
 
 CONTEXTE DU PROJET :
 ${description}
 
 DÉMOGRAPHIE :
 - Âge : ${demographics.ageRange} ans
-- Localisation : ${demographics.location || 'Non spécifié'}
+- Localisation : ${demographics.location || 'France'}
 
 INTÉRÊTS PRINCIPAUX :
 ${interests.join(', ')}
@@ -124,10 +164,44 @@ DONNÉES CULTURELLES (Qloo AI) :
 ${culturalData.recommendations?.map((r: any) => `- ${r.type}: ${r.name} (confiance: ${Math.round(r.confidence * 100)}%)`).join('\n') || 'Aucune donnée disponible'}
 ` : ''}
 
-Crée un persona cohérent, réaliste et utilisable pour des stratégies marketing.
-Le persona doit refléter les données culturelles et les valeurs spécifiées.
-Assure-toi que tous les champs requis sont remplis avec des données pertinentes.
-`;
+INSTRUCTIONS :
+1. Crée un persona cohérent qui reflète les intérêts et valeurs spécifiés
+2. Utilise les données culturelles Qloo pour enrichir les centres d'intérêt
+3. Assure-toi que tous les aspects du persona sont alignés et réalistes
+4. La biographie doit être engageante et refléter la personnalité
+5. La citation doit être authentique et révélatrice de la personnalité
+
+Réponds UNIQUEMENT en JSON valide avec cette structure exacte :
+{
+  "name": "string (nom complet réaliste)",
+  "age": number,
+  "location": "string (ville, pays)",
+  "bio": "string (2-3 phrases décrivant la personne)",
+  "quote": "string (citation personnelle authentique)",
+  "values": ["string"] (3-5 valeurs fondamentales),
+  "interests": {
+    "music": ["string"] (3-4 genres/artistes),
+    "brands": ["string"] (4-5 marques préférées),
+    "movies": ["string"] (3-4 films/séries),
+    "food": ["string"] (3-4 types de cuisine/aliments),
+    "books": ["string"] (3-4 livres/genres),
+    "lifestyle": ["string"] (4-5 activités/hobbies)
+  },
+  "communication": {
+    "preferredChannels": ["string"] (2-4 canaux de communication),
+    "tone": "string (style de communication)",
+    "contentTypes": ["string"] (3-4 types de contenu préférés)",
+    "frequency": "string (fréquence de communication souhaitée)"
+  },
+  "marketing": {
+    "painPoints": ["string"] (3-4 points de douleur spécifiques),
+    "motivations": ["string"] (3-4 motivations principales),
+    "buyingBehavior": "string (description du comportement d'achat)",
+    "influences": ["string"] (3-4 sources d'influence)
+  }
+}
+
+Génère maintenant le persona en JSON :`;
   }
 
   static validatePersonaResponse(response: any): boolean {

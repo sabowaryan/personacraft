@@ -1,4 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { GeminiClient } from '@/lib/api/gemini';
+import { QlooClient } from '@/lib/api/qloo';
 
 // Types
 interface GeneratePersonaRequest {
@@ -62,78 +64,46 @@ function generateAgeFromRange(ageRange: string): number {
 async function generatePersonaComplete(request: GeneratePersonaRequest): Promise<PersonaResponse> {
   try {
     // 1. Appel à l'API Qloo pour obtenir des recommandations culturelles
-    const qlooResponse = await fetch(`${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/api/qloo`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        interests: request.interests,
-        demographics: {
-          age: generateAgeFromRange(request.ageRange),
-          location: request.location
-        },
-        categories: ['music', 'brands', 'movies', 'food', 'books', 'lifestyle']
-      })
+    const qlooClient = new QlooClient(process.env.QLOO_API_KEY);
+    
+    const qlooData = await qlooClient.getRecommendations({
+      interests: request.interests,
+      demographics: {
+        age: generateAgeFromRange(request.ageRange),
+        location: request.location || 'France'
+      },
+      categories: ['music', 'brands', 'movies', 'food', 'books', 'lifestyle']
     });
-
-    const qlooData = await qlooResponse.json();
 
     // 2. Construction du prompt pour Gemini
-    const prompt = `
-Génère un persona marketing authentique avec ces paramètres :
-
-CONTEXTE DU PROJET :
-${request.description}
-
-DÉMOGRAPHIE :
-- Âge : ${request.ageRange} ans
-- Localisation : ${request.location || 'France'}
-
-INTÉRÊTS PRINCIPAUX :
-${request.interests.join(', ')}
-
-VALEURS IMPORTANTES :
-${request.values.join(', ')}
-
-RECOMMANDATIONS CULTURELLES (basées sur Qloo AI) :
-${qlooData.recommendations?.map((r: any) => `- ${r.type}: ${r.name} (confiance: ${Math.round(r.confidence * 100)}%)`).join('\n') || 'Aucune recommandation disponible'}
-
-Crée un persona cohérent qui reflète ces données culturelles et ces valeurs.
-Le persona doit être réaliste, détaillé et utilisable pour des stratégies marketing.
-`;
-
-    // 3. Appel à l'API Gemini pour générer le persona
-    const geminiResponse = await fetch(`${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/api/gemini`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        prompt,
-        context: qlooData,
-        parameters: {
-          temperature: 0.8,
-          maxTokens: 2000,
-          format: 'json'
-        }
-      })
-    });
-
-    const geminiData = await geminiResponse.json();
+    const geminiClient = new GeminiClient(process.env.GEMINI_API_KEY);
     
-    // 4. Parse et validation du contenu généré
-    let personaContent;
-    try {
-      personaContent = JSON.parse(geminiData.content);
-    } catch (parseError) {
-      console.error('Error parsing Gemini response:', parseError);
+    const prompt = GeminiClient.buildPersonaPrompt(
+      request.description,
+      request.interests,
+      request.values,
+      {
+        ageRange: request.ageRange,
+        location: request.location
+      },
+      qlooData
+    );
+
+    // 3. Génération du persona avec Gemini
+    const personaData = await geminiClient.generatePersona(prompt, qlooData);
+    
+    // 4. Validation et enrichissement des données
+    if (!GeminiClient.validatePersonaResponse(personaData)) {
       throw new Error('Invalid response format from AI');
     }
 
     // 5. Construction de la réponse finale
     const persona: PersonaResponse = {
       id: crypto.randomUUID(),
-      ...personaContent,
+      ...personaData,
       generatedAt: new Date().toISOString(),
       sources: ['Qloo Taste AI', 'Google Gemini', 'Analyse comportementale'],
-      avatar: `https://images.unsplash.com/photo-${1500000000000 + Math.floor(Math.random() * 100000000)}?w=150&h=150&fit=crop&crop=face`
+      avatar: `https://images.unsplash.com/photo-${1500000000000 + Math.floor(Math.random() * 100000000)}?w=150&h=150&fit=crop&crop=face&auto=format&q=80`
     };
 
     return persona;
@@ -170,6 +140,14 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Vérifier la configuration des APIs
+    if (!process.env.GEMINI_API_KEY) {
+      return NextResponse.json(
+        { error: 'Gemini API not configured' },
+        { status: 500 }
+      );
+    }
+
     // Génération des personas
     const personaCount = body.generateMultiple ? 3 : 1;
     const personas: PersonaResponse[] = [];
@@ -181,7 +159,7 @@ export async function POST(request: NextRequest) {
         
         // Délai entre les générations pour éviter la surcharge
         if (i < personaCount - 1) {
-          await new Promise(resolve => setTimeout(resolve, 500));
+          await new Promise(resolve => setTimeout(resolve, 1000));
         }
       } catch (error) {
         console.error(`Error generating persona ${i + 1}:`, error);
@@ -202,14 +180,21 @@ export async function POST(request: NextRequest) {
         generated_count: personas.length,
         requested_count: personaCount,
         generation_time: new Date().toISOString(),
-        sources_used: ['Qloo Taste AI', 'Google Gemini']
+        sources_used: ['Qloo Taste AI', 'Google Gemini'],
+        api_status: {
+          gemini: process.env.GEMINI_API_KEY ? 'active' : 'inactive',
+          qloo: process.env.QLOO_API_KEY ? 'active' : 'simulated'
+        }
       }
     });
 
   } catch (error) {
     console.error('Generate Persona API Error:', error);
     return NextResponse.json(
-      { error: 'Internal server error during persona generation' },
+      { 
+        error: 'Internal server error during persona generation',
+        details: error instanceof Error ? error.message : 'Unknown error'
+      },
       { status: 500 }
     );
   }
@@ -222,7 +207,11 @@ export async function GET() {
       methods: ['POST'],
       description: 'Orchestrate complete persona generation using Qloo and Gemini APIs',
       required_fields: ['description', 'interests', 'values'],
-      optional_fields: ['ageRange', 'location', 'generateMultiple']
+      optional_fields: ['ageRange', 'location', 'generateMultiple'],
+      api_status: {
+        gemini: process.env.GEMINI_API_KEY ? 'configured' : 'not configured',
+        qloo: process.env.QLOO_API_KEY ? 'configured' : 'not configured'
+      }
     },
     { status: 200 }
   );
