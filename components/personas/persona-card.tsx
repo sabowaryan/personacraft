@@ -52,12 +52,7 @@ export function PersonaCard({ persona }: PersonaCardProps) {
           </div>
         </div>
       </CardHeader>
-              Voir détail
-            </Button>
-            <PersonaExport persona={persona} />
-          </div>
-        </div>
-      </CardHeader>
+             
 
       <CardContent className="space-y-6">
         <div className="bg-gradient-to-r from-indigo-50 to-teal-50 p-4 rounded-lg border-l-4 border-indigo-500">
