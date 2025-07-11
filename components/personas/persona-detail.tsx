@@ -157,6 +157,22 @@ export function PersonaDetail({ persona, onBack }: PersonaDetailProps) {
 
             <Card>
               <CardHeader>
+                <CardTitle className="flex items-center space-x-2">
+                  <Quote className="h-5 w-5 text-indigo-600" />
+                  <span>Citation personnelle</span>
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="bg-gradient-to-r from-indigo-50 to-teal-50 p-4 rounded-lg border-l-4 border-indigo-500">
+                  <p className="italic text-gray-700 font-medium">"{persona.quote}"</p>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <Card>
+              <CardHeader>
                 <CardTitle>Valeurs fondamentales</CardTitle>
               </CardHeader>
               <CardContent>
@@ -170,9 +186,7 @@ export function PersonaDetail({ persona, onBack }: PersonaDetailProps) {
                 </div>
               </CardContent>
             </Card>
-          </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center space-x-2">
