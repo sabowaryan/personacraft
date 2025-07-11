@@ -1,0 +1,314 @@
+/* Styles spécifiques aux composants PersonaCraft */
+
+/* Animations personnalisées */
+@keyframes persona-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes persona-scale-in {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes persona-slide-up {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Classes d'animation */
+.persona-fade-in {
+  animation: persona-fade-in 0.5s ease-out;
+}
+
+.persona-scale-in {
+  animation: persona-scale-in 0.3s ease-out;
+}
+
+.persona-slide-up {
+  animation: persona-slide-up 0.4s ease-out;
+}
+
+/* Styles pour les cartes persona */
+.persona-card {
+  transition: all 0.3s ease;
+}
+
+.persona-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+}
+
+/* Styles pour les badges */
+.persona-badge {
+  transition: all 0.2s ease;
+}
+
+.persona-badge:hover {
+  transform: scale(1.05);
+}
+
+/* Styles pour les boutons d'export */
+.export-button {
+  position: relative;
+  overflow: hidden;
+}
+
+.export-button::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transition: left 0.5s;
+}
+
+.export-button:hover::before {
+  left: 100%;
+}
+
+/* Styles pour les graphiques */
+.chart-container {
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+/* Styles pour les formulaires */
+.form-field-focus {
+  transition: all 0.2s ease;
+}
+
+.form-field-focus:focus-within {
+  transform: scale(1.02);
+}
+
+/* Styles pour les tooltips personnalisés */
+.persona-tooltip {
+  background: rgba(0, 0, 0, 0.9);
+  color: white;
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-size: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* Styles pour les états de chargement */
+.loading-skeleton {
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: loading-shimmer 1.5s infinite;
+}
+
+@keyframes loading-shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+/* Styles pour les notifications */
+.notification-enter {
+  opacity: 0;
+  transform: translateX(100%);
+}
+
+.notification-enter-active {
+  opacity: 1;
+  transform: translateX(0);
+  transition: all 0.3s ease;
+}
+
+.notification-exit {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.notification-exit-active {
+  opacity: 0;
+  transform: translateX(100%);
+  transition: all 0.3s ease;
+}
+
+/* Styles pour les modales */
+.modal-overlay {
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(4px);
+}
+
+.modal-content {
+  animation: persona-scale-in 0.3s ease-out;
+}
+
+/* Styles pour les barres de progression */
+.progress-bar {
+  background: linear-gradient(90deg, #6366f1, #14b8a6);
+  transition: width 0.3s ease;
+}
+
+/* Styles pour les tags/badges interactifs */
+.interactive-badge {
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.interactive-badge:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.interactive-badge:active {
+  transform: translateY(0);
+}
+
+/* Styles pour les sections collapsibles */
+.collapsible-content {
+  overflow: hidden;
+  transition: max-height 0.3s ease;
+}
+
+/* Styles pour les indicateurs de statut */
+.status-indicator {
+  position: relative;
+}
+
+.status-indicator::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  animation: pulse 2s infinite;
+}
+
+.status-indicator.online::before {
+  background: #10b981;
+}
+
+.status-indicator.offline::before {
+  background: #ef4444;
+}
+
+.status-indicator.processing::before {
+  background: #f59e0b;
+}
+
+/* Styles pour les grilles responsives */
+.persona-grid {
+  display: grid;
+  gap: 1.5rem;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+}
+
+@media (max-width: 768px) {
+  .persona-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Styles pour les boutons flottants */
+.floating-button {
+  position: fixed;
+  bottom: 2rem;
+  right: 2rem;
+  z-index: 50;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  transition: all 0.3s ease;
+}
+
+.floating-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+}
+
+/* Styles pour les dividers personnalisés */
+.persona-divider {
+  position: relative;
+  text-align: center;
+  margin: 2rem 0;
+}
+
+.persona-divider::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, #e5e7eb, transparent);
+}
+
+.persona-divider span {
+  background: white;
+  padding: 0 1rem;
+  color: #6b7280;
+  font-size: 0.875rem;
+}
+
+/* Styles pour les highlights */
+.highlight-text {
+  background: linear-gradient(120deg, #fef3c7 0%, #fef3c7 100%);
+  background-repeat: no-repeat;
+  background-size: 100% 0.2em;
+  background-position: 0 88%;
+  transition: background-size 0.25s ease-in;
+}
+
+.highlight-text:hover {
+  background-size: 100% 88%;
+}
+
+/* Styles pour les cartes avec effet glassmorphism */
+.glass-card {
+  background: rgba(255, 255, 255, 0.25);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+}
+
+/* Styles pour les transitions de page */
+.page-transition-enter {
+  opacity: 0;
+  transform: translateY(20px);
+}
+
+.page-transition-enter-active {
+  opacity: 1;
+  transform: translateY(0);
+  transition: all 0.3s ease;
+}
+
+.page-transition-exit {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.page-transition-exit-active {
+  opacity: 0;
+  transform: translateY(-20px);
+  transition: all 0.3s ease;
+}

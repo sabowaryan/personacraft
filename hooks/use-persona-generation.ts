@@ -2,7 +2,7 @@
 
 import { useState, useCallback, useEffect } from 'react';
 import { Persona, BriefFormData } from '@/lib/types/persona';
-import { generateMultiplePersonas } from '@/lib/utils/persona-generator';
+import { personaGenerator } from '@/lib/api/persona-generator';
 import { usePersonasStorage, useUsageStats, useBriefHistory } from './use-local-storage';
 
 export interface GenerationState {
@@ -97,8 +97,9 @@ export function usePersonaGeneration(): UsePersonaGenerationReturn {
         currentStep: 'Génération des personas avec IA...'
       });
 
-      const count = brief.generateMultiple ? 3 : 1;
-      const newPersonas = generateMultiplePersonas(brief, count);
+      // Utiliser le générateur de personas avec APIs réelles
+      const result = await personaGenerator.generatePersonas(brief);
+      const newPersonas = result.personas;
 
       await new Promise(resolve => setTimeout(resolve, 1500));
 
