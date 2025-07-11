@@ -5,16 +5,16 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Separator } from '@/components/ui/separator';
-import { Download, Share2, MapPin, Calendar, Quote } from 'lucide-react';
+import { Download, Share2, MapPin, Calendar, Quote, Eye } from 'lucide-react';
 import { Persona } from '@/lib/types/persona';
 import { PersonaExport } from './persona-export';
+import Link from 'next/link';
 
 interface PersonaCardProps {
   persona: Persona;
-  onViewDetail?: () => void;
 }
 
-export function PersonaCard({ persona, onViewDetail }: PersonaCardProps) {
+export function PersonaCard({ persona }: PersonaCardProps) {
 
   return (
     <Card className="w-full max-w-2xl mx-auto hover:shadow-lg transition-shadow duration-300">
@@ -42,8 +42,16 @@ export function PersonaCard({ persona, onViewDetail }: PersonaCardProps) {
             </div>
           </div>
           <div className="flex space-x-2">
-            <Button variant="outline" size="sm" onClick={onViewDetail}>
-              <Download className="h-4 w-4 mr-1" />
+            <Link href={`/personas/${persona.id}`}>
+              <Button variant="outline" size="sm">
+                <Eye className="h-4 w-4 mr-1" />
+                Voir détail
+              </Button>
+            </Link>
+            <PersonaExport persona={persona} />
+          </div>
+        </div>
+      </CardHeader>
               Voir détail
             </Button>
             <PersonaExport persona={persona} />

@@ -35,12 +35,31 @@ export default function PersonaPage() {
       setPersona(foundPersona);
       setLoading(false);
     } else {
-      // En production, faire un appel API pour récupérer le persona
-      // Pour la démo, simuler un chargement puis une erreur
-      setTimeout(() => {
+      // Essayer de charger depuis localStorage si pas trouvé dans le state
+      try {
+        const storedPersonas = localStorage.getItem('personacraft-personas');
+        if (storedPersonas) {
+          const parsedPersonas = JSON.parse(storedPersonas).map((p: any) => ({
+            ...p,
+            generatedAt: new Date(p.generatedAt)
+          }));
+          const foundStoredPersona = parsedPersonas.find((p: any) => p.id === personaId);
+          
+          if (foundStoredPersona) {
+            setPersona(foundStoredPersona);
+            setLoading(false);
+            return;
+          }
+        }
+        
+        // Si toujours pas trouvé
         setError('Persona non trouvé');
         setLoading(false);
-      }, 1000);
+      } catch (error) {
+        console.error('Erreur lors du chargement depuis localStorage:', error);
+        setError('Erreur lors du chargement du persona');
+        setLoading(false);
+      }
     }
   }, [personaId, personas]);
 
