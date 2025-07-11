@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { QlooClient } from '@/lib/api/qloo';
 
+
 // Types pour l'API Qloo
 interface QlooRequest {
   interests: string[];
@@ -43,7 +44,8 @@ export async function POST(request: NextRequest) {
     
     // En cas d'erreur, retourner des données simulées
     const qlooClient = new QlooClient(); // Sans clé API = mode simulation
-    const fallbackResponse = await qlooClient.getRecommendations(request.body);
+    const body: QlooRequest = await request.json();
+    const fallbackResponse = await qlooClient.getRecommendations(body);
     
     return NextResponse.json({
       ...fallbackResponse,
