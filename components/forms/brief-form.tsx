@@ -1,252 +1,340 @@
 'use client';
 
 import { useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useForm } from 'react-hook-form';
 import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Badge } from '@/components/ui/badge';
-import { X, Plus, Wand2 } from 'lucide-react';
-import { BriefFormData } from '@/lib/types/persona';
+import { Plus, X, Sparkles, Users, Target, AlertCircle, CheckCircle, Info } from 'lucide-react';
+import { cn } from '@/lib/utils';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { briefFormSchema, type BriefFormData } from '@/lib/utils/validators';
 
 interface BriefFormProps {
   onSubmit: (data: BriefFormData) => void;
-  isGenerating: boolean;
+  isLoading?: boolean;
 }
 
-const suggestedInterests = [
-  'Technologie', 'Voyages', 'Cuisine', 'Sport', 'Musique', 'Cinéma', 
-  'Lecture', 'Art', 'Mode', 'Écologie', 'Entrepreneuriat', 'Bien-être'
-];
+export function BriefForm({ onSubmit, isLoading = false }: BriefFormProps) {
+  const [currentInterest, setCurrentInterest] = useState('');
+  const [currentValue, setCurrentValue] = useState('');
 
-const suggestedValues = [
-  'Authenticité', 'Innovation', 'Durabilité', 'Qualité', 'Communauté', 
-  'Créativité', 'Éthique', 'Excellence', 'Simplicité', 'Diversité'
-];
-
-export function BriefForm({ onSubmit, isGenerating }: BriefFormProps) {
-  const [formData, setFormData] = useState<BriefFormData>({
-    description: '',
-    ageRange: '25-35',
-    location: '',
-    interests: [],
-    values: [],
-    generateMultiple: false
+  const form = useForm<BriefFormData>({
+    resolver: zodResolver(briefFormSchema),
+    defaultValues: {
+      description: '',
+      ageRange: '25-35',
+      location: '',
+      interests: [],
+      values: [],
+      generateMultiple: false
+    }
   });
 
-  const [customInterest, setCustomInterest] = useState('');
-  const [customValue, setCustomValue] = useState('');
+  const { register, handleSubmit, watch, setValue, formState: { errors } } = form;
+  const watchedInterests = watch('interests');
+  const watchedValues = watch('values');
+  const watchedDescription = watch('description');
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    onSubmit(formData);
-  };
+  // Validation en temps réel pour la description
+  const descriptionLength = watchedDescription?.length || 0;
+  const isDescriptionValid = descriptionLength >= 10 && descriptionLength <= 1000;
 
-  const addInterest = (interest: string) => {
-    if (interest && !formData.interests.includes(interest)) {
-      setFormData(prev => ({
-        ...prev,
-        interests: [...prev.interests, interest]
-      }));
+  const addInterest = () => {
+    if (currentInterest.trim() && !watchedInterests.includes(currentInterest.trim())) {
+      if (watchedInterests.length < 15) {
+        setValue('interests', [...watchedInterests, currentInterest.trim()]);
+        setCurrentInterest('');
+      }
     }
   };
 
   const removeInterest = (interest: string) => {
-    setFormData(prev => ({
-      ...prev,
-      interests: prev.interests.filter(i => i !== interest)
-    }));
+    setValue('interests', watchedInterests.filter(i => i !== interest));
   };
 
-  const addValue = (value: string) => {
-    if (value && !formData.values.includes(value)) {
-      setFormData(prev => ({
-        ...prev,
-        values: [...prev.values, value]
-      }));
+  const addValue = () => {
+    if (currentValue.trim() && !watchedValues.includes(currentValue.trim())) {
+      if (watchedValues.length < 10) {
+        setValue('values', [...watchedValues, currentValue.trim()]);
+        setCurrentValue('');
+      }
     }
   };
 
   const removeValue = (value: string) => {
-    setFormData(prev => ({
-      ...prev,
-      values: prev.values.filter(v => v !== value)
-    }));
+    setValue('values', watchedValues.filter(v => v !== value));
   };
 
-  const addCustomInterest = () => {
-    if (customInterest.trim()) {
-      addInterest(customInterest.trim());
-      setCustomInterest('');
-    }
-  };
-
-  const addCustomValue = () => {
-    if (customValue.trim()) {
-      addValue(customValue.trim());
-      setCustomValue('');
-    }
+  const handleFormSubmit = (data: BriefFormData) => {
+    // Les données sont déjà validées par Zod
+    onSubmit(data);
   };
 
   return (
     <Card className="w-full max-w-2xl mx-auto">
-      <CardHeader>
-        <CardTitle className="flex items-center space-x-2">
-          <Wand2 className="h-5 w-5 text-indigo-600" />
-          <span>Créer un brief persona</span>
+      <CardHeader className="text-center space-y-2">
+        <CardTitle className="text-2xl font-bold flex items-center justify-center space-x-2">
+          <Sparkles className="h-6 w-6 text-indigo-600" />
+          <span>Créer un Persona</span>
         </CardTitle>
+        <p className="text-gray-600">
+          Décrivez votre audience cible pour générer un persona détaillé et réaliste
+        </p>
       </CardHeader>
-      <CardContent>
-        <form onSubmit={handleSubmit} className="space-y-6">
+
+      <CardContent className="space-y-6">
+        <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-6">
+          
+          {/* Description de l'audience */}
           <div className="space-y-2">
-            <Label htmlFor="description">Description du projet</Label>
+            <label className="text-sm font-medium flex items-center space-x-2">
+              <Users className="h-4 w-4" />
+              <span>Description de l'audience cible</span>
+              <span className="text-red-500">*</span>
+            </label>
             <Textarea
-              id="description"
-              placeholder="Décrivez votre projet, produit ou service..."
-              value={formData.description}
-              onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
-              className="min-h-[100px]"
-              required
+              {...register('description')}
+              placeholder="Décrivez votre audience cible en détail : qui sont-ils, que font-ils, quels sont leurs besoins..."
+              className={cn(
+                "min-h-[100px] resize-none",
+                errors.description && "border-red-500 focus-visible:ring-red-500"
+              )}
+              disabled={isLoading}
             />
+            
+            {/* Compteur de caractères avec validation visuelle */}
+            <div className="flex justify-between items-center text-xs">
+              <div className="flex items-center space-x-2">
+                {isDescriptionValid ? (
+                  <CheckCircle className="h-3 w-3 text-green-500" />
+                ) : (
+                  <AlertCircle className="h-3 w-3 text-amber-500" />
+                )}
+                <span className={cn(
+                  descriptionLength < 10 ? "text-amber-600" :
+                  descriptionLength > 1000 ? "text-red-600" :
+                  "text-green-600"
+                )}>
+                  {descriptionLength}/1000 caractères
+                </span>
+              </div>
+              {descriptionLength < 10 && (
+                <span className="text-amber-600">
+                  {10 - descriptionLength} caractères minimum requis
+                </span>
+              )}
+            </div>
+            
+            {errors.description && (
+              <Alert variant="destructive">
+                <AlertCircle className="h-4 w-4" />
+                <AlertDescription>{errors.description.message}</AlertDescription>
+              </Alert>
+            )}
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="ageRange">Tranche d'âge</Label>
-              <select
-                id="ageRange"
-                value={formData.ageRange}
-                onChange={(e) => setFormData(prev => ({ ...prev, ageRange: e.target.value }))}
-                className="w-full p-2 border border-border rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+          {/* Tranche d'âge */}
+          <div className="space-y-2">
+            <label className="text-sm font-medium flex items-center space-x-2">
+              <Target className="h-4 w-4" />
+              <span>Tranche d'âge</span>
+              <span className="text-red-500">*</span>
+            </label>
+            <Select 
+              onValueChange={(value) => setValue('ageRange', value)}
+              defaultValue="25-35"
+              disabled={isLoading}
+            >
+              <SelectTrigger className={cn(errors.ageRange && "border-red-500")}>
+                <SelectValue placeholder="Sélectionner une tranche d'âge" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="18-25">18-25 ans</SelectItem>
+                <SelectItem value="25-35">25-35 ans</SelectItem>
+                <SelectItem value="35-45">35-45 ans</SelectItem>
+                <SelectItem value="45-55">45-55 ans</SelectItem>
+                <SelectItem value="55-65">55-65 ans</SelectItem>
+                <SelectItem value="65+">65+ ans</SelectItem>
+              </SelectContent>
+            </Select>
+            {errors.ageRange && (
+              <Alert variant="destructive">
+                <AlertCircle className="h-4 w-4" />
+                <AlertDescription>{errors.ageRange.message}</AlertDescription>
+              </Alert>
+            )}
+          </div>
+
+          {/* Localisation */}
+          <div className="space-y-2">
+            <label className="text-sm font-medium">Localisation (optionnel)</label>
+            <Input
+              {...register('location')}
+              placeholder="ex: Paris, France ou Europe"
+              className={cn(errors.location && "border-red-500")}
+              disabled={isLoading}
+            />
+            {errors.location && (
+              <Alert variant="destructive">
+                <AlertCircle className="h-4 w-4" />
+                <AlertDescription>{errors.location.message}</AlertDescription>
+              </Alert>
+            )}
+          </div>
+
+          {/* Centres d'intérêt */}
+          <div className="space-y-3">
+            <label className="text-sm font-medium flex items-center justify-between">
+              <span className="flex items-center space-x-2">
+                <span>Centres d'intérêt</span>
+                <span className="text-red-500">*</span>
+              </span>
+              <span className="text-xs text-gray-500">
+                {watchedInterests.length}/15
+              </span>
+            </label>
+            
+            <div className="flex space-x-2">
+              <Input
+                value={currentInterest}
+                onChange={(e) => setCurrentInterest(e.target.value)}
+                placeholder="Ajouter un centre d'intérêt"
+                onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addInterest())}
+                className="flex-1"
+                disabled={isLoading || watchedInterests.length >= 15}
+              />
+              <Button 
+                type="button" 
+                onClick={addInterest}
+                disabled={!currentInterest.trim() || watchedInterests.length >= 15 || isLoading}
+                size="sm"
               >
-                <option value="18-25">18-25 ans</option>
-                <option value="25-35">25-35 ans</option>
-                <option value="35-45">35-45 ans</option>
-                <option value="45-55">45-55 ans</option>
-                <option value="55-65">55-65 ans</option>
-                <option value="65+">65+ ans</option>
-              </select>
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="location">Localisation</Label>
-              <Input
-                id="location"
-                placeholder="Ex: Paris, France"
-                value={formData.location}
-                onChange={(e) => setFormData(prev => ({ ...prev, location: e.target.value }))}
-              />
-            </div>
-          </div>
-
-          <div className="space-y-3">
-            <Label>Centres d'intérêt</Label>
-            <div className="flex flex-wrap gap-2">
-              {suggestedInterests.map(interest => (
-                <Badge
-                  key={interest}
-                  variant={formData.interests.includes(interest) ? "default" : "outline"}
-                  className="cursor-pointer hover:bg-indigo-100"
-                  onClick={() => formData.interests.includes(interest) ? removeInterest(interest) : addInterest(interest)}
-                >
-                  {interest}
-                </Badge>
-              ))}
-            </div>
-            <div className="flex space-x-2">
-              <Input
-                placeholder="Ajouter un intérêt personnalisé"
-                value={customInterest}
-                onChange={(e) => setCustomInterest(e.target.value)}
-                onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addCustomInterest())}
-              />
-              <Button type="button" variant="outline" onClick={addCustomInterest}>
                 <Plus className="h-4 w-4" />
               </Button>
             </div>
-            {formData.interests.length > 0 && (
-              <div className="flex flex-wrap gap-2">
-                {formData.interests.map(interest => (
-                  <Badge key={interest} variant="default" className="flex items-center space-x-1">
-                    <span>{interest}</span>
-                    <X 
-                      className="h-3 w-3 cursor-pointer hover:text-red-500" 
-                      onClick={() => removeInterest(interest)}
-                    />
-                  </Badge>
-                ))}
-              </div>
-            )}
-          </div>
 
-          <div className="space-y-3">
-            <Label>Valeurs importantes</Label>
             <div className="flex flex-wrap gap-2">
-              {suggestedValues.map(value => (
-                <Badge
-                  key={value}
-                  variant={formData.values.includes(value) ? "default" : "outline"}
-                  className="cursor-pointer hover:bg-indigo-100"
-                  onClick={() => formData.values.includes(value) ? removeValue(value) : addValue(value)}
-                >
-                  {value}
+              {watchedInterests.map((interest) => (
+                <Badge key={interest} variant="secondary" className="flex items-center space-x-1">
+                  <span>{interest}</span>
+                  <button
+                    type="button"
+                    onClick={() => removeInterest(interest)}
+                    className="ml-1 hover:text-red-500"
+                    disabled={isLoading}
+                  >
+                    <X className="h-3 w-3" />
+                  </button>
                 </Badge>
               ))}
             </div>
-            <div className="flex space-x-2">
-              <Input
-                placeholder="Ajouter une valeur personnalisée"
-                value={customValue}
-                onChange={(e) => setCustomValue(e.target.value)}
-                onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addCustomValue())}
-              />
-              <Button type="button" variant="outline" onClick={addCustomValue}>
-                <Plus className="h-4 w-4" />
-              </Button>
-            </div>
-            {formData.values.length > 0 && (
-              <div className="flex flex-wrap gap-2">
-                {formData.values.map(value => (
-                  <Badge key={value} variant="default" className="flex items-center space-x-1">
-                    <span>{value}</span>
-                    <X 
-                      className="h-3 w-3 cursor-pointer hover:text-red-500" 
-                      onClick={() => removeValue(value)}
-                    />
-                  </Badge>
-                ))}
-              </div>
+
+            {errors.interests && (
+              <Alert variant="destructive">
+                <AlertCircle className="h-4 w-4" />
+                <AlertDescription>{errors.interests.message}</AlertDescription>
+              </Alert>
             )}
           </div>
 
-          <div className="flex items-center space-x-2">
-            <Checkbox
-              id="generateMultiple"
-              checked={formData.generateMultiple}
-              onCheckedChange={(checked) => setFormData(prev => ({ ...prev, generateMultiple: checked as boolean }))}
-            />
-            <Label htmlFor="generateMultiple">
-              Générer plusieurs personas (3 variations)
-            </Label>
+          {/* Valeurs */}
+          <div className="space-y-3">
+            <label className="text-sm font-medium flex items-center justify-between">
+              <span className="flex items-center space-x-2">
+                <span>Valeurs importantes</span>
+                <span className="text-red-500">*</span>
+              </span>
+              <span className="text-xs text-gray-500">
+                {watchedValues.length}/10
+              </span>
+            </label>
+            
+            <div className="flex space-x-2">
+              <Input
+                value={currentValue}
+                onChange={(e) => setCurrentValue(e.target.value)}
+                placeholder="Ajouter une valeur"
+                onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addValue())}
+                className="flex-1"
+                disabled={isLoading || watchedValues.length >= 10}
+              />
+              <Button 
+                type="button" 
+                onClick={addValue}
+                disabled={!currentValue.trim() || watchedValues.length >= 10 || isLoading}
+                size="sm"
+              >
+                <Plus className="h-4 w-4" />
+              </Button>
+            </div>
+
+            <div className="flex flex-wrap gap-2">
+              {watchedValues.map((value) => (
+                <Badge key={value} variant="outline" className="flex items-center space-x-1">
+                  <span>{value}</span>
+                  <button
+                    type="button"
+                    onClick={() => removeValue(value)}
+                    className="ml-1 hover:text-red-500"
+                    disabled={isLoading}
+                  >
+                    <X className="h-3 w-3" />
+                  </button>
+                </Badge>
+              ))}
+            </div>
+
+            {errors.values && (
+              <Alert variant="destructive">
+                <AlertCircle className="h-4 w-4" />
+                <AlertDescription>{errors.values.message}</AlertDescription>
+              </Alert>
+            )}
           </div>
 
+          {/* Options avancées */}
+          <div className="space-y-3">
+            <div className="flex items-center space-x-2">
+              <Checkbox
+                {...register('generateMultiple')}
+                id="generateMultiple"
+                disabled={isLoading}
+              />
+              <label htmlFor="generateMultiple" className="text-sm font-medium">
+                Générer plusieurs personas (3-5 variations)
+              </label>
+            </div>
+            
+            <Alert>
+              <Info className="h-4 w-4" />
+              <AlertDescription>
+                <strong>Conseil :</strong> Plus votre description est détaillée, plus le persona généré sera précis et utile pour vos campagnes marketing.
+              </AlertDescription>
+            </Alert>
+          </div>
+
+          {/* Bouton de soumission */}
           <Button 
             type="submit" 
-            className="w-full bg-gradient-to-r from-indigo-600 to-teal-600 hover:from-indigo-700 hover:to-teal-700"
-            disabled={isGenerating || !formData.description || formData.interests.length === 0}
+            className="w-full h-12 text-lg font-semibold"
+            disabled={isLoading || Object.keys(errors).length > 0}
           >
-            {isGenerating ? (
-              <>
-                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                Génération en cours...
-              </>
+            {isLoading ? (
+              <div className="flex items-center space-x-2">
+                <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                <span>Génération en cours...</span>
+              </div>
             ) : (
-              <>
-                <Wand2 className="h-4 w-4 mr-2" />
-                Générer les personas
-              </>
+              <div className="flex items-center space-x-2">
+                <Sparkles className="h-5 w-5" />
+                <span>Créer le Persona</span>
+              </div>
             )}
           </Button>
         </form>

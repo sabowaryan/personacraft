@@ -1,16 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { QlooClient } from '@/lib/api/qloo';
-
-
-// Types pour l'API Qloo
-interface QlooRequest {
-  interests: string[];
-  demographics: {
-    age: number;
-    location: string;
-  };
-  categories: string[];
-}
+import { QlooRequest } from '@/lib/types/qloo';
 
 export async function POST(request: NextRequest) {
   try {

@@ -103,7 +103,30 @@ export class PersonaGenerator {
     // Ajouter de la variabilité pour les personas multiples
     const variationPrompt = index > 0 ? `\n\nCrée une variation unique et différente des personas précédents, avec une personnalité et des caractéristiques distinctes.` : '';
 
-    const personaData = await this.geminiClient.generatePersona(prompt + variationPrompt, culturalData);
+    // Construire la requête Gemini selon le type attendu
+    const geminiRequest = {
+      prompt: prompt + variationPrompt,
+      persona_type: 'marketing' as const,
+      consistency_check: true,
+      context: {
+        user_context: {
+          description: brief.description,
+          interests: brief.interests,
+          values: brief.values,
+          ageRange: brief.ageRange,
+          location: brief.location
+        },
+        cultural_data: culturalData
+      },
+      parameters: {
+        temperature: 0.8,
+        max_tokens: 2000,
+        format: 'json' as const
+      }
+    };
+
+    const response = await this.geminiClient.generatePersona(geminiRequest, culturalData);
+    const personaData = response.persona_data;
 
     // Validation et enrichissement des données
     if (!GeminiClient.validatePersonaResponse(personaData)) {
@@ -113,7 +136,32 @@ export class PersonaGenerator {
     // Construction du persona final
     const persona: Persona = {
       id: crypto.randomUUID(),
-      ...personaData,
+      name: personaData.name,
+      age: personaData.age,
+      location: personaData.location,
+      bio: personaData.bio,
+      values: personaData.values,
+      quote: personaData.quote,
+      interests: {
+        music: personaData.interests.music || [],
+        brands: personaData.interests.brands || [],
+        movies: personaData.interests.movies || [],
+        food: personaData.interests.food || [],
+        books: personaData.interests.books || [],
+        lifestyle: personaData.interests.lifestyle || []
+      },
+      communication: {
+        preferredChannels: personaData.communication.preferredChannels || [],
+        tone: personaData.communication.tone || '',
+        contentTypes: personaData.communication.contentTypes || [],
+        frequency: personaData.communication.frequency || ''
+      },
+      marketing: {
+        painPoints: personaData.marketing.painPoints || [],
+        motivations: personaData.marketing.motivations || [],
+        buyingBehavior: personaData.marketing.buyingBehavior || '',
+        influences: personaData.marketing.influences || []
+      },
       generatedAt: new Date(),
       sources: ['Qloo Taste AI', 'Google Gemini', 'Analyse comportementale'],
       avatar: this.generateAvatarUrl()

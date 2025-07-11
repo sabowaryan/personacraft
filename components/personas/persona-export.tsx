@@ -18,6 +18,7 @@ import {
   DialogTrigger,
 } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
+import { Progress } from '@/components/ui/progress';
 import { 
   Download, 
   FileText, 
@@ -29,10 +30,11 @@ import {
   Linkedin,
   Twitter,
   CheckCircle,
-  ExternalLink
+  ExternalLink,
+  Loader2
 } from 'lucide-react';
 import { Persona } from '@/lib/types/persona';
-import { exportToPDF, exportToCSV } from '@/lib/utils/export';
+import { useExport } from '@/hooks/use-export';
 
 interface PersonaExportProps {
   persona?: Persona;
@@ -41,26 +43,28 @@ interface PersonaExportProps {
 }
 
 export function PersonaExport({ persona, personas, variant = 'single' }: PersonaExportProps) {
-  const [isExporting, setIsExporting] = useState(false);
-  const [exportSuccess, setExportSuccess] = useState(false);
+  const { 
+    exportState, 
+    exportPersona, 
+    exportPersonas,
+    resetExportState 
+  } = useExport();
+  
   const [shareDialogOpen, setShareDialogOpen] = useState(false);
   const [copied, setCopied] = useState(false);
 
   const handleExport = async (format: 'pdf' | 'csv') => {
-    setIsExporting(true);
+    resetExportState();
+    
     try {
       if (format === 'pdf' && persona) {
-        await exportToPDF(persona);
+        await exportPersona(persona, { format: 'pdf' });
       } else if (format === 'csv') {
         const dataToExport = personas || (persona ? [persona] : []);
-        await exportToCSV(dataToExport);
+        await exportPersonas(dataToExport, { format: 'csv' });
       }
-      setExportSuccess(true);
-      setTimeout(() => setExportSuccess(false), 3000);
     } catch (error) {
       console.error('Erreur lors de l\'export:', error);
-    } finally {
-      setIsExporting(false);
     }
   };
 
@@ -103,17 +107,17 @@ export function PersonaExport({ persona, personas, variant = 'single' }: Persona
   if (variant === 'multiple') {
     return (
       <div className="flex space-x-2">
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="outline" disabled={isExporting}>
-              {isExporting ? (
-                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-gray-900 mr-2"></div>
-              ) : (
-                <Download className="h-4 w-4 mr-2" />
-              )}
-              Exporter tout
-            </Button>
-          </DropdownMenuTrigger>
+              <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button variant="outline" disabled={exportState.status === 'generating'}>
+            {exportState.status === 'generating' ? (
+              <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+            ) : (
+              <Download className="h-4 w-4 mr-2" />
+            )}
+            Exporter tout
+          </Button>
+        </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
             <DropdownMenuItem onClick={() => handleExport('csv')}>
               <Table className="h-4 w-4 mr-2" />
@@ -122,10 +126,23 @@ export function PersonaExport({ persona, personas, variant = 'single' }: Persona
           </DropdownMenuContent>
         </DropdownMenu>
 
-        {exportSuccess && (
+        {exportState.status === 'generating' && (
+          <div className="flex items-center space-x-2 text-blue-600">
+            <Progress value={exportState.progress} className="w-20" />
+            <span className="text-sm">{exportState.progress}%</span>
+          </div>
+        )}
+        
+        {exportState.status === 'success' && (
           <div className="flex items-center space-x-2 text-green-600">
             <CheckCircle className="h-4 w-4" />
             <span className="text-sm">Export réussi!</span>
+          </div>
+        )}
+        
+        {exportState.status === 'error' && (
+          <div className="flex items-center space-x-2 text-red-600">
+            <span className="text-sm">Erreur: {exportState.error}</span>
           </div>
         )}
       </div>
@@ -137,9 +154,9 @@ export function PersonaExport({ persona, personas, variant = 'single' }: Persona
       {/* Bouton d'export */}
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button variant="outline" disabled={isExporting}>
-            {isExporting ? (
-              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-gray-900 mr-2"></div>
+          <Button variant="outline" disabled={exportState.status === 'generating'}>
+            {exportState.status === 'generating' ? (
+              <Loader2 className="h-4 w-4 mr-2 animate-spin" />
             ) : (
               <Download className="h-4 w-4 mr-2" />
             )}
@@ -250,11 +267,24 @@ export function PersonaExport({ persona, personas, variant = 'single' }: Persona
         </DialogContent>
       </Dialog>
 
-      {/* Indicateur de succès */}
-      {exportSuccess && (
+      {/* Indicateurs d'état */}
+             {exportState.status === 'generating' && (
+        <div className="flex items-center space-x-2 text-blue-600">
+          <Progress value={exportState.progress} className="w-24" />
+          <span className="text-sm">{exportState.progress}%</span>
+        </div>
+      )}
+      
+      {exportState.status === 'success' && (
         <div className="flex items-center space-x-2 text-green-600">
           <CheckCircle className="h-4 w-4" />
           <span className="text-sm">Export réussi!</span>
+        </div>
+      )}
+      
+      {exportState.status === 'error' && (
+        <div className="flex items-center space-x-2 text-red-600">
+          <span className="text-sm">Erreur: {exportState.error}</span>
         </div>
       )}
     </div>

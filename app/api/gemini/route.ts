@@ -1,16 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { GeminiClient } from '@/lib/api/gemini';
-
-// Types pour l'API Gemini
-interface GeminiRequest {
-  prompt: string;
-  context?: any;
-  parameters?: {
-    temperature?: number;
-    maxTokens?: number;
-    format?: 'json' | 'text';
-  };
-}
+import { GeminiRequest } from '@/lib/types/gemini';
 
 export async function POST(request: NextRequest) {
   try {

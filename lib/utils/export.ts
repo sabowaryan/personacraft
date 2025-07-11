@@ -1,8 +1,104 @@
 import { Persona } from '../types/persona';
+import { downloadPersonaPDF } from './pdf-generator';
+import { CSVExporter } from './csv-exporter';
 
-export async function exportToPDF(persona: Persona): Promise<void> {
-  // Simulate PDF generation
-  const content = `
+// Export PDF enrichi avec le vrai générateur
+export async function exportToPDF(persona: Persona, options?: {
+  includeCharts?: boolean;
+  includeMetadata?: boolean;
+  theme?: 'light' | 'dark' | 'brand';
+}): Promise<void> {
+  try {
+    // Utiliser la fonction utilitaire pour télécharger le PDF
+    downloadPersonaPDF(persona, {
+      format: 'a4',
+      orientation: 'portrait',
+      includeCharts: options?.includeCharts || false,
+      includeMetadata: options?.includeMetadata || true,
+      theme: options?.theme || 'brand'
+    });
+
+  } catch (error) {
+    console.error('Erreur génération PDF:', error);
+    
+    // Fallback vers l'ancien système en cas d'erreur
+    const content = generateFallbackContent(persona);
+    downloadAsText(content, `${persona.name.replace(/\s+/g, '_')}_persona.txt`);
+  }
+}
+
+// Export CSV enrichi avec le vrai exporter
+export async function exportToCSV(personas: Persona[], options?: {
+  delimiter?: ',' | ';' | '\t';
+  includeMetadata?: boolean;
+  flattenArrays?: boolean;
+}): Promise<void> {
+  try {
+    const csvExporter = new CSVExporter({
+      delimiter: options?.delimiter || ',',
+      includeHeaders: true,
+      includeMetadata: options?.includeMetadata || true,
+      flattenArrays: options?.flattenArrays || true,
+      dateFormat: 'locale'
+    });
+
+    const csvContent = csvExporter.exportPersonas(personas);
+    const filename = `personas_export_${new Date().toISOString().split('T')[0]}.csv`;
+    
+    downloadAsText(csvContent, filename, 'text/csv');
+
+  } catch (error) {
+    console.error('Erreur export CSV:', error);
+    
+    // Fallback vers l'ancien système
+    await exportToCSVFallback(personas);
+  }
+}
+
+// Export JSON pour les nouvelles fonctionnalités
+export async function exportToJSON(personas: Persona[], options?: {
+  includeMetadata?: boolean;
+  prettify?: boolean;
+}): Promise<void> {
+  const data = {
+    metadata: {
+      exported_at: new Date().toISOString(),
+      total_personas: personas.length,
+      exported_by: 'PersonaCraft v2.0',
+      ...(options?.includeMetadata && {
+        export_options: options
+      })
+    },
+    personas: personas.map(persona => ({
+      ...persona,
+      generatedAt: persona.generatedAt.toISOString()
+    }))
+  };
+
+  const jsonContent = options?.prettify 
+    ? JSON.stringify(data, null, 2) 
+    : JSON.stringify(data);
+  
+  const filename = `personas_export_${new Date().toISOString().split('T')[0]}.json`;
+  downloadAsText(jsonContent, filename, 'application/json');
+}
+
+// Fonctions utilitaires
+function downloadAsText(content: string, filename: string, mimeType: string = 'text/plain'): void {
+  const blob = new Blob([content], { type: mimeType });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+// Fallback functions (ancien système)
+function generateFallbackContent(persona: Persona): string {
+  return `
 PERSONA: ${persona.name}
 
 Âge: ${persona.age} ans
@@ -37,19 +133,9 @@ Marketing:
 Généré le: ${persona.generatedAt.toLocaleDateString()}
 Sources: ${persona.sources.join(', ')}
   `;
-
-  const blob = new Blob([content], { type: 'text/plain' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = `${persona.name.replace(/\s+/g, '_')}_persona.txt`;
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-  URL.revokeObjectURL(url);
 }
 
-export async function exportToCSV(personas: Persona[]): Promise<void> {
+async function exportToCSVFallback(personas: Persona[]): Promise<void> {
   const headers = [
     'Name', 'Age', 'Location', 'Bio', 'Values', 'Quote',
     'Music', 'Brands', 'Movies', 'Food', 'Books', 'Lifestyle',
@@ -87,13 +173,5 @@ export async function exportToCSV(personas: Persona[]): Promise<void> {
     .map(row => row.map(field => `"${field.replace(/"/g, '""')}"`).join(','))
     .join('\n');
 
-  const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = `personas_export_${new Date().toISOString().split('T')[0]}.csv`;
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-  URL.revokeObjectURL(url);
+  downloadAsText(csvContent, `personas_export_${new Date().toISOString().split('T')[0]}.csv`, 'text/csv');
 }

@@ -254,7 +254,7 @@ export function PersonaDetail({ persona, onBack }: PersonaDetailProps) {
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-2">
-                    {items.map((item, index) => (
+                    {items.map((item: string, index: number) => (
                       <div key={item} className="flex items-center justify-between">
                         <span className="text-sm">{item}</span>
                         <div className="flex items-center space-x-1">

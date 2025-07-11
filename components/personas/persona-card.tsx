@@ -1,168 +1,205 @@
 'use client';
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Separator } from '@/components/ui/separator';
-import { Download, Share2, MapPin, Calendar, Quote, Eye } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { 
+  MapPin, 
+  Calendar, 
+  Quote, 
+  Heart,
+  MessageCircle,
+  Target,
+  Download,
+  Eye,
+  Clock
+} from 'lucide-react';
 import { Persona } from '@/lib/types/persona';
-import { PersonaExport } from './persona-export';
-import Link from 'next/link';
+import { formatDate, formatAge, formatList, truncateText } from '@/lib/utils/formatting';
 
 interface PersonaCardProps {
   persona: Persona;
+  onView?: () => void;
+  onExport?: () => void;
+  variant?: 'default' | 'compact' | 'detailed';
+  showMetadata?: boolean;
 }
 
-export function PersonaCard({ persona }: PersonaCardProps) {
+export function PersonaCard({ 
+  persona, 
+  onView, 
+  onExport, 
+  variant = 'default',
+  showMetadata = true 
+}: PersonaCardProps) {
+  const isCompact = variant === 'compact';
+  const isDetailed = variant === 'detailed';
 
   return (
-    <Card className="w-full max-w-2xl mx-auto hover:shadow-lg transition-shadow duration-300">
-      <CardHeader>
+    <Card className="h-full hover:shadow-lg transition-all duration-200 group">
+      <CardHeader className={isCompact ? "pb-3" : "pb-4"}>
         <div className="flex items-start justify-between">
-          <div className="flex items-center space-x-4">
-            <Avatar className="w-16 h-16">
+          <div className="flex items-center space-x-3">
+            <Avatar className={isCompact ? "h-10 w-10" : "h-12 w-12"}>
               <AvatarImage src={persona.avatar} alt={persona.name} />
-              <AvatarFallback className="bg-gradient-to-br from-indigo-500 to-teal-500 text-white text-lg">
+              <AvatarFallback className="bg-gradient-to-br from-indigo-500 to-teal-500 text-white font-semibold">
                 {persona.name.split(' ').map(n => n[0]).join('')}
               </AvatarFallback>
             </Avatar>
             <div>
-              <CardTitle className="text-xl">{persona.name}</CardTitle>
-              <div className="flex items-center space-x-4 text-sm text-muted-foreground mt-1">
-                <span className="flex items-center space-x-1">
+              <CardTitle className={isCompact ? "text-lg" : "text-xl"}>{persona.name}</CardTitle>
+              <div className="flex items-center space-x-3 text-sm text-gray-600 mt-1">
+                <div className="flex items-center space-x-1">
                   <Calendar className="h-3 w-3" />
-                  <span>{persona.age} ans</span>
-                </span>
-                <span className="flex items-center space-x-1">
-                  <MapPin className="h-3 w-3" />
-                  <span>{persona.location}</span>
-                </span>
+                  <span>{formatAge(persona.age)}</span>
+                </div>
+                {persona.location && (
+                  <div className="flex items-center space-x-1">
+                    <MapPin className="h-3 w-3" />
+                    <span>{persona.location}</span>
+                  </div>
+                )}
               </div>
             </div>
           </div>
-          <div className="flex space-x-2">
-            <Link href={`/personas/${persona.id}`}>
-              <Button variant="outline" size="sm">
-                <Eye className="h-4 w-4 mr-1" />
-                Voir détail
-              </Button>
-            </Link>
-            <PersonaExport persona={persona} />
-          </div>
+          
+          {showMetadata && (
+            <div className="flex items-center space-x-1 text-xs text-gray-500">
+              <Clock className="h-3 w-3" />
+              <span>{formatDate(persona.generatedAt, 'relative')}</span>
+            </div>
+          )}
         </div>
       </CardHeader>
-             
 
-      <CardContent className="space-y-6">
-        <div className="bg-gradient-to-r from-indigo-50 to-teal-50 p-4 rounded-lg border-l-4 border-indigo-500">
-          <div className="flex items-start space-x-2">
-            <Quote className="h-5 w-5 text-indigo-600 mt-0.5 flex-shrink-0" />
+      <CardContent className="space-y-4">
+        {/* Bio */}
+        <div>
+          <p className="text-gray-700 leading-relaxed">
+            {isCompact ? truncateText(persona.bio, 120) : persona.bio}
+          </p>
+        </div>
+
+        {/* Citation */}
+        {!isCompact && persona.quote && (
+          <div className="bg-gradient-to-r from-indigo-50 to-teal-50 p-3 rounded-lg border-l-3 border-indigo-400">
+            <Quote className="h-4 w-4 text-indigo-600 mb-2" />
             <p className="text-sm italic text-gray-700">"{persona.quote}"</p>
           </div>
-        </div>
+        )}
 
-        <div>
-          <h4 className="font-semibold mb-2">Biographie</h4>
-          <p className="text-sm text-muted-foreground leading-relaxed">{persona.bio}</p>
-        </div>
-
-        <div>
-          <h4 className="font-semibold mb-2">Valeurs importantes</h4>
-          <div className="flex flex-wrap gap-2">
-            {persona.values.map(value => (
-              <Badge key={value} variant="secondary" className="bg-indigo-100 text-indigo-800">
+        {/* Valeurs */}
+        <div className="space-y-2">
+          <div className="flex items-center space-x-2">
+            <Heart className="h-4 w-4 text-red-500" />
+            <span className="text-sm font-medium text-gray-700">Valeurs</span>
+          </div>
+          <div className="flex flex-wrap gap-1">
+            {persona.values.slice(0, isCompact ? 3 : undefined).map((value) => (
+              <Badge key={value} variant="secondary" className="text-xs">
                 {value}
               </Badge>
             ))}
+            {isCompact && persona.values.length > 3 && (
+              <Badge variant="outline" className="text-xs">
+                +{persona.values.length - 3}
+              </Badge>
+            )}
           </div>
         </div>
 
-        <Separator />
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <h4 className="font-semibold mb-2">Centres d'intérêt</h4>
-            <div className="space-y-2">
-              <div>
-                <span className="text-xs font-medium text-muted-foreground">Musique</span>
-                <div className="flex flex-wrap gap-1 mt-1">
-                  {persona.interests.music.map(item => (
-                    <Badge key={item} variant="outline" className="text-xs">{item}</Badge>
-                  ))}
-                </div>
-              </div>
-              <div>
-                <span className="text-xs font-medium text-muted-foreground">Marques</span>
-                <div className="flex flex-wrap gap-1 mt-1">
-                  {persona.interests.brands.slice(0, 3).map(item => (
-                    <Badge key={item} variant="outline" className="text-xs">{item}</Badge>
-                  ))}
-                </div>
-              </div>
-              <div>
-                <span className="text-xs font-medium text-muted-foreground">Lifestyle</span>
-                <div className="flex flex-wrap gap-1 mt-1">
-                  {persona.interests.lifestyle.slice(0, 3).map(item => (
-                    <Badge key={item} variant="outline" className="text-xs">{item}</Badge>
-                  ))}
-                </div>
-              </div>
-            </div>
+        {/* Centres d'intérêt */}
+        <div className="space-y-2">
+          <div className="flex items-center space-x-2">
+            <Target className="h-4 w-4 text-blue-500" />
+            <span className="text-sm font-medium text-gray-700">Intérêts principaux</span>
           </div>
-
-          <div>
-            <h4 className="font-semibold mb-2">Communication</h4>
-            <div className="space-y-2 text-sm">
-              <div>
-                <span className="font-medium">Canaux préférés:</span>
-                <div className="flex flex-wrap gap-1 mt-1">
-                  {persona.communication.preferredChannels.map(channel => (
-                    <Badge key={channel} variant="outline" className="text-xs">{channel}</Badge>
-                  ))}
+          <div className="space-y-1">
+            {isDetailed ? (
+              // Vue détaillée avec toutes les catégories
+              <div className="grid grid-cols-2 gap-2 text-xs">
+                <div>
+                  <span className="font-medium text-gray-600">Musique:</span>
+                  <p className="text-gray-700">{formatList(persona.interests.music, 2)}</p>
+                </div>
+                <div>
+                  <span className="font-medium text-gray-600">Marques:</span>
+                  <p className="text-gray-700">{formatList(persona.interests.brands, 2)}</p>
+                </div>
+                <div>
+                  <span className="font-medium text-gray-600">Films:</span>
+                  <p className="text-gray-700">{formatList(persona.interests.movies, 2)}</p>
+                </div>
+                <div>
+                  <span className="font-medium text-gray-600">Cuisine:</span>
+                  <p className="text-gray-700">{formatList(persona.interests.food, 2)}</p>
                 </div>
               </div>
-              <div>
-                <span className="font-medium">Ton:</span>
-                <span className="ml-2 text-muted-foreground">{persona.communication.tone}</span>
-              </div>
-              <div>
-                <span className="font-medium">Fréquence:</span>
-                <span className="ml-2 text-muted-foreground">{persona.communication.frequency}</span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <Separator />
-
-        <div>
-          <h4 className="font-semibold mb-2">Profil Marketing</h4>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-            <div>
-              <span className="font-medium">Points de douleur:</span>
-              <ul className="mt-1 space-y-1">
-                {persona.marketing.painPoints.slice(0, 2).map(point => (
-                  <li key={point} className="text-muted-foreground text-xs">• {point}</li>
+            ) : (
+              // Vue simplifiée avec badges
+              <div className="flex flex-wrap gap-1">
+                {[
+                  ...persona.interests.music.slice(0, 2),
+                  ...persona.interests.brands.slice(0, 1),
+                  ...persona.interests.lifestyle.slice(0, 1)
+                ].slice(0, isCompact ? 3 : 4).map((interest, index) => (
+                  <Badge key={index} variant="outline" className="text-xs">
+                    {interest}
+                  </Badge>
                 ))}
-              </ul>
-            </div>
-            <div>
-              <span className="font-medium">Motivations:</span>
-              <ul className="mt-1 space-y-1">
-                {persona.marketing.motivations.slice(0, 2).map(motivation => (
-                  <li key={motivation} className="text-muted-foreground text-xs">• {motivation}</li>
-                ))}
-              </ul>
-            </div>
+                {!isCompact && (
+                  <Badge variant="outline" className="text-xs text-gray-500">
+                    +{Object.values(persona.interests).flat().length - 4} autres
+                  </Badge>
+                )}
+              </div>
+            )}
           </div>
         </div>
 
-        <div className="pt-4 border-t">
-          <div className="flex justify-between items-center text-xs text-muted-foreground">
-            <span>Généré le {persona.generatedAt.toLocaleDateString()}</span>
-            <span>Sources: {persona.sources.join(', ')}</span>
+        {/* Communication */}
+        {!isCompact && (
+          <div className="space-y-2">
+            <div className="flex items-center space-x-2">
+              <MessageCircle className="h-4 w-4 text-green-500" />
+              <span className="text-sm font-medium text-gray-700">Communication</span>
+            </div>
+            <div className="grid grid-cols-2 gap-2 text-xs">
+              <div>
+                <span className="font-medium text-gray-600">Canaux:</span>
+                <p className="text-gray-700">{formatList(persona.communication.preferredChannels, 2)}</p>
+              </div>
+              <div>
+                <span className="font-medium text-gray-600">Ton:</span>
+                <p className="text-gray-700">{persona.communication.tone}</p>
+              </div>
+            </div>
           </div>
+        )}
+
+        {/* Actions */}
+        <div className="flex items-center justify-between pt-2 border-t border-gray-100">
+          <div className="flex items-center space-x-2">
+            {onView && (
+              <Button variant="outline" size="sm" onClick={onView}>
+                <Eye className="h-4 w-4 mr-1" />
+                Voir
+              </Button>
+            )}
+            {onExport && (
+              <Button variant="outline" size="sm" onClick={onExport}>
+                <Download className="h-4 w-4 mr-1" />
+                Export
+              </Button>
+            )}
+          </div>
+          
+          {showMetadata && (
+            <div className="text-xs text-gray-500">
+              Sources: {formatList(persona.sources, 2, "+")}
+            </div>
+          )}
         </div>
       </CardContent>
     </Card>

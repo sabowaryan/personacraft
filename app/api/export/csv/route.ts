@@ -1,36 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-
-interface PersonaData {
-  id: string;
-  name: string;
-  age: number;
-  location: string;
-  bio: string;
-  values: string[];
-  interests: {
-    music: string[];
-    brands: string[];
-    movies: string[];
-    food: string[];
-    books: string[];
-    lifestyle: string[];
-  };
-  communication: {
-    preferredChannels: string[];
-    tone: string;
-    contentTypes: string[];
-    frequency: string;
-  };
-  marketing: {
-    painPoints: string[];
-    motivations: string[];
-    buyingBehavior: string;
-    influences: string[];
-  };
-  quote: string;
-  generatedAt: string;
-  sources: string[];
-}
+import { Persona } from '@/lib/types/persona';
 
 // Fonction pour échapper les valeurs CSV
 function escapeCSV(value: string): string {
@@ -41,7 +10,7 @@ function escapeCSV(value: string): string {
 }
 
 // Génération du contenu CSV
-function generateCSVContent(personas: PersonaData[]): string {
+function generateCSVContent(personas: Persona[]): string {
   const headers = [
     'ID',
     'Name',
@@ -90,7 +59,7 @@ function generateCSVContent(personas: PersonaData[]): string {
     persona.marketing.motivations.join('; '),
     persona.marketing.buyingBehavior,
     persona.marketing.influences.join('; '),
-    persona.generatedAt,
+    persona.generatedAt.toISOString(),
     persona.sources.join('; ')
   ]);
 

@@ -1,39 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
-
-interface PersonaData {
-  id: string;
-  name: string;
-  age: number;
-  location: string;
-  bio: string;
-  values: string[];
-  interests: {
-    music: string[];
-    brands: string[];
-    movies: string[];
-    food: string[];
-    books: string[];
-    lifestyle: string[];
-  };
-  communication: {
-    preferredChannels: string[];
-    tone: string;
-    contentTypes: string[];
-    frequency: string;
-  };
-  marketing: {
-    painPoints: string[];
-    motivations: string[];
-    buyingBehavior: string;
-    influences: string[];
-  };
-  quote: string;
-  generatedAt: string;
-  sources: string[];
-}
+import { Persona } from '@/lib/types/persona';
 
 // Génération du contenu PDF en format texte structuré
-function generatePDFContent(persona: PersonaData): string {
+function generatePDFContent(persona: Persona): string {
   const content = `
 PERSONA MARKETING - ${persona.name.toUpperCase()}
 ${'='.repeat(50)}
@@ -43,7 +12,7 @@ ${'─'.repeat(25)}
 Nom: ${persona.name}
 Âge: ${persona.age} ans
 Localisation: ${persona.location}
-Généré le: ${new Date(persona.generatedAt).toLocaleDateString('fr-FR')}
+Généré le: ${persona.generatedAt.toLocaleDateString('fr-FR')}
 
 CITATION PERSONNELLE
 ${'─'.repeat(25)}
