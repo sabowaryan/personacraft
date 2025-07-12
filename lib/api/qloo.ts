@@ -1,6 +1,6 @@
 // Client API pour Qloo Taste AI avec vraie intégration
 
-import {
+import type {
   QlooRequest,
   QlooResponse,
   QlooError,
@@ -85,7 +85,7 @@ export class QlooClient {
     }
   }
 
-  private async makeApiCall(endpoint: string, data: any): Promise<any> {
+  private async makeApiCall(endpoint: string, data: unknown): Promise<any> {
     const url = `${this.config.baseUrl}${endpoint}`;
     
     const controller = new AbortController();
@@ -170,7 +170,7 @@ export class QlooClient {
     }
   }
 
-  private createQlooError(code: string, message: any): QlooError {
+  private createQlooError(code: string, message: unknown): QlooError {
     return {
       error: message instanceof Error ? message.message : String(message),
       code,
@@ -277,7 +277,7 @@ export class QlooClient {
             cultural_relevance: 0.6 + Math.random() * 0.4,
             trending_score: Math.random(),
             demographic_fit: 0.7 + Math.random() * 0.3,
-            price_range: ['low', 'medium', 'high'][Math.floor(Math.random() * 3)] as any,
+            price_range: ['low', 'medium', 'high'][Math.floor(Math.random() * 3)] as 'low' | 'medium' | 'high',
             tags: [`${category}-tag-${index + 1}`, 'popular', 'trending']
           }
         });
@@ -291,5 +291,12 @@ export class QlooClient {
 // Instance par défaut
 export const qlooClient = new QlooClient();
 
-// Export pour rétrocompatibilité
-export { QlooRequest } from '@/lib/types/qloo';
+// Re-export des types pour faciliter l'utilisation
+export type {
+  QlooRequest,
+  QlooResponse,
+  QlooError,
+  QlooRecommendation,
+  QlooClientConfig,
+  QlooInsights
+} from '@/lib/types/qloo';
