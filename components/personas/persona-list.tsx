@@ -9,6 +9,7 @@ import { Download, RefreshCw, BarChart3, FileText, Shield, Loader2, CheckCircle 
 import { PersonaCard } from './persona-card';
 import { EnhancedPersonaCard } from './enhanced-persona-card';
 import { useExport } from '@/hooks/use-export';
+import { EnhancedPersona } from '@/hooks/use-enhanced-persona-generation';
 
 // Types pour les personas (compatibilité avec les deux formats)
 interface BasePersona {
@@ -44,27 +45,13 @@ interface BasePersona {
   };
 }
 
-interface EnhancedPersona extends BasePersona {
-  validation_metrics?: {
-    completeness_score: number;
-    consistency_score: number;
-    realism_score: number;
-    quality_indicators: string[];
-  };
-  generation_metadata?: {
-    gemini_response_time: number;
-    qloo_response_time: number;
-    total_processing_time: number;
-    confidence_level: 'low' | 'medium' | 'high';
-    data_sources: string[];
-  };
-}
+
 
 interface PersonaListProps {
   personas: (BasePersona | EnhancedPersona)[];
   onClear: () => void;
   onExportEnhanced?: (format: 'pdf' | 'csv' | 'json') => void;
-  onValidatePersona?: (persona: BasePersona | EnhancedPersona) => void;
+  onValidatePersona?: (persona: EnhancedPersona) => Promise<any>;
   showMetrics?: boolean;
   showPerformance?: boolean;
 }
@@ -278,7 +265,11 @@ export function PersonaList({
                    persona={persona as any}
                    onView={() => window.open(`/personas/${persona.id}`, '_blank')}
                    onRegenerate={() => console.log('Regenerate:', persona.id)}
-                   onValidate={() => onValidatePersona?.(persona)}
+                   onValidate={() => {
+                     if (isEnhanced && 'validation_metrics' in persona && 'generation_metadata' in persona) {
+                       onValidatePersona?.(persona as EnhancedPersona);
+                     }
+                   }}
                    showMetrics={showMetrics}
                    showPerformance={showPerformance}
                  />

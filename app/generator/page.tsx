@@ -178,7 +178,7 @@ export default function GeneratorPage() {
 
           {/* Interface principale */}
           {personas.length === 0 ? (
-            <BriefForm onSubmit={generatePersonas} isGenerating={generationState.isGenerating} />
+            <BriefForm onSubmit={generatePersonas} isLoading={generationState.isGenerating} />
           ) : (
             <PersonaList 
               personas={personas} 
