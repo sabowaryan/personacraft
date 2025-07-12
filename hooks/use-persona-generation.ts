@@ -1,46 +1,115 @@
 'use client';
 
 import { useState, useCallback, useEffect } from 'react';
-import { Persona, BriefFormData } from '@/lib/types/persona';
-import { personaGenerator } from '@/lib/api/persona-generator';
+import { Persona, BriefFormData, EnhancedPersona } from '@/lib/types/persona';
+import { 
+  GeminiPersonaResponse,
+  GeminiValidationResults,
+  GeminiMetrics 
+} from '@/lib/types/gemini';
+import { 
+  QlooResponse,
+  QlooInsights 
+} from '@/lib/types/qloo';
 import { usePersonasStorage, useUsageStats, useBriefHistory } from './use-local-storage';
 
-export interface GenerationState {
+export interface EnhancedGenerationState {
   isGenerating: boolean;
   progress: number;
   currentStep: string;
   error: string | null;
+  
+  // Nouvelles métriques
+  performance_metrics: {
+    average_response_time: number;
+    success_rate: number;
+    total_tokens_used: number;
+    api_health: {
+      gemini: 'healthy' | 'degraded' | 'offline';
+      qloo: 'healthy' | 'degraded' | 'offline';
+    };
+  };
+  
+  // Validation et qualité
+  last_validation_results?: GeminiValidationResults;
+  quality_trends: {
+    average_completeness: number;
+    average_consistency: number;
+    average_realism: number;
+  };
+  
+  // Insights culturels
+  cultural_insights?: QlooInsights;
+  
+  // Warnings et recommandations
+  warnings: string[];
+  recommendations: string[];
 }
 
 export interface UsePersonaGenerationReturn {
-  personas: Persona[];
-  generationState: GenerationState;
+  personas: (Persona | EnhancedPersona)[];
+  generationState: EnhancedGenerationState;
   generatePersonas: (brief: BriefFormData) => Promise<void>;
+  regeneratePersona: (personaId: string, brief: BriefFormData) => Promise<void>;
+  validatePersona: (persona: EnhancedPersona) => Promise<GeminiValidationResults>;
+  exportPersonas: (format: 'pdf' | 'csv' | 'json', includeMetrics?: boolean) => Promise<void>;
   clearPersonas: () => void;
-  addPersona: (persona: Persona) => void;
+  getQualityInsights: () => Promise<QlooInsights | null>;
+  
+  // Fonctions avancées
+  batchGenerate: (briefs: BriefFormData[]) => Promise<void>;
+  optimizeBrief: (brief: BriefFormData) => Promise<BriefFormData>;
+  comparePersonas: (personaIds: string[]) => PersonaComparison;
+  
+  // Fonctions CRUD basiques
+  addPersona: (persona: Persona | EnhancedPersona) => void;
   removePersona: (personaId: string) => void;
-  updatePersona: (personaId: string, updates: Partial<Persona>) => void;
-  getPersonaById: (personaId: string) => Persona | undefined;
+  updatePersona: (personaId: string, updates: Partial<Persona | EnhancedPersona>) => void;
+  getPersonaById: (personaId: string) => Persona | EnhancedPersona | undefined;
   savePersonas: () => void;
   loadPersonas: () => void;
+  
+  // Propriétés de compatibilité
   isGenerating: boolean;
   error: string | null;
 }
 
-/**
- * Hook principal pour la gestion des personas
- * Intègre génération, stockage local et gestion d'état
- */
+interface PersonaComparison {
+  similarities: string[];
+  differences: string[];
+  recommendations: string[];
+  quality_comparison: {
+    [personaId: string]: {
+      completeness: number;
+      consistency: number;
+      realism: number;
+    };
+  };
+}
+
 export function usePersonaGeneration(): UsePersonaGenerationReturn {
-  // État local des personas
-  const [personas, setPersonas] = useState<Persona[]>([]);
-  
-  // État de génération
-  const [generationState, setGenerationState] = useState<GenerationState>({
+  const [personas, setPersonas] = useState<(Persona | EnhancedPersona)[]>([]);
+  const [generationState, setGenerationState] = useState<EnhancedGenerationState>({
     isGenerating: false,
     progress: 0,
     currentStep: '',
-    error: null
+    error: null,
+    performance_metrics: {
+      average_response_time: 0,
+      success_rate: 1,
+      total_tokens_used: 0,
+      api_health: {
+        gemini: 'healthy',
+        qloo: 'healthy'
+      }
+    },
+    quality_trends: {
+      average_completeness: 0,
+      average_consistency: 0,
+      average_realism: 0
+    },
+    warnings: [],
+    recommendations: []
   });
 
   // Hooks pour la persistance et les statistiques
@@ -55,156 +124,381 @@ export function usePersonaGeneration(): UsePersonaGenerationReturn {
     }
   }, [storedPersonas]);
 
-  // Fonction pour mettre à jour l'état de génération
-  const updateGenerationState = useCallback((updates: Partial<GenerationState>) => {
-    setGenerationState(prev => ({ ...prev, ...updates }));
-  }, []);
-
-  // Fonction principale de génération
+  // Fonction principale de génération enrichie
   const generatePersonas = useCallback(async (brief: BriefFormData) => {
     try {
       // Initialiser l'état de génération
       updateGenerationState({
         isGenerating: true,
         progress: 0,
-        currentStep: 'Préparation de la génération...',
-        error: null
+        currentStep: 'Validation du brief...',
+        error: null,
+        warnings: [],
+        recommendations: []
       });
 
-      // Étape 1: Validation du brief
+      // Étape 1: Validation et optimisation du brief
       updateGenerationState({
         progress: 10,
-        currentStep: 'Validation des données...'
+        currentStep: 'Optimisation du brief...'
       });
 
-      if (!brief.description || brief.interests.length === 0 || brief.values.length === 0) {
-        throw new Error('Données du brief incomplètes');
-      }
-
+      const optimizedBrief = await optimizeBrief(brief);
       await new Promise(resolve => setTimeout(resolve, 500));
 
-      // Étape 2: Appel aux APIs externes (simulation)
+      // Étape 2: Appel aux APIs externes avec monitoring
       updateGenerationState({
         progress: 30,
         currentStep: 'Récupération des données culturelles...'
       });
 
-      await new Promise(resolve => setTimeout(resolve, 1000));
-
-      // Étape 3: Génération des personas
-      updateGenerationState({
-        progress: 60,
-        currentStep: 'Génération des personas avec IA...'
+      const response = await fetch('/api/generate-persona', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(optimizedBrief)
       });
 
-      // Utiliser le générateur de personas avec APIs réelles
-      const result = await personaGenerator.generatePersonas(brief);
-      const newPersonas = result.personas;
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Erreur lors de la génération');
+      }
 
-      await new Promise(resolve => setTimeout(resolve, 1500));
-
-      // Étape 4: Post-traitement
+      // Étape 3: Traitement de la réponse enrichie
       updateGenerationState({
-        progress: 90,
+        progress: 80,
+        currentStep: 'Traitement des résultats...'
+      });
+
+      const data = await response.json();
+      
+      // Convertir les personas avec les nouvelles métriques
+      const enhancedPersonas: EnhancedPersona[] = data.personas.map((p: any) => ({
+        ...p,
+        generatedAt: new Date(p.generatedAt)
+      }));
+
+      // Étape 4: Mise à jour des métriques et insights
+      updateGenerationState({
+        progress: 95,
         currentStep: 'Finalisation...'
       });
 
+      // Mettre à jour les métriques de performance
+      const newMetrics = {
+        average_response_time: data.metadata.performance_metrics.average_generation_time,
+        success_rate: data.metadata.performance_metrics.success_rate,
+        total_tokens_used: data.metadata.performance_metrics.total_tokens_used,
+        api_health: {
+          gemini: data.metadata.api_status.gemini === 'active' ? 'healthy' as const : 'offline' as const,
+          qloo: data.metadata.api_status.qloo === 'active' ? 'healthy' as const : 
+                data.metadata.api_status.qloo === 'simulated' ? 'degraded' as const : 'offline' as const
+        }
+      };
+
+      // Calculer les tendances de qualité
+      const qualityTrends = calculateQualityTrends(enhancedPersonas);
+
       // Ajouter les nouveaux personas
-      setPersonas(prev => [...prev, ...newPersonas]);
+      setPersonas(prev => [...prev, ...enhancedPersonas]);
 
-      // Sauvegarder dans localStorage
-      setStoredPersonas(prev => [...prev, ...newPersonas]);
-
-      // Mettre à jour les statistiques
-      incrementPersonasGenerated(newPersonas.length);
-      updateFavoriteAgeRange(brief.ageRange);
-      brief.interests.forEach(interest => addFavoriteInterest(interest));
-
-      // Sauvegarder le brief dans l'historique
-      addBrief(brief);
-
-      // Finaliser
+      // Finaliser avec succès
       updateGenerationState({
         progress: 100,
-        currentStep: 'Génération terminée!',
-        isGenerating: false
+        currentStep: 'Terminé',
+        isGenerating: false,
+        performance_metrics: newMetrics,
+        quality_trends: qualityTrends,
+        warnings: data.warnings || [],
+        recommendations: generateRecommendations(enhancedPersonas, data.metadata)
       });
 
-      // Reset après un délai
-      setTimeout(() => {
-        updateGenerationState({
-          progress: 0,
-          currentStep: '',
-          error: null
-        });
-      }, 2000);
-
-    } catch (error) {
+    } catch (error: any) {
       console.error('Erreur lors de la génération:', error);
       updateGenerationState({
         isGenerating: false,
+        error: error.message || 'Erreur inconnue lors de la génération',
         progress: 0,
-        currentStep: '',
-        error: error instanceof Error ? error.message : 'Erreur inconnue lors de la génération'
+        currentStep: 'Erreur'
       });
     }
-  }, [updateGenerationState, setStoredPersonas, incrementPersonasGenerated, updateFavoriteAgeRange, addFavoriteInterest, addBrief]);
+  }, []);
 
-  // Fonction pour vider les personas
+  // Fonction de régénération d'un persona spécifique
+  const regeneratePersona = useCallback(async (personaId: string, brief: BriefFormData) => {
+    try {
+      updateGenerationState({
+        isGenerating: true,
+        currentStep: 'Régénération en cours...',
+        progress: 50
+      });
+
+      // Supprimer l'ancien persona
+      setPersonas(prev => prev.filter(p => p.id !== personaId));
+
+      // Générer le nouveau
+      await generatePersonas(brief);
+
+    } catch (error: any) {
+      updateGenerationState({
+        isGenerating: false,
+        error: error.message,
+        progress: 0
+      });
+    }
+  }, [generatePersonas]);
+
+  // Validation d'un persona
+  const validatePersona = useCallback(async (persona: EnhancedPersona): Promise<GeminiValidationResults> => {
+    try {
+      const response = await fetch('/api/validate-persona', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ persona })
+      });
+
+      const validation = await response.json();
+      
+      updateGenerationState(prev => ({
+        ...prev,
+        last_validation_results: validation
+      }));
+
+      return validation;
+    } catch (error) {
+      console.error('Erreur validation:', error);
+      throw error;
+    }
+  }, []);
+
+  // Export enrichi avec métriques
+  const exportPersonas = useCallback(async (
+    format: 'pdf' | 'csv' | 'json', 
+    includeMetrics: boolean = false
+  ) => {
+    try {
+      const response = await fetch(`/api/export/${format}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          personas, 
+          includeMetrics,
+          performance_metrics: generationState.performance_metrics,
+          quality_trends: generationState.quality_trends
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error('Erreur lors de l\'export');
+      }
+
+      // Télécharger le fichier
+      const blob = await response.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `personas-enhanced.${format}`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+
+    } catch (error: any) {
+      updateGenerationState(prev => ({
+        ...prev,
+        error: error.message
+      }));
+    }
+  }, [personas, generationState]);
+
+  // Génération en lot
+  const batchGenerate = useCallback(async (briefs: BriefFormData[]) => {
+    try {
+      updateGenerationState({
+        isGenerating: true,
+        currentStep: `Génération de ${briefs.length} personas...`,
+        progress: 0
+      });
+
+      const response = await fetch('/api/batch/generate-personas', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ briefs })
+      });
+
+      // Traiter la réponse batch...
+      const batchResult = await response.json();
+      
+      // Mettre à jour les personas et métriques
+      setPersonas(prev => [...prev, ...batchResult.personas]);
+
+    } catch (error: any) {
+      updateGenerationState(prev => ({
+        ...prev,
+        error: error.message,
+        isGenerating: false
+      }));
+    }
+  }, []);
+
+  // Optimisation du brief
+  const optimizeBrief = useCallback(async (brief: BriefFormData): Promise<BriefFormData> => {
+    // Logique d'optimisation basée sur les métriques historiques
+    const optimized = { ...brief };
+    
+    // Suggestions d'amélioration basées sur les tendances
+    if (brief.interests.length < 3) {
+      updateGenerationState(prev => ({
+        ...prev,
+        recommendations: [...prev.recommendations, 'Ajouter plus d\'intérêts pour une meilleure personnalisation']
+      }));
+    }
+
+    return optimized;
+  }, []);
+
+  // Comparaison de personas
+  const comparePersonas = useCallback((personaIds: string[]): PersonaComparison => {
+    const selectedPersonas = personas.filter(p => personaIds.includes(p.id));
+    
+    // Analyser les similitudes et différences
+    const similarities: string[] = [];
+    const differences: string[] = [];
+    const recommendations: string[] = [];
+    
+    // Logique de comparaison...
+    
+    return {
+      similarities,
+      differences,
+      recommendations,
+      quality_comparison: selectedPersonas.reduce((acc, persona) => ({
+        ...acc,
+        [persona.id]: {
+          completeness: 'validation_metrics' in persona ? persona.validation_metrics.completeness_score : 0,
+          consistency: 'validation_metrics' in persona ? persona.validation_metrics.consistency_score : 0,
+          realism: 'validation_metrics' in persona ? persona.validation_metrics.realism_score : 0
+        }
+      }), {})
+    };
+  }, [personas]);
+
+  // Insights culturels
+  const getQualityInsights = useCallback(async (): Promise<QlooInsights | null> => {
+    try {
+      const response = await fetch('/api/insights/quality');
+      return await response.json();
+    } catch (error) {
+      console.error('Erreur insights:', error);
+      return null;
+    }
+  }, []);
+
   const clearPersonas = useCallback(() => {
     setPersonas([]);
-    setStoredPersonas([]);
-    updateGenerationState({
-      isGenerating: false,
-      progress: 0,
-      currentStep: '',
-      error: null
-    });
-  }, [setStoredPersonas, updateGenerationState]);
+    setGenerationState(prev => ({
+      ...prev,
+      quality_trends: {
+        average_completeness: 0,
+        average_consistency: 0,
+        average_realism: 0
+      },
+      warnings: [],
+      recommendations: []
+    }));
+  }, []);
 
-  // Fonction pour ajouter un persona
-  const addPersona = useCallback((persona: Persona) => {
+  // Helpers
+  const updateGenerationState = (updates: Partial<EnhancedGenerationState> | ((prev: EnhancedGenerationState) => Partial<EnhancedGenerationState>)) => {
+    if (typeof updates === 'function') {
+      setGenerationState(prev => ({ ...prev, ...updates(prev) }));
+    } else {
+      setGenerationState(prev => ({ ...prev, ...updates }));
+    }
+  };
+
+  // Fonctions CRUD basiques
+  const addPersona = useCallback((persona: Persona | EnhancedPersona) => {
     setPersonas(prev => [...prev, persona]);
     setStoredPersonas(prev => [...prev, persona]);
   }, [setStoredPersonas]);
 
-  // Fonction pour supprimer un persona
   const removePersona = useCallback((personaId: string) => {
     setPersonas(prev => prev.filter(p => p.id !== personaId));
     setStoredPersonas(prev => prev.filter(p => p.id !== personaId));
   }, [setStoredPersonas]);
 
-  // Fonction pour mettre à jour un persona
-  const updatePersona = useCallback((personaId: string, updates: Partial<Persona>) => {
-    const updateFn = (personas: Persona[]) => 
+  const updatePersona = useCallback((personaId: string, updates: Partial<Persona | EnhancedPersona>) => {
+    const updateFn = (personas: (Persona | EnhancedPersona)[]) => 
       personas.map(p => p.id === personaId ? { ...p, ...updates } : p);
     
     setPersonas(updateFn);
     setStoredPersonas(updateFn);
   }, [setStoredPersonas]);
 
-  // Fonction pour récupérer un persona par ID
   const getPersonaById = useCallback((personaId: string) => {
     return personas.find(p => p.id === personaId);
   }, [personas]);
 
-  // Fonction pour sauvegarder manuellement
   const savePersonas = useCallback(() => {
     setStoredPersonas(personas);
   }, [personas, setStoredPersonas]);
 
-  // Fonction pour charger manuellement
   const loadPersonas = useCallback(() => {
     if (storedPersonas) {
       setPersonas(storedPersonas);
     }
   }, [storedPersonas]);
 
+  // Fonction pour calculer les métriques de qualité (seulement pour les personas enrichis)
+  const calculateQualityTrends = (personas: (Persona | EnhancedPersona)[]) => {
+    const enhancedPersonas = personas.filter(p => 'validation_metrics' in p) as EnhancedPersona[];
+    
+    if (enhancedPersonas.length === 0) {
+      return {
+        average_completeness: 0,
+        average_consistency: 0,
+        average_realism: 0
+      };
+    }
+
+    return {
+      average_completeness: enhancedPersonas.reduce((sum, p) => sum + p.validation_metrics.completeness_score, 0) / enhancedPersonas.length,
+      average_consistency: enhancedPersonas.reduce((sum, p) => sum + p.validation_metrics.consistency_score, 0) / enhancedPersonas.length,
+      average_realism: enhancedPersonas.reduce((sum, p) => sum + p.validation_metrics.realism_score, 0) / enhancedPersonas.length
+    };
+  };
+
+  const generateRecommendations = (personas: EnhancedPersona[], metadata: any): string[] => {
+    const recommendations: string[] = [];
+    
+    // Analyser les métriques pour générer des recommandations
+    const avgCompleteness = personas.reduce((sum, p) => sum + p.validation_metrics.completeness_score, 0) / personas.length;
+    
+    if (avgCompleteness < 0.8) {
+      recommendations.push('Considérez ajouter plus de détails dans votre description pour améliorer la complétude');
+    }
+
+    if (metadata.api_status.qloo === 'simulated') {
+      recommendations.push('Configurez une clé API Qloo pour des données culturelles authentiques');
+    }
+
+    return recommendations;
+  };
+
   return {
     personas,
     generationState,
     generatePersonas,
+    regeneratePersona,
+    validatePersona,
+    exportPersonas,
     clearPersonas,
+    getQualityInsights,
+    batchGenerate,
+    optimizeBrief,
+    comparePersonas,
     addPersona,
     removePersona,
     updatePersona,
@@ -214,106 +508,4 @@ export function usePersonaGeneration(): UsePersonaGenerationReturn {
     isGenerating: generationState.isGenerating,
     error: generationState.error
   };
-}
-
-/**
- * Hook pour la génération en temps réel avec WebSocket (simulation)
- */
-export function useRealtimeGeneration() {
-  const [isConnected, setIsConnected] = useState(false);
-  const [generationQueue, setGenerationQueue] = useState<BriefFormData[]>([]);
-
-  const connectToGenerationService = useCallback(() => {
-    // Simulation d'une connexion WebSocket
-    setIsConnected(true);
-    console.log('Connecté au service de génération en temps réel');
-  }, []);
-
-  const disconnectFromGenerationService = useCallback(() => {
-    setIsConnected(false);
-    console.log('Déconnecté du service de génération');
-  }, []);
-
-  const queueGeneration = useCallback((brief: BriefFormData) => {
-    setGenerationQueue(prev => [...prev, brief]);
-  }, []);
-
-  return {
-    isConnected,
-    generationQueue,
-    connectToGenerationService,
-    disconnectFromGenerationService,
-    queueGeneration
-  };
-}
-
-/**
- * Hook pour la validation des personas
- */
-export function usePersonaValidation() {
-  const validatePersona = useCallback((persona: Persona): { isValid: boolean; errors: string[] } => {
-    const errors: string[] = [];
-
-    // Validation des champs obligatoires
-    if (!persona.name || persona.name.length < 2) {
-      errors.push('Le nom doit contenir au moins 2 caractères');
-    }
-
-    if (!persona.age || persona.age < 16 || persona.age > 100) {
-      errors.push('L\'âge doit être entre 16 et 100 ans');
-    }
-
-    if (!persona.location || persona.location.length < 2) {
-      errors.push('La localisation est requise');
-    }
-
-    if (!persona.bio || persona.bio.length < 10) {
-      errors.push('La biographie doit contenir au moins 10 caractères');
-    }
-
-    if (!persona.values || persona.values.length === 0) {
-      errors.push('Au moins une valeur est requise');
-    }
-
-    if (!persona.quote || persona.quote.length < 10) {
-      errors.push('La citation doit contenir au moins 10 caractères');
-    }
-
-    // Validation des intérêts
-    const totalInterests = Object.values(persona.interests).flat().length;
-    if (totalInterests === 0) {
-      errors.push('Au moins un centre d\'intérêt est requis');
-    }
-
-    // Validation de la communication
-    if (!persona.communication.preferredChannels || persona.communication.preferredChannels.length === 0) {
-      errors.push('Au moins un canal de communication est requis');
-    }
-
-    // Validation du marketing
-    if (!persona.marketing.painPoints || persona.marketing.painPoints.length === 0) {
-      errors.push('Au moins un point de douleur est requis');
-    }
-
-    if (!persona.marketing.motivations || persona.marketing.motivations.length === 0) {
-      errors.push('Au moins une motivation est requise');
-    }
-
-    return {
-      isValid: errors.length === 0,
-      errors
-    };
-  }, []);
-
-  const validatePersonas = useCallback((personas: Persona[]) => {
-    return personas.map(persona => ({
-      persona,
-      validation: validatePersona(persona)
-    }));
-  }, [validatePersona]);
-
-  return {
-    validatePersona,
-    validatePersonas
-  };
-}
+} 

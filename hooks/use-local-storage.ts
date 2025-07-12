@@ -164,7 +164,7 @@ export function useLocalStorage<T>(
 
 // Hook spécialisé pour les personas
 export function usePersonasStorage() {
-  return useLocalStorage('personacraft-personas', [], {
+  return useLocalStorage<any[]>('personacraft-personas', [], {
     serializer: {
       read: (value: string) => {
         try {

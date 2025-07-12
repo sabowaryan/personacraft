@@ -51,3 +51,20 @@ export interface GenerationParameters {
   maxTokens: number;
   format: 'json' | 'text';
 }
+
+export interface EnhancedPersona extends Persona {
+  // Nouvelles propriétés enrichies
+  validation_metrics: {
+    completeness_score: number;
+    consistency_score: number;
+    realism_score: number;
+    quality_indicators: string[];
+  };
+  generation_metadata: {
+    gemini_response_time: number;
+    qloo_response_time: number;
+    total_processing_time: number;
+    confidence_level: 'low' | 'medium' | 'high';
+    data_sources: string[];
+  };
+}

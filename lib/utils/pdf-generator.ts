@@ -47,7 +47,7 @@ export class PDFGenerator {
     this.addMarketingProfile(persona);
     this.addMetadata(persona);
 
-    return this.doc.output('arraybuffer') as Uint8Array;
+    return new Uint8Array(this.doc.output('arraybuffer') as ArrayBuffer);
   }
 
   private addHeader(persona: Persona): void {
@@ -293,8 +293,8 @@ export async function generatePersonaPDF(
 }
 
 // Fonction pour télécharger le PDF
-export function downloadPersonaPDF(persona: Persona, options?: Partial<PDFGenerationOptions>): void {
-  const pdfData = generatePersonaPDF(persona, options);
+export async function downloadPersonaPDF(persona: Persona, options?: Partial<PDFGenerationOptions>): Promise<void> {
+  const pdfData = await generatePersonaPDF(persona, options);
   const blob = new Blob([pdfData], { type: 'application/pdf' });
   const url = URL.createObjectURL(blob);
   

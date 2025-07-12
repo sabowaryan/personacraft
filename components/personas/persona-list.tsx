@@ -7,48 +7,11 @@ import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Download, RefreshCw, BarChart3, FileText, Shield, Loader2, CheckCircle } from 'lucide-react';
 import { PersonaCard } from './persona-card';
-import { EnhancedPersonaCard } from './enhanced-persona-card';
 import { useExport } from '@/hooks/use-export';
-import { EnhancedPersona } from '@/hooks/use-enhanced-persona-generation';
-
-// Types pour les personas (compatibilité avec les deux formats)
-interface BasePersona {
-  id: string;
-  name: string;
-  age: number;
-  location: string;
-  bio: string;
-  quote: string;
-  avatar?: string;
-  generatedAt: Date;
-  sources: string[];
-  values: string[];
-  interests: {
-    music: string[];
-    brands: string[];
-    movies: string[];
-    food: string[];
-    books: string[];
-    lifestyle: string[];
-  };
-  communication: {
-    preferredChannels: string[];
-    tone: string;
-    contentTypes: string[];
-    frequency: string;
-  };
-  marketing: {
-    painPoints: string[];
-    motivations: string[];
-    buyingBehavior: string;
-    influences: string[];
-  };
-}
-
-
+import { Persona, EnhancedPersona } from '@/lib/types/persona';
 
 interface PersonaListProps {
-  personas: (BasePersona | EnhancedPersona)[];
+  personas: (Persona | EnhancedPersona)[];
   onClear: () => void;
   onExportEnhanced?: (format: 'pdf' | 'csv' | 'json') => void;
   onValidatePersona?: (persona: EnhancedPersona) => Promise<any>;
@@ -256,26 +219,19 @@ export function PersonaList({
               className="animate-in fade-in slide-in-from-bottom-4 duration-500" 
               style={{ animationDelay: `${index * 150}ms` }}
             >
-                             {viewMode === 'enhanced' && isEnhanced && 
-                'validation_metrics' in persona && 
-                'generation_metadata' in persona &&
-                persona.validation_metrics &&
-                persona.generation_metadata ? (
-                 <EnhancedPersonaCard
-                   persona={persona as any}
-                   onView={() => window.open(`/personas/${persona.id}`, '_blank')}
-                   onRegenerate={() => console.log('Regenerate:', persona.id)}
-                   onValidate={() => {
-                     if (isEnhanced && 'validation_metrics' in persona && 'generation_metadata' in persona) {
-                       onValidatePersona?.(persona as EnhancedPersona);
-                     }
-                   }}
-                   showMetrics={showMetrics}
-                   showPerformance={showPerformance}
-                 />
-               ) : (
-                 <PersonaCard persona={persona} />
-               )}
+                <PersonaCard 
+                  persona={persona}
+                  variant={viewMode === 'enhanced' ? 'detailed' : 'default'}
+                  onView={() => window.open(`/personas/${persona.id}`, '_blank')}
+                  onRegenerate={() => console.log('Regenerate:', persona.id)}
+                  onValidate={() => {
+                    if (isEnhanced && 'validation_metrics' in persona && 'generation_metadata' in persona) {
+                      onValidatePersona?.(persona as EnhancedPersona);
+                    }
+                  }}
+                  showMetrics={showMetrics}
+                  showPerformance={showPerformance}
+                />
             </div>
           );
         })}
