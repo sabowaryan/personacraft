@@ -57,12 +57,39 @@ PersonaCraft helps marketers, product teams and creators quickly generate insigh
 - `public/` : (à créer si besoin pour les assets statiques)
 - Fichiers de configuration : `next.config.js`, `tsconfig.json`, `tailwind.config.ts`, `postcss.config.js`
 
+## 🔧 Corrections récentes
+
+### ✅ Erreurs API corrigées
+- **Gemini API** : Migration de `gemini-pro` vers `gemini-1.5-flash` (modèle déprécié)
+- **Qloo API** : Amélioration de la gestion d'erreurs 401/403 avec fallback automatique
+- **Configuration** : Ajout de guides et fichiers d'exemple pour la configuration
+
+### 📋 Configuration requise
+
+1. **API Google Gemini (OBLIGATOIRE)**
+   ```bash
+   GEMINI_API_KEY=votre_clé_api_gemini
+   ```
+   Obtenez votre clé sur [Google AI Studio](https://makersuite.google.com/app/apikey)
+
+2. **API Qloo (OPTIONNEL)**
+   ```bash
+   QLOO_API_KEY=votre_clé_api_qloo
+   ```
+   L'app fonctionne en mode simulation sans cette clé
+
+Consultez [docs/api-configuration.md](docs/api-configuration.md) pour plus de détails.
+
 ## Installation
 
 ```bash
 git clone <repo>
 cd personacraft
 npm install
+
+# Configuration des APIs
+cp .env.example .env.local
+# Éditez .env.local avec vos clés API
 ```
 
 ## Développement
