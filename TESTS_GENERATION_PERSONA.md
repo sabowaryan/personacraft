@@ -31,14 +31,14 @@
 {
   "api_status": {
     "gemini": "not configured",
-    "qloo": "not configured (simulation mode)"
+    "qloo": "not configured - API key required"
   }
 }
 ```
 
 #### **Exigences de Configuration**
 - **Gemini API** : 🔴 **OBLIGATOIRE** - Nécessaire pour la génération
-- **Qloo API** : 🟡 **OPTIONNEL** - Mode simulation disponible
+- **Qloo API** : � **OBLIGATOIRE** - Clé API requise
 
 ### 📊 Test de l'API Endpoint
 
@@ -235,7 +235,7 @@ npm run dev
 
 ### **Pour les Tests de Développement**
 1. **Configurez une clé Gemini** pour tester la génération complète
-2. **Utilisez le mode simulation Qloo** pour débuter
+2. **Configurez votre clé API Qloo** (obligatoire)
 3. **Testez différents types de personas** (B2B, B2C, niches)
 4. **Vérifiez les métriques de qualité** (cohérence, réalisme)
 

@@ -42,7 +42,7 @@ interface GeneratePersonaAPIResponse {
     sources_used: string[];
     api_status: {
       gemini: 'active' | 'inactive' | 'error';
-      qloo: 'active' | 'simulated' | 'error';
+      qloo: 'active' | 'inactive' | 'error';
     };
     performance_metrics: {
       average_generation_time: number;
@@ -245,12 +245,19 @@ export async function POST(request: NextRequest) {
     // Vérifier la configuration des APIs
     const apiStatus = {
       gemini: process.env.GEMINI_API_KEY ? 'active' : 'inactive',
-      qloo: process.env.QLOO_API_KEY ? 'active' : 'simulated'
+      qloo: process.env.QLOO_API_KEY ? 'active' : 'inactive'
     } as const;
 
     if (apiStatus.gemini === 'inactive') {
       return NextResponse.json(
         { error: 'Gemini API not configured. Please add GEMINI_API_KEY to your environment.' },
+        { status: 500 }
+      );
+    }
+
+    if (apiStatus.qloo === 'inactive') {
+      return NextResponse.json(
+        { error: 'Qloo API not configured. Please add QLOO_API_KEY to your environment. Get your API key at https://docs.qloo.com/' },
         { status: 500 }
       );
     }
@@ -398,7 +405,7 @@ export async function GET() {
       optional_fields: ['ageRange', 'location', 'generateMultiple'],
       api_status: {
         gemini: process.env.GEMINI_API_KEY ? 'configured' : 'not configured',
-        qloo: process.env.QLOO_API_KEY ? 'configured' : 'not configured (simulation mode)'
+        qloo: process.env.QLOO_API_KEY ? 'configured' : 'not configured - API key required'
       },
       limits: {
         max_personas_per_request: 3,

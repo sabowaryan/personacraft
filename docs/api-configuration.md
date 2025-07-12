@@ -99,7 +99,7 @@ Solution : Attendez avant de refaire une requête
 #### 401 - Clé API invalide
 ```
 Erreur : HTTP 401: Unauthorized
-Solution : L'app passe automatiquement en mode simulation
+Solution : Configurez votre clé API Qloo (obligatoire)
 ```
 
 #### 403 - Permissions insuffisantes
@@ -119,7 +119,7 @@ GET /api/generate-persona
 {
   "api_status": {
     "gemini": "configured" | "not configured",
-    "qloo": "configured" | "not configured (simulation mode)"
+    "qloo": "configured" | "not configured - API key required"
   }
 }
 ```
@@ -157,4 +157,4 @@ Si vous rencontrez encore des problèmes :
 
 - **v1.0** : Support initial de `gemini-pro` et `qloo`
 - **v1.1** : Migration vers `gemini-1.5-flash` et amélioration de la gestion d'erreurs
-- **v1.2** : Ajout du mode simulation pour Qloo et messages d'erreur explicites
+- **v1.2** : Clé API Qloo rendue obligatoire et messages d'erreur explicites

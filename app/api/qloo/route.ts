@@ -24,7 +24,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Créer le client Qloo
+    // Créer le client Qloo - lèvera une erreur si pas de clé API
     const qlooClient = new QlooClient(process.env.QLOO_API_KEY);
     
     // Obtenir les recommandations
@@ -35,26 +35,43 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     console.error('Qloo API Error:', error);
     
-    // En cas d'erreur, retourner des données simulées
-    const qlooClient = new QlooClient(); // Sans clé API = mode simulation
-    const body: QlooRequest = await request.json();
-    const fallbackResponse = await qlooClient.getRecommendations(body);
+    // Retourner l'erreur sans fallback
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
     
-    return NextResponse.json({
-      ...fallbackResponse,
-      warning: 'Using simulated data due to API error'
-    });
+    if (errorMessage.includes('Qloo API key is required')) {
+      return NextResponse.json(
+        { 
+          error: 'Qloo API key is required',
+          message: 'Please configure QLOO_API_KEY environment variable. Get your API key at https://docs.qloo.com/',
+          code: 'API_KEY_MISSING'
+        },
+        { status: 400 }
+      );
+    }
+    
+    return NextResponse.json(
+      { 
+        error: 'Qloo API request failed',
+        message: errorMessage,
+        code: 'API_REQUEST_FAILED'
+      },
+      { status: 500 }
+    );
   }
 }
 
 export async function GET() {
+  const hasApiKey = !!process.env.QLOO_API_KEY;
+  
   return NextResponse.json(
     { 
       message: 'Qloo API endpoint',
       methods: ['POST'],
       description: 'Get cultural taste recommendations based on interests and demographics',
-      status: process.env.QLOO_API_KEY ? 'configured' : 'using simulated data'
+      status: hasApiKey ? 'configured' : 'not configured - API key required',
+      api_key_required: true,
+      documentation: 'https://docs.qloo.com/'
     },
-    { status: 200 }
+    { status: hasApiKey ? 200 : 400 }
   );
 }

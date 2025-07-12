@@ -18,8 +18,17 @@ export class QlooClient {
   private rateLimits: QlooRateLimits | null = null;
 
   constructor(apiKey?: string, config?: Partial<QlooClientConfig>) {
+    const providedApiKey = apiKey || process.env.QLOO_API_KEY || '';
+    
+    if (!providedApiKey) {
+      throw new Error(
+        'Qloo API key is required. Please provide it via constructor parameter or QLOO_API_KEY environment variable. ' +
+        'Get your API key at https://docs.qloo.com/'
+      );
+    }
+
     this.config = {
-      apiKey: apiKey || process.env.QLOO_API_KEY || '',
+      apiKey: providedApiKey,
       baseUrl: config?.baseUrl || process.env.QLOO_API_URL || 'https://api.qloo.com/v1',
       timeout: config?.timeout || 10000,
       retries: config?.retries || 3,
@@ -34,13 +43,7 @@ export class QlooClient {
       // Validation des données d'entrée
       this.validateRequest(request);
 
-      // Si pas de clé API, utiliser le mode simulation
-      if (!this.config.apiKey) {
-        console.warn('Qloo API key not provided, using simulated data');
-        return this.getSimulatedRecommendations(request);
-      }
-
-      // Appel API réel
+      // Appel API réel uniquement
       const response = await this.makeApiCall('/recommendations', request);
       
       // Mettre à jour les rate limits
@@ -50,18 +53,11 @@ export class QlooClient {
 
     } catch (error) {
       console.error('Qloo API Error:', error);
-      
-      // Fallback vers les données simulées en cas d'erreur
-      console.warn('Falling back to simulated data due to API error');
-      return this.getSimulatedRecommendations(request);
+      throw this.createQlooError('API_CALL_FAILED', error);
     }
   }
 
   async getBatchRecommendations(batchRequest: QlooBatchRequest): Promise<QlooBatchResponse> {
-    if (!this.config.apiKey) {
-      throw new Error('Batch operations require API key');
-    }
-
     try {
       const response = await this.makeApiCall('/batch/recommendations', batchRequest);
       return this.parseBatchResponse(response);
@@ -72,16 +68,12 @@ export class QlooClient {
   }
 
   async getInsights(request: QlooRequest): Promise<QlooInsights> {
-    if (!this.config.apiKey) {
-      return this.getSimulatedInsights(request);
-    }
-
     try {
       const response = await this.makeApiCall('/insights', request);
       return response.data;
     } catch (error) {
       console.error('Qloo Insights Error:', error);
-      return this.getSimulatedInsights(request);
+      throw this.createQlooError('INSIGHTS_FAILED', error);
     }
   }
 
@@ -190,7 +182,7 @@ export class QlooClient {
         field: 'request',
         value: message,
         constraint: 'validation_failed',
-        suggestion: 'Vérifiez les données envoyées'
+        suggestion: 'Vérifiez les données envoyées et votre clé API Qloo'
       },
       request_id: crypto.randomUUID()
     };
@@ -206,101 +198,9 @@ export class QlooClient {
       console.log(`Rate limits: ${remaining}/${limit}, reset: ${reset}`);
     }
   }
-
-  // Méthodes de simulation pour développement/démonstration
-  private async getSimulatedRecommendations(request: QlooRequest): Promise<QlooResponse> {
-    // Simuler un délai d'API
-    await new Promise(resolve => setTimeout(resolve, Math.random() * 1000 + 500));
-
-    const simulatedData = this.generateSimulatedData(request);
-
-    return {
-      recommendations: simulatedData,
-      metadata: {
-        total_results: simulatedData.length,
-        confidence_threshold: 0.7,
-        processing_time: Math.random() * 500 + 200,
-        request_id: crypto.randomUUID(),
-        api_version: 'v1-simulated',
-        cached: false,
-        filters_applied: ['interests', 'demographics']
-      },
-      status: {
-        code: 200,
-        message: 'Success (Simulated)',
-        success: true,
-        warnings: ['Using simulated data - API key not provided']
-      }
-    };
-  }
-
-  private getSimulatedInsights(request: QlooRequest): QlooInsights {
-    return {
-      demographic_analysis: {
-        age_group_fit: 0.8 + Math.random() * 0.2,
-        location_relevance: 0.7 + Math.random() * 0.3,
-        gender_alignment: 0.75 + Math.random() * 0.25
-      },
-      trend_analysis: {
-        trending_items: [],
-        seasonal_relevance: 0.6 + Math.random() * 0.4,
-        viral_potential: 0.3 + Math.random() * 0.4,
-        longevity_score: 0.5 + Math.random() * 0.5
-      },
-      cultural_analysis: {
-        cultural_fit: 0.8 + Math.random() * 0.2,
-        cross_cultural_appeal: 0.6 + Math.random() * 0.4,
-        local_preferences: ['Local brand preference', 'Regional cuisine'],
-        global_trends: ['Sustainability', 'Digital lifestyle']
-      },
-      recommendation_quality: {
-        average_confidence: 0.75 + Math.random() * 0.25,
-        diversity_score: 0.7 + Math.random() * 0.3,
-        novelty_score: 0.6 + Math.random() * 0.4,
-        relevance_score: 0.8 + Math.random() * 0.2
-      }
-    };
-  }
-
-  private generateSimulatedData(request: QlooRequest): QlooRecommendation[] {
-    const simulatedRecommendations: QlooRecommendation[] = [];
-
-    // Données simulées par catégorie
-    const categoryData = {
-      music: ['Électronique', 'Indie Pop', 'Jazz Fusion', 'Hip-hop alternatif'],
-      brands: ['Patagonia', 'Veja', 'Lush', 'Everlane', 'Reformation'],
-      movies: ['Parasite', 'The Grand Budapest Hotel', 'Moonlight', 'Her'],
-      food: ['Cuisine végétarienne', 'Ramen artisanal', 'Café de spécialité', 'Pâtisserie française'],
-      books: ['Haruki Murakami', 'Elena Ferrante', 'Yuval Noah Harari', 'Michelle Obama'],
-      lifestyle: ['Yoga', 'Photographie', 'Jardinage urbain', 'Cyclisme', 'Méditation']
-    };
-
-    request.categories.forEach(category => {
-      const items = categoryData[category as keyof typeof categoryData] || [];
-      
-      items.slice(0, 4).forEach((item, index) => {
-        simulatedRecommendations.push({
-          id: crypto.randomUUID(),
-          type: category,
-          name: item,
-          confidence: 0.7 + (Math.random() * 0.3),
-          attributes: {
-            popularity: Math.random(),
-            cultural_relevance: 0.6 + Math.random() * 0.4,
-            trending_score: Math.random(),
-            demographic_fit: 0.7 + Math.random() * 0.3,
-            price_range: ['low', 'medium', 'high'][Math.floor(Math.random() * 3)] as 'low' | 'medium' | 'high',
-            tags: [`${category}-tag-${index + 1}`, 'popular', 'trending']
-          }
-        });
-      });
-    });
-
-    return simulatedRecommendations;
-  }
 }
 
-// Instance par défaut
+// Instance par défaut - lèvera une erreur si pas de clé API
 export const qlooClient = new QlooClient();
 
 // Re-export des types pour faciliter l'utilisation

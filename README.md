@@ -77,7 +77,7 @@ PersonaCraft helps marketers, product teams and creators quickly generate insigh
    ```bash
    QLOO_API_KEY=votre_clé_api_qloo
    ```
-   L'app fonctionne en mode simulation sans cette clé
+   Cette clé est désormais obligatoire pour le bon fonctionnement
 
 Consultez [docs/api-configuration.md](docs/api-configuration.md) pour plus de détails.
 
