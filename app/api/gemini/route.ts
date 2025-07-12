@@ -2,6 +2,9 @@ import { NextRequest, NextResponse } from 'next/server';
 import { GeminiClient } from '@/lib/api/gemini';
 import { GeminiRequest } from '@/lib/types/gemini';
 
+// Configuration pour l'export statique
+export const dynamic = 'force-dynamic';
+
 export async function POST(request: NextRequest) {
   try {
     const body: GeminiRequest = await request.json();

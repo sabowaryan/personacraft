@@ -2,6 +2,9 @@ import { NextRequest, NextResponse } from 'next/server';
 import { QlooClient } from '@/lib/api/qloo';
 import { QlooRequest } from '@/lib/types/qloo';
 
+// Configuration pour l'export statique
+export const dynamic = 'force-dynamic';
+
 export async function POST(request: NextRequest) {
   try {
     const body: QlooRequest = await request.json();

@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { Persona } from '@/lib/types/persona';
 
+// Configuration pour l'export statique
+export const dynamic = 'force-dynamic';
+
 // Fonction pour échapper les valeurs CSV
 function escapeCSV(value: string): string {
   if (value.includes(',') || value.includes('"') || value.includes('\n')) {

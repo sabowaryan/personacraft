@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { Persona } from '@/lib/types/persona';
 
+// Configuration pour l'export statique
+export const dynamic = 'force-dynamic';
+
 // Génération du contenu PDF en format texte structuré
 function generatePDFContent(persona: Persona): string {
   const content = `

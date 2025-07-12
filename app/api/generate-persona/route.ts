@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { GeminiClient } from '@/lib/api/gemini';
 import { QlooClient } from '@/lib/api/qloo';
+
+// Configuration pour l'export statique
+export const dynamic = 'force-dynamic';
 import { BriefFormData, Persona } from '@/lib/types/persona';
 import { 
   GeminiPersonaRequest, 
