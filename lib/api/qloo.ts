@@ -43,8 +43,15 @@ export class QlooClient {
       // Validation des données d'entrée
       this.validateRequest(request);
 
-      // Appel API réel uniquement
-      const response = await this.makeApiCall('/recommendations', request);
+      // Construire les paramètres pour l'API hackathon Qloo
+      const params = new URLSearchParams();
+      params.append('type', request.categories[0] || 'brands'); // Utiliser la première catégorie
+      params.append('age', request.demographics.age.toString());
+      params.append('location', request.demographics.location);
+      params.append('interests', request.interests.join(','));
+      
+      // Appel API avec query parameters
+      const response = await this.makeApiCallWithParams('/recommendations', params);
       
       // Mettre à jour les rate limits
       this.updateRateLimits(response.headers);
@@ -124,17 +131,65 @@ export class QlooClient {
     }
   }
 
+  private async makeApiCallWithParams(endpoint: string, params: URLSearchParams): Promise<any> {
+    const url = `${this.config.baseUrl}${endpoint}?${params.toString()}`;
+    
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), this.config.timeout);
+
+    try {
+      const response = await fetch(url, {
+        method: 'GET',
+        headers: {
+          'X-API-Key': this.config.apiKey,
+          'User-Agent': 'PersonaCraft/1.0'
+        },
+        signal: controller.signal
+      });
+
+      clearTimeout(timeoutId);
+
+      if (!response.ok) {
+        if (response.status === 401) {
+          throw new Error(`HTTP 401: Unauthorized - Vérifiez votre clé API Qloo. Obtenez une clé API sur https://docs.qloo.com/`);
+        } else if (response.status === 403) {
+          throw new Error(`HTTP 403: Forbidden - Votre clé API Qloo n'a pas les permissions nécessaires`);
+        } else if (response.status === 404) {
+          throw new Error(`HTTP 404: Not Found - L'endpoint Qloo n'existe pas: ${endpoint}`);
+        } else if (response.status === 429) {
+          throw new Error(`HTTP 429: Too Many Requests - Limite de taux Qloo atteinte`);
+        } else if (response.status >= 500) {
+          throw new Error(`HTTP ${response.status}: Erreur serveur Qloo - Réessayez plus tard`);
+        } else {
+          throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        }
+      }
+
+      return {
+        data: await response.json(),
+        headers: response.headers
+      };
+
+    } catch (error) {
+      clearTimeout(timeoutId);
+      throw error;
+    }
+  }
+
   private parseResponse(response: any): QlooResponse {
     const data = response.data;
     
+    // Adapter la réponse pour le format hackathon Qloo
+    const recommendations = this.adaptRecommendations(data);
+    
     return {
-      recommendations: data.recommendations || [],
+      recommendations,
       metadata: {
-        total_results: data.total_results || 0,
-        confidence_threshold: data.confidence_threshold || 0.5,
-        processing_time: data.processing_time || 0,
-        request_id: data.request_id || crypto.randomUUID(),
-        api_version: 'v1',
+        total_results: recommendations.length,
+        confidence_threshold: 0.5,
+        processing_time: 0,
+        request_id: crypto.randomUUID(),
+        api_version: 'hackathon-v1',
         cached: false
       },
       status: {
@@ -143,6 +198,29 @@ export class QlooClient {
         success: true
       }
     };
+  }
+
+  private adaptRecommendations(data: any): QlooRecommendation[] {
+    // Si les données arrivent dans un format différent, les adapter
+    if (Array.isArray(data)) {
+      return data.map((item: any, index: number) => ({
+        id: item.id || `rec_${index}`,
+        type: item.type || 'brands',
+        name: item.name || item.title || `Recommendation ${index + 1}`,
+        confidence: item.confidence || item.score || 0.8,
+        attributes: {
+          popularity: item.popularity || 0.5,
+          cultural_relevance: item.cultural_relevance || 0.7,
+          trending_score: item.trending_score || 0.6,
+          demographic_fit: item.demographic_fit || 0.8,
+          price_range: item.price_range || 'medium',
+          tags: item.tags || []
+        }
+      }));
+    }
+    
+    // Fallback pour des données vides ou mal formatées
+    return [];
   }
 
   private parseBatchResponse(response: any): QlooBatchResponse {
