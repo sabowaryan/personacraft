@@ -39,7 +39,7 @@ export const briefFormSchema = z.object({
       'Les valeurs doivent être uniques'
     ),
   
-  generateMultiple: z.boolean().default(false)
+  generateMultiple: z.boolean()
 });
 
 // Schéma pour valider un persona complet
@@ -113,7 +113,7 @@ export function validateBriefForm(data: unknown) {
     return briefFormSchema.parse(data);
   } catch (error) {
     if (error instanceof z.ZodError) {
-      const firstError = error.errors[0];
+      const firstError = error.issues[0];
       throw new ValidationError(
         firstError.message,
         firstError.path.join('.'),
@@ -129,7 +129,7 @@ export function validatePersona(data: unknown) {
     return personaSchema.parse(data);
   } catch (error) {
     if (error instanceof z.ZodError) {
-      const firstError = error.errors[0];
+      const firstError = error.issues[0];
       throw new ValidationError(
         `Persona invalide: ${firstError.message}`,
         firstError.path.join('.'),
@@ -146,7 +146,7 @@ export function validateQlooRequest(data: unknown) {
   } catch (error) {
     if (error instanceof z.ZodError) {
       throw new ValidationError(
-        'Requête Qloo invalide: ' + error.errors[0].message
+        'Requête Qloo invalide: ' + error.issues[0].message
       );
     }
     throw error;
@@ -159,7 +159,7 @@ export function validateGeminiRequest(data: unknown) {
   } catch (error) {
     if (error instanceof z.ZodError) {
       throw new ValidationError(
-        'Requête Gemini invalide: ' + error.errors[0].message
+        'Requête Gemini invalide: ' + error.issues[0].message
       );
     }
     throw error;
