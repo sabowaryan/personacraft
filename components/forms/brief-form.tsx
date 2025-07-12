@@ -18,9 +18,10 @@ import { briefFormSchema, type BriefFormData } from '@/lib/utils/validators';
 interface BriefFormProps {
   onSubmit: (data: BriefFormData) => void;
   isLoading?: boolean;
+  isGenerating?: boolean;
 }
 
-export function BriefForm({ onSubmit, isLoading = false }: BriefFormProps) {
+export function BriefForm({ onSubmit, isLoading = false, isGenerating = false }: BriefFormProps) {
   const [currentInterest, setCurrentInterest] = useState('');
   const [currentValue, setCurrentValue] = useState('');
 
@@ -76,6 +77,8 @@ export function BriefForm({ onSubmit, isLoading = false }: BriefFormProps) {
     onSubmit(data);
   };
 
+  const isDisabled = isLoading || isGenerating;
+
   return (
     <Card className="w-full max-w-2xl mx-auto">
       <CardHeader className="text-center space-y-2">
@@ -105,7 +108,7 @@ export function BriefForm({ onSubmit, isLoading = false }: BriefFormProps) {
                 "min-h-[100px] resize-none",
                 errors.description && "border-red-500 focus-visible:ring-red-500"
               )}
-              disabled={isLoading}
+              disabled={isDisabled}
             />
             
             {/* Compteur de caractères avec validation visuelle */}
@@ -149,7 +152,7 @@ export function BriefForm({ onSubmit, isLoading = false }: BriefFormProps) {
             <Select 
               onValueChange={(value) => setValue('ageRange', value)}
               defaultValue="25-35"
-              disabled={isLoading}
+              disabled={isDisabled}
             >
               <SelectTrigger className={cn(errors.ageRange && "border-red-500")}>
                 <SelectValue placeholder="Sélectionner une tranche d'âge" />
@@ -178,7 +181,7 @@ export function BriefForm({ onSubmit, isLoading = false }: BriefFormProps) {
               {...register('location')}
               placeholder="ex: Paris, France ou Europe"
               className={cn(errors.location && "border-red-500")}
-              disabled={isLoading}
+              disabled={isDisabled}
             />
             {errors.location && (
               <Alert variant="destructive">
@@ -207,12 +210,12 @@ export function BriefForm({ onSubmit, isLoading = false }: BriefFormProps) {
                 placeholder="Ajouter un centre d'intérêt"
                 onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addInterest())}
                 className="flex-1"
-                disabled={isLoading || watchedInterests.length >= 15}
+                disabled={isDisabled || watchedInterests.length >= 15}
               />
               <Button 
                 type="button" 
                 onClick={addInterest}
-                disabled={!currentInterest.trim() || watchedInterests.length >= 15 || isLoading}
+                disabled={!currentInterest.trim() || watchedInterests.length >= 15 || isDisabled}
                 size="sm"
               >
                 <Plus className="h-4 w-4" />
@@ -223,12 +226,12 @@ export function BriefForm({ onSubmit, isLoading = false }: BriefFormProps) {
               {watchedInterests.map((interest) => (
                 <Badge key={interest} variant="secondary" className="flex items-center space-x-1">
                   <span>{interest}</span>
-                  <button
-                    type="button"
-                    onClick={() => removeInterest(interest)}
-                    className="ml-1 hover:text-red-500"
-                    disabled={isLoading}
-                  >
+                                      <button
+                      type="button"
+                      onClick={() => removeInterest(interest)}
+                      className="ml-1 hover:text-red-500"
+                      disabled={isDisabled}
+                    >
                     <X className="h-3 w-3" />
                   </button>
                 </Badge>
@@ -262,12 +265,12 @@ export function BriefForm({ onSubmit, isLoading = false }: BriefFormProps) {
                 placeholder="Ajouter une valeur"
                 onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addValue())}
                 className="flex-1"
-                disabled={isLoading || watchedValues.length >= 10}
+                disabled={isDisabled || watchedValues.length >= 10}
               />
               <Button 
                 type="button" 
                 onClick={addValue}
-                disabled={!currentValue.trim() || watchedValues.length >= 10 || isLoading}
+                disabled={!currentValue.trim() || watchedValues.length >= 10 || isDisabled}
                 size="sm"
               >
                 <Plus className="h-4 w-4" />
@@ -278,12 +281,12 @@ export function BriefForm({ onSubmit, isLoading = false }: BriefFormProps) {
               {watchedValues.map((value) => (
                 <Badge key={value} variant="outline" className="flex items-center space-x-1">
                   <span>{value}</span>
-                  <button
-                    type="button"
-                    onClick={() => removeValue(value)}
-                    className="ml-1 hover:text-red-500"
-                    disabled={isLoading}
-                  >
+                                      <button
+                      type="button"
+                      onClick={() => removeValue(value)}
+                      className="ml-1 hover:text-red-500"
+                      disabled={isDisabled}
+                    >
                     <X className="h-3 w-3" />
                   </button>
                 </Badge>
@@ -304,7 +307,7 @@ export function BriefForm({ onSubmit, isLoading = false }: BriefFormProps) {
               <Checkbox
                 {...register('generateMultiple')}
                 id="generateMultiple"
-                disabled={isLoading}
+                disabled={isDisabled}
               />
               <label htmlFor="generateMultiple" className="text-sm font-medium">
                 Générer plusieurs personas (3-5 variations)
@@ -323,9 +326,9 @@ export function BriefForm({ onSubmit, isLoading = false }: BriefFormProps) {
           <Button 
             type="submit" 
             className="w-full h-12 text-lg font-semibold"
-            disabled={isLoading || Object.keys(errors).length > 0}
+            disabled={isDisabled || Object.keys(errors).length > 0}
           >
-            {isLoading ? (
+            {isDisabled ? (
               <div className="flex items-center space-x-2">
                 <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
                 <span>Génération en cours...</span>
