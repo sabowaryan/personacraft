@@ -94,7 +94,7 @@ export interface QlooError {
 
 export interface QlooErrorDetails {
   field?: string;
-  value?: any;
+  value?: unknown;
   constraint?: string;
   suggestion?: string;
 }
@@ -226,7 +226,7 @@ export type QlooAttributesByType<T extends QlooCategory> =
 export interface QlooWebhookEvent {
   event_type: 'recommendation.generated' | 'trend.detected' | 'insight.updated';
   timestamp: string;
-  data: any;
+  data: unknown;
   request_id: string;
 }
 
@@ -247,3 +247,20 @@ export interface QlooBatchResponse {
     failed: number;
   };
 }
+
+// Export par défaut pour faciliter l'import
+export default {
+  QlooRequest,
+  QlooResponse,
+  QlooRecommendation,
+  QlooError,
+  QlooCategory,
+  QlooDemographics,
+  QlooAttributes,
+  QlooMetadata,
+  QlooStatus,
+  QlooClientConfig,
+  QlooInsights,
+  QlooBatchRequest,
+  QlooBatchResponse
+} as const;
