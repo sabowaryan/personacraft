@@ -248,19 +248,5 @@ export interface QlooBatchResponse {
   };
 }
 
-// Export par défaut pour faciliter l'import
-export default {
-  QlooRequest,
-  QlooResponse,
-  QlooRecommendation,
-  QlooError,
-  QlooCategory,
-  QlooDemographics,
-  QlooAttributes,
-  QlooMetadata,
-  QlooStatus,
-  QlooClientConfig,
-  QlooInsights,
-  QlooBatchRequest,
-  QlooBatchResponse
-} as const;
+// Tous les types sont exportés individuellement ci-dessus
+// Les types TypeScript ne peuvent pas être exportés comme valeurs par défaut
