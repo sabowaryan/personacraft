@@ -1,4 +1,4 @@
-THIS SHOULD BE A LINTER ERROR// Client API pour Qloo Taste AI avec vraie intégration
+// Client API pour Qloo Taste AI avec vraie intégration
 
 import type {
   QlooRequest,
@@ -29,7 +29,7 @@ export class QlooClient {
 
     this.config = {
       apiKey: providedApiKey,
-      baseUrl: config?.baseUrl || process.env.QLOO_API_URL || 'https://api.qloo.com/v1',
+      baseUrl: config?.baseUrl || process.env.QLOO_API_URL || 'https://hackathon.api.qloo.com',
       timeout: config?.timeout || 10000,
       retries: config?.retries || 3,
       cacheEnabled: config?.cacheEnabled ?? true,
