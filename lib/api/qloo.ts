@@ -88,7 +88,7 @@ export class QlooClient {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${this.config.apiKey}`,
+          'X-API-Key': this.config.apiKey,
           'User-Agent': 'PersonaCraft/1.0'
         },
         body: JSON.stringify(data),
