@@ -15,31 +15,41 @@ import {
 } from '@/lib/types/gemini';
 
 export class GeminiClient {
-  private genAI: GoogleGenerativeAI;
-  private model: any;
+  private genAI?: GoogleGenerativeAI;
+  private model?: any;
   private config: GeminiClientConfig;
 
   constructor(apiKey?: string, config?: Partial<GeminiClientConfig>) {
     const key = apiKey || process.env.GEMINI_API_KEY || '';
-    if (!key) {
-      throw new Error('Clé API Gemini manquante');
+    
+    // Ne pas lancer d'erreur pendant le build, gérer l'erreur à l'utilisation
+    if (!key && process.env.NODE_ENV !== 'development') {
+      console.warn('Clé API Gemini manquante - l\'API sera indisponible');
     }
     
     this.config = {
       api_key: key,
-      model: 'gemini-pro',
+      model: 'gemini-1.5-flash',
       timeout: 30000,
       retries: 3,
       default_parameters: GENERATION_PARAMETERS.BALANCED,
       ...config
     };
     
-    this.genAI = new GoogleGenerativeAI(key);
-    this.model = this.genAI.getGenerativeModel({ model: this.config.model || 'gemini-pro' });
+    // Initialiser seulement si la clé API est disponible
+    if (key) {
+      this.genAI = new GoogleGenerativeAI(key);
+      this.model = this.genAI.getGenerativeModel({ model: this.config.model || 'gemini-1.5-flash' });
+    }
   }
 
   async generateContent(request: GeminiRequest): Promise<GeminiResponse> {
     try {
+      // Vérifier si la clé API est disponible
+      if (!this.config.api_key || !this.model) {
+        throw new Error('Clé API Gemini manquante. Configurez GEMINI_API_KEY dans vos variables d\'environnement.');
+      }
+      
       const { prompt, parameters = {}, context } = request;
       
       // Fusionner avec les paramètres par défaut
@@ -79,12 +89,12 @@ export class GeminiClient {
       return {
         content: text,
         usage,
-        model: this.config.model || 'gemini-pro',
+        model: this.config.model || 'gemini-1.5-flash',
         finish_reason: 'stop' as GeminiFinishReason,
         metadata: {
           request_id: crypto.randomUUID(),
           processing_time: Date.now(),
-          model_version: 'gemini-pro-v1',
+          model_version: 'gemini-1.5-flash-v1',
           cached: false,
           quality_score: this.calculateQualityScore(text)
         }
@@ -92,13 +102,52 @@ export class GeminiClient {
 
     } catch (error) {
       console.error('Erreur Gemini API:', error);
+      
+      let errorMessage = 'Erreur inconnue';
+      let suggestions = ['Vérifiez votre clé API', 'Réessayez plus tard'];
+      
+      if (error instanceof Error) {
+        errorMessage = error.message;
+        
+        // Erreurs spécifiques à Gemini
+        if (error.message.includes('404')) {
+          errorMessage = 'Modèle Gemini non trouvé. Le modèle gemini-pro a été déprécié.';
+          suggestions = [
+            'Utilisez gemini-1.5-flash ou gemini-1.5-pro',
+            'Vérifiez la documentation API Gemini',
+            'Mettez à jour votre configuration'
+          ];
+        } else if (error.message.includes('403') || error.message.includes('401')) {
+          errorMessage = 'Clé API Gemini invalide ou manquante';
+          suggestions = [
+            'Vérifiez votre clé API dans les variables d\'environnement',
+            'Obtenez une nouvelle clé sur https://makersuite.google.com/app/apikey',
+            'Assurez-vous que la clé API a les bonnes permissions'
+          ];
+        } else if (error.message.includes('429')) {
+          errorMessage = 'Limite de taux Gemini atteinte';
+          suggestions = [
+            'Attendez avant de faire une nouvelle requête',
+            'Réduisez la fréquence des appels API',
+            'Consultez les limites de votre quota'
+          ];
+        } else if (error.message.includes('500')) {
+          errorMessage = 'Erreur serveur Gemini';
+          suggestions = [
+            'Réessayez dans quelques minutes',
+            'Vérifiez le statut de l\'API Gemini',
+            'Contactez le support Google si le problème persiste'
+          ];
+        }
+      }
+      
       const geminiError: GeminiError = {
-        error: `Échec génération Gemini: ${error instanceof Error ? error.message : 'Erreur inconnue'}`,
+        error: `Échec génération Gemini: ${errorMessage}`,
         code: 'GENERATION_FAILED',
         details: {
-          reason: error instanceof Error ? error.message : 'Unknown error',
+          reason: errorMessage,
           domain: 'gemini_api',
-          suggestions: ['Vérifiez votre clé API', 'Réessayez plus tard']
+          suggestions
         },
         request_id: crypto.randomUUID()
       };

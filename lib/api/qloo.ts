@@ -106,7 +106,19 @@ export class QlooClient {
       clearTimeout(timeoutId);
 
       if (!response.ok) {
-        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        if (response.status === 401) {
+          throw new Error(`HTTP 401: Unauthorized - Vérifiez votre clé API Qloo. Obtenez une clé API sur https://docs.qloo.com/`);
+        } else if (response.status === 403) {
+          throw new Error(`HTTP 403: Forbidden - Votre clé API Qloo n'a pas les permissions nécessaires`);
+        } else if (response.status === 404) {
+          throw new Error(`HTTP 404: Not Found - L'endpoint Qloo n'existe pas: ${endpoint}`);
+        } else if (response.status === 429) {
+          throw new Error(`HTTP 429: Too Many Requests - Limite de taux Qloo atteinte`);
+        } else if (response.status >= 500) {
+          throw new Error(`HTTP ${response.status}: Erreur serveur Qloo - Réessayez plus tard`);
+        } else {
+          throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        }
       }
 
       return {
