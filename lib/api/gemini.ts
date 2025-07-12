@@ -15,14 +15,16 @@ import {
 } from '@/lib/types/gemini';
 
 export class GeminiClient {
-  private genAI: GoogleGenerativeAI;
-  private model: any;
+  private genAI?: GoogleGenerativeAI;
+  private model?: any;
   private config: GeminiClientConfig;
 
   constructor(apiKey?: string, config?: Partial<GeminiClientConfig>) {
     const key = apiKey || process.env.GEMINI_API_KEY || '';
-    if (!key) {
-      throw new Error('Clé API Gemini manquante');
+    
+    // Ne pas lancer d'erreur pendant le build, gérer l'erreur à l'utilisation
+    if (!key && process.env.NODE_ENV !== 'development') {
+      console.warn('Clé API Gemini manquante - l\'API sera indisponible');
     }
     
     this.config = {
@@ -34,12 +36,20 @@ export class GeminiClient {
       ...config
     };
     
-    this.genAI = new GoogleGenerativeAI(key);
-    this.model = this.genAI.getGenerativeModel({ model: this.config.model || 'gemini-1.5-flash' });
+    // Initialiser seulement si la clé API est disponible
+    if (key) {
+      this.genAI = new GoogleGenerativeAI(key);
+      this.model = this.genAI.getGenerativeModel({ model: this.config.model || 'gemini-1.5-flash' });
+    }
   }
 
   async generateContent(request: GeminiRequest): Promise<GeminiResponse> {
     try {
+      // Vérifier si la clé API est disponible
+      if (!this.config.api_key || !this.model) {
+        throw new Error('Clé API Gemini manquante. Configurez GEMINI_API_KEY dans vos variables d\'environnement.');
+      }
+      
       const { prompt, parameters = {}, context } = request;
       
       // Fusionner avec les paramètres par défaut
