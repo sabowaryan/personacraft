@@ -4,7 +4,7 @@ import { Header } from '@/components/layout/header';
 import { Footer } from '@/components/layout/footer';
 import { BriefForm } from '@/components/forms/brief-form';
 import { PersonaList } from '@/components/personas/persona-list';
-import { useEnhancedPersonaGeneration } from '@/hooks/use-enhanced-persona-generation';
+import { usePersonaGeneration } from '@/hooks/use-persona-generation';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
@@ -27,7 +27,7 @@ export default function GeneratorPage() {
     clearPersonas,
     exportPersonas,
     validatePersona 
-  } = useEnhancedPersonaGeneration();
+  } = usePersonaGeneration();
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-teal-50">
@@ -85,9 +85,9 @@ export default function GeneratorPage() {
                   <div className="mt-2">
                     <p className="font-medium">Recommandations :</p>
                     <ul className="text-sm list-disc list-inside">
-                      {generationState.recommendations.map((rec, index) => (
-                        <li key={index}>{rec}</li>
-                      ))}
+                                          {generationState.recommendations.map((rec: string, index: number) => (
+                      <li key={index}>{rec}</li>
+                    ))}
                     </ul>
                   </div>
                 )}
@@ -101,9 +101,9 @@ export default function GeneratorPage() {
               <AlertTriangle className="h-4 w-4" />
               <AlertDescription>
                 <div className="space-y-1">
-                  {generationState.warnings.map((warning, index) => (
-                    <p key={index} className="text-sm">{warning}</p>
-                  ))}
+                                  {generationState.warnings.map((warning: string, index: number) => (
+                  <p key={index} className="text-sm">{warning}</p>
+                ))}
                 </div>
               </AlertDescription>
             </Alert>
@@ -168,9 +168,9 @@ export default function GeneratorPage() {
               <AlertDescription>
                 <div className="space-y-1">
                   <p className="font-medium">Recommandations pour améliorer vos personas :</p>
-                  {generationState.recommendations.map((rec, index) => (
-                    <p key={index} className="text-sm">• {rec}</p>
-                  ))}
+                                  {generationState.recommendations.map((rec: string, index: number) => (
+                  <p key={index} className="text-sm">• {rec}</p>
+                ))}
                 </div>
               </AlertDescription>
             </Alert>

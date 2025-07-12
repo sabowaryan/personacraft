@@ -20,11 +20,11 @@ import {
   AlertTriangle,
   CheckCircle
 } from 'lucide-react';
-import { useEnhancedPersonaGeneration } from '@/hooks/use-enhanced-persona-generation';
+import { usePersonaGeneration } from '@/hooks/use-persona-generation';
 import Link from 'next/link';
 
 export default function AnalyticsPage() {
-  const { personas, generationState, getQualityInsights } = useEnhancedPersonaGeneration();
+  const { personas, generationState, getQualityInsights } = usePersonaGeneration();
 
   // Calculer les métriques avancées
   const getAdvancedMetrics = () => {
