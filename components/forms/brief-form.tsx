@@ -13,7 +13,11 @@ import { Badge } from '@/components/ui/badge';
 import { Plus, X, Sparkles, Users, Target, AlertCircle, CheckCircle, Info } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { briefFormSchema, type BriefFormData } from '@/lib/utils/validators';
+import { briefFormSchema } from '@/lib/utils/validators';
+import { BriefFormData } from '@/lib/types/persona';
+import { z } from 'zod';
+
+type BriefFormSchemaType = z.infer<typeof briefFormSchema>;
 
 interface BriefFormProps {
   onSubmit: (data: BriefFormData) => void;
@@ -24,7 +28,7 @@ export function BriefForm({ onSubmit, isLoading = false }: BriefFormProps) {
   const [currentInterest, setCurrentInterest] = useState('');
   const [currentValue, setCurrentValue] = useState('');
 
-  const form = useForm<BriefFormData>({
+  const form = useForm<BriefFormSchemaType>({
     resolver: zodResolver(briefFormSchema),
     defaultValues: {
       description: '',
@@ -71,9 +75,9 @@ export function BriefForm({ onSubmit, isLoading = false }: BriefFormProps) {
     setValue('values', watchedValues.filter(v => v !== value));
   };
 
-  const handleFormSubmit = (data: BriefFormData) => {
+  const handleFormSubmit = (data: BriefFormSchemaType) => {
     // Les données sont déjà validées par Zod
-    onSubmit(data);
+    onSubmit(data as BriefFormData);
   };
 
   return (
@@ -220,7 +224,7 @@ export function BriefForm({ onSubmit, isLoading = false }: BriefFormProps) {
             </div>
 
             <div className="flex flex-wrap gap-2">
-              {watchedInterests.map((interest) => (
+              {watchedInterests.map((interest: string) => (
                 <Badge key={interest} variant="secondary" className="flex items-center space-x-1">
                   <span>{interest}</span>
                   <button
