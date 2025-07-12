@@ -1,4 +1,4 @@
-// Client API pour Qloo Taste AI avec vraie intégration
+THIS SHOULD BE A LINTER ERROR// Client API pour Qloo Taste AI avec vraie intégration
 
 import type {
   QlooRequest,
