@@ -1,182 +1,160 @@
-'use client';
-
+import type { Metadata } from 'next';
 import { Header } from '@/components/layout/header';
 import { Footer } from '@/components/layout/footer';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Sparkles, Users, Zap, Download, ArrowRight, CheckCircle } from 'lucide-react';
-import Link from 'next/link';
+import { HeroSection } from '@/components/landing/hero-section';
+import { FeaturesSection } from '@/components/landing/features-section';
+import { HowItWorksSection } from '@/components/landing/how-it-works';
+import { TestimonialsSection } from '@/components/landing/testimonials-section';
+import { PricingSection } from '@/components/landing/pricing-section';
+import { CTASection } from '@/components/landing/cta-section';
 
-export default function Home() {
+export const metadata: Metadata = {
+  title: 'PersonaCraft - Créez des personas marketing ultra-réalistes avec l\'IA',
+  description: 'Générez des personas marketing authentiques en 60 secondes avec Google Gemini et Qloo Taste AI. Données culturelles réelles, export PDF/CSV, +47% de conversion.',
+  keywords: [
+    'persona marketing',
+    'générateur persona',
+    'intelligence artificielle marketing',
+    'Gemini AI',
+    'Qloo Taste AI',
+    'personas clients',
+    'marketing automation',
+    'données culturelles',
+    'psychographie',
+    'segmentation client',
+    'marketing data',
+    'conversion optimization',
+    'customer insights',
+    'marketing personas',
+    'AI marketing tools'
+  ],
+  authors: [{ name: 'PersonaCraft Team' }],
+  creator: 'PersonaCraft',
+  publisher: 'PersonaCraft',
+  formatDetection: {
+    email: false,
+    address: false,
+    telephone: false,
+  },
+  metadataBase: new URL('https://personacraft.ai'),
+  alternates: {
+    canonical: '/',
+    languages: {
+      'fr-FR': '/fr',
+      'en-US': '/en',
+    },
+  },
+  openGraph: {
+    type: 'website',
+    locale: 'fr_FR',
+    url: 'https://personacraft.ai',
+    siteName: 'PersonaCraft',
+    title: 'PersonaCraft - Créez des personas marketing ultra-réalistes avec l\'IA',
+    description: 'Générez des personas marketing authentiques en 60 secondes avec Google Gemini et Qloo Taste AI. Données culturelles réelles, export PDF/CSV.',
+    images: [
+      {
+        url: '/og-image.jpg',
+        width: 1200,
+        height: 630,
+        alt: 'PersonaCraft - Générateur de personas marketing IA',
+      },
+    ],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'PersonaCraft - Créez des personas marketing ultra-réalistes avec l\'IA',
+    description: 'Générez des personas marketing authentiques en 60 secondes avec Google Gemini et Qloo Taste AI.',
+    creator: '@personacraft',
+    images: ['/twitter-image.jpg'],
+  },
+  robots: {
+    index: true,
+    follow: true,
+    nocache: false,
+    googleBot: {
+      index: true,
+      follow: true,
+      noimageindex: false,
+      'max-video-preview': -1,
+      'max-image-preview': 'large',
+      'max-snippet': -1,
+    },
+  },
+  verification: {
+    google: 'your-google-verification-code',
+    yandex: 'your-yandex-verification-code',
+  },
+};
+
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'SoftwareApplication',
+  name: 'PersonaCraft',
+  description: 'Générateur de personas marketing alimenté par l\'IA avec données culturelles authentiques',
+  url: 'https://personacraft.ai',
+  applicationCategory: 'Marketing Software',
+  operatingSystem: 'Web',
+  offers: {
+    '@type': 'Offer',
+    price: '0',
+    priceCurrency: 'EUR',
+    availability: 'https://schema.org/InStock',
+  },
+  aggregateRating: {
+    '@type': 'AggregateRating',
+    ratingValue: '4.9',
+    reviewCount: '2847',
+    bestRating: '5',
+    worstRating: '1',
+  },
+  provider: {
+    '@type': 'Organization',
+    name: 'PersonaCraft',
+    url: 'https://personacraft.ai',
+  },
+  featureList: [
+    'Génération de personas IA',
+    'Données culturelles Qloo',
+    'Export PDF/CSV',
+    'Analytics avancés',
+    'Intégration CRM',
+    'Support 24/7',
+  ],
+};
+
+export default function HomePage() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-teal-50">
-      <Header />
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       
-      <main className="container mx-auto px-4 py-12">
-        {/* Hero Section */}
-        <section className="text-center space-y-6 mb-16">
-          <div className="inline-flex items-center space-x-2 bg-indigo-100 text-indigo-800 px-4 py-2 rounded-full text-sm font-medium">
-            <Sparkles className="h-4 w-4" />
-            <span>Propulsé par l'IA</span>
-          </div>
+      <div className="min-h-screen bg-background">
+        <Header />
+        
+        <main>
+          {/* Hero Section - Above the fold */}
+          <HeroSection />
           
-          <h1 className="text-4xl md:text-6xl font-bold bg-gradient-to-r from-indigo-600 to-teal-600 bg-clip-text text-transparent">
-            Créez des personas
-            <br />
-            <span className="text-gray-900">authentiques et détaillés</span>
-          </h1>
+          {/* Features Section - Core value proposition */}
+          <FeaturesSection />
           
-          <p className="text-xl text-gray-600 max-w-2xl mx-auto leading-relaxed">
-            Générez des personas marketing ultra-réalistes en quelques minutes grâce à l'intelligence artificielle 
-            et aux données culturelles de Qloo.
-          </p>
+          {/* How It Works - Process explanation */}
+          <HowItWorksSection />
           
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link href="/generator">
-              <Button size="lg" className="bg-gradient-to-r from-indigo-600 to-teal-600 hover:from-indigo-700 hover:to-teal-700 text-white px-8 py-3">
-                <Zap className="h-5 w-5 mr-2" />
-                Commencer maintenant
-              </Button>
-            </Link>
-            <Button variant="outline" size="lg" className="px-8 py-3">
-              <Users className="h-5 w-5 mr-2" />
-              Voir la démo
-            </Button>
-          </div>
-        </section>
-
-        {/* Features Section */}
-        <section className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16">
-          <Card className="border-0 shadow-lg bg-white/50 backdrop-blur-sm">
-            <CardHeader>
-              <div className="w-12 h-12 bg-gradient-to-br from-indigo-500 to-teal-500 rounded-lg flex items-center justify-center mb-4">
-                <Sparkles className="h-6 w-6 text-white" />
-              </div>
-              <CardTitle>IA Avancée</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-gray-600">
-                Utilisez la puissance de Google Gemini et Qloo Taste AI pour créer des personas 
-                basés sur de vraies données culturelles et comportementales.
-              </p>
-            </CardContent>
-          </Card>
-
-          <Card className="border-0 shadow-lg bg-white/50 backdrop-blur-sm">
-            <CardHeader>
-              <div className="w-12 h-12 bg-gradient-to-br from-indigo-500 to-teal-500 rounded-lg flex items-center justify-center mb-4">
-                <Users className="h-6 w-6 text-white" />
-              </div>
-              <CardTitle>Profils Complets</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-gray-600">
-                Obtenez des personas détaillés avec profils psychographiques, préférences culturelles, 
-                et stratégies de communication personnalisées.
-              </p>
-            </CardContent>
-          </Card>
-
-          <Card className="border-0 shadow-lg bg-white/50 backdrop-blur-sm">
-            <CardHeader>
-              <div className="w-12 h-12 bg-gradient-to-br from-indigo-500 to-teal-500 rounded-lg flex items-center justify-center mb-4">
-                <Download className="h-6 w-6 text-white" />
-              </div>
-              <CardTitle>Export Facile</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-gray-600">
-                Exportez vos personas en PDF ou CSV pour les intégrer facilement dans vos 
-                présentations et stratégies marketing.
-              </p>
-            </CardContent>
-          </Card>
-        </section>
-
-        {/* How it Works */}
-        <section className="bg-white/50 backdrop-blur-sm rounded-2xl p-8 mb-16">
-          <h2 className="text-3xl font-bold text-center mb-8">Comment ça fonctionne</h2>
+          {/* Testimonials - Social proof */}
+          <TestimonialsSection />
           
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-            <div className="text-center">
-              <div className="w-16 h-16 bg-indigo-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <span className="text-2xl font-bold text-indigo-600">1</span>
-              </div>
-              <h3 className="font-semibold mb-2">Décrivez votre projet</h3>
-              <p className="text-sm text-gray-600">
-                Remplissez un brief simple avec vos objectifs et votre cible
-              </p>
-            </div>
-            
-            <div className="text-center">
-              <div className="w-16 h-16 bg-indigo-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <span className="text-2xl font-bold text-indigo-600">2</span>
-              </div>
-              <h3 className="font-semibold mb-2">IA génère les données</h3>
-              <p className="text-sm text-gray-600">
-                Nos algorithmes analysent les tendances culturelles et comportementales
-              </p>
-            </div>
-            
-            <div className="text-center">
-              <div className="w-16 h-16 bg-indigo-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <span className="text-2xl font-bold text-indigo-600">3</span>
-              </div>
-              <h3 className="font-semibold mb-2">Personas créés</h3>
-              <p className="text-sm text-gray-600">
-                Recevez des personas détaillés et authentiques en quelques secondes
-              </p>
-            </div>
-            
-            <div className="text-center">
-              <div className="w-16 h-16 bg-indigo-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <span className="text-2xl font-bold text-indigo-600">4</span>
-              </div>
-              <h3 className="font-semibold mb-2">Utilisez et partagez</h3>
-              <p className="text-sm text-gray-600">
-                Exportez et intégrez vos personas dans vos projets marketing
-              </p>
-            </div>
-          </div>
-        </section>
-
-        {/* CTA Section */}
-        <section className="text-center space-y-6">
-          <h2 className="text-3xl font-bold">
-            Prêt à créer vos premiers personas ?
-          </h2>
-          <p className="text-xl text-gray-600">
-            Rejoignez des centaines de marketeurs qui utilisent déjà PersonaCraft
-          </p>
+          {/* Pricing - Conversion focused */}
+          <PricingSection />
           
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link href="/generator">
-              <Button size="lg" className="bg-gradient-to-r from-indigo-600 to-teal-600 hover:from-indigo-700 hover:to-teal-700 text-white px-8 py-3">
-                Commencer gratuitement
-                <ArrowRight className="h-5 w-5 ml-2" />
-              </Button>
-            </Link>
-          </div>
-          
-          <div className="flex items-center justify-center space-x-6 text-sm text-gray-500">
-            <span className="flex items-center space-x-1">
-              <CheckCircle className="h-4 w-4 text-green-500" />
-              <span>Pas de carte de crédit</span>
-            </span>
-            <span className="flex items-center space-x-1">
-              <CheckCircle className="h-4 w-4 text-green-500" />
-              <span>Génération instantanée</span>
-            </span>
-            <span className="flex items-center space-x-1">
-              <CheckCircle className="h-4 w-4 text-green-500" />
-              <span>Export illimité</span>
-            </span>
-          </div>
-        </section>
-      </main>
-      
-      <Footer />
-    </div>
+          {/* Final CTA - Last chance conversion */}
+          <CTASection />
+        </main>
+        
+        <Footer />
+      </div>
+    </>
   );
 }

@@ -57,6 +57,7 @@ export function Navigation() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [activeSubmenu, setActiveSubmenu] = useState<string | null>(null);
   const [isScrolled, setIsScrolled] = useState(false);
+  const [scrollY, setScrollY] = useState(0);
   const { theme, setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
   const pathname = usePathname();
@@ -66,13 +67,16 @@ export function Navigation() {
     setMounted(true);
   }, []);
 
-  // Détection du scroll pour l'effet de glassmorphism
+  // Détection du scroll pour l'effet de transparence progressive
   useEffect(() => {
     const handleScroll = () => {
-      setIsScrolled(window.scrollY > 10);
+      const currentScrollY = window.scrollY;
+      setScrollY(currentScrollY);
+      setIsScrolled(currentScrollY > 50);
     };
     
     window.addEventListener('scroll', handleScroll);
+    handleScroll(); // Appel initial
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
@@ -111,16 +115,44 @@ export function Navigation() {
     }
   };
 
+  // Calculer l'opacité basée sur le scroll
+  const getBackgroundOpacity = () => {
+    if (scrollY <= 0) return 0;
+    if (scrollY >= 100) return 1;
+    return scrollY / 100;
+  };
+
+  // Calculer l'opacité du backdrop blur
+  const getBlurOpacity = () => {
+    if (scrollY <= 0) return 0;
+    if (scrollY >= 80) return 1;
+    return scrollY / 80;
+  };
+
   if (!mounted) return null; // Attendre le montage pour éviter mismatch
 
   return (
-    <nav className={cn(
-      "fixed top-0 left-0 right-0 z-50 transition-all duration-300 ease-in-out",
-      isScrolled 
-        ? "bg-white/80 dark:bg-gray-900/80 backdrop-blur-md shadow-lg border-b border-gray-200/50 dark:border-gray-700/50" 
-        : "bg-white/95 dark:bg-gray-900/95 backdrop-blur-sm border-b border-gray-200/30 dark:border-gray-700/30"
-    )}>
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+    <nav className="fixed top-0 left-0 right-0 z-50 transition-all duration-300 ease-in-out">
+      {/* Background avec opacité progressive */}
+      <div 
+        className="absolute inset-0 bg-white dark:bg-gray-900 transition-opacity duration-300"
+        style={{ opacity: getBackgroundOpacity() }}
+      />
+      
+      {/* Backdrop blur avec opacité progressive */}
+      <div 
+        className="absolute inset-0 backdrop-blur-md transition-opacity duration-300"
+        style={{ opacity: getBlurOpacity() }}
+      />
+      
+      {/* Border avec opacité progressive */}
+      <div 
+        className="absolute bottom-0 left-0 right-0 h-px bg-gray-200 dark:bg-gray-700 transition-opacity duration-300"
+        style={{ opacity: getBackgroundOpacity() }}
+      />
+      
+      {/* Contenu du header */}
+      <div className="relative container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16 lg:h-18">
           {/* Logo */}
           <Link 
@@ -164,8 +196,8 @@ export function Navigation() {
                       className={cn(
                         "flex items-center space-x-1 text-sm font-medium transition-all duration-200 hover:text-primary-600 dark:hover:text-primary-400 hover:scale-105 px-3 py-2 rounded-lg",
                         isActive 
-                          ? "text-primary-600 dark:text-primary-400 bg-primary-50 dark:bg-primary-900/20" 
-                          : "text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800/50"
+                          ? "text-primary-600 dark:text-primary-400 bg-primary-50/80 dark:bg-primary-900/40" 
+                          : "text-gray-700 dark:text-gray-200 hover:bg-gray-50/80 dark:hover:bg-gray-800/50"
                       )}
                     >
                       {item.icon && <item.icon className="h-4 w-4" />}
@@ -175,13 +207,13 @@ export function Navigation() {
 
                   {/* Submenu Desktop */}
                   {hasSubmenu && (
-                    <div className="absolute top-full left-0 mt-3 w-52 bg-white dark:bg-gray-800 rounded-xl shadow-xl border border-gray-200 dark:border-gray-700 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 transform translate-y-2 group-hover:translate-y-0">
+                    <div className="absolute top-full left-0 mt-3 w-52 bg-white/95 dark:bg-gray-800/95 backdrop-blur-md rounded-xl shadow-xl border border-gray-200/50 dark:border-gray-700/50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 transform translate-y-2 group-hover:translate-y-0">
                       <div className="py-2">
                         {item.submenu?.map((subItem) => (
                           <Link
                             key={subItem.name}
                             href={subItem.href}
-                            className="block px-4 py-3 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 hover:text-primary-600 dark:hover:text-primary-400 transition-colors duration-200 first:rounded-t-xl last:rounded-b-xl"
+                            className="block px-4 py-3 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-50/80 dark:hover:bg-gray-700/80 hover:text-primary-600 dark:hover:text-primary-400 transition-colors duration-200 first:rounded-t-xl last:rounded-b-xl"
                           >
                             {subItem.name}
                           </Link>
@@ -202,12 +234,12 @@ export function Navigation() {
               variant="ghost"
               size="sm"
               onClick={cycleTheme}
-              className="w-9 h-9 p-0 hover:bg-gray-100 dark:hover:bg-gray-800 hover:scale-110 transition-all duration-200"
+              className="w-9 h-9 p-0 hover:bg-gray-100/80 dark:hover:bg-gray-800/80 hover:scale-110 transition-all duration-200"
             >
               {getThemeIcon()}
             </Button>
 
-          {/* CTA Button */}
+            {/* CTA Button */}
             <Link href="/generator">
               <Button 
                 size="sm"
@@ -227,23 +259,23 @@ export function Navigation() {
               variant="ghost"
               size="sm"
               onClick={cycleTheme}
-              className="w-9 h-9 p-0 hover:bg-gray-100 dark:hover:bg-gray-800 hover:scale-110 transition-all duration-200"
+              className="w-9 h-9 p-0 hover:bg-gray-100/80 dark:hover:bg-gray-800/80 hover:scale-110 transition-all duration-200"
             >
               {getThemeIcon()}
             </Button>
 
-          {/* Mobile Menu Button */}
+            {/* Mobile Menu Button */}
             <Button
               variant="ghost"
               size="sm"
-            onClick={toggleMobileMenu}
-              className="w-9 h-9 p-0 hover:bg-gray-100 dark:hover:bg-gray-800 hover:scale-110 transition-all duration-200"
-          >
-            {isMobileMenuOpen ? (
+              onClick={toggleMobileMenu}
+              className="w-9 h-9 p-0 hover:bg-gray-100/80 dark:hover:bg-gray-800/80 hover:scale-110 transition-all duration-200"
+            >
+              {isMobileMenuOpen ? (
                 <X className="h-5 w-5" />
-            ) : (
+              ) : (
                 <Menu className="h-5 w-5" />
-            )}
+              )}
             </Button>
           </div>
         </div>
@@ -255,7 +287,7 @@ export function Navigation() {
             ? "max-h-screen opacity-100 pb-4" 
             : "max-h-0 opacity-0"
         )}>
-          <div className="border-t border-gray-200 dark:border-gray-700 pt-4">
+          <div className="border-t border-gray-200/50 dark:border-gray-700/50 pt-4">
             <div className="space-y-1">
               {navigationItems.map((item) => {
                 const isActive = pathname === item.href;
@@ -270,8 +302,8 @@ export function Navigation() {
                         className={cn(
                           "flex items-center justify-between w-full px-4 py-3 text-left text-sm font-medium rounded-lg transition-all duration-200 hover:scale-[1.02]",
                           isActive 
-                            ? "text-primary-600 dark:text-primary-400 bg-primary-50 dark:bg-primary-900/20" 
-                            : "text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800/50"
+                            ? "text-primary-600 dark:text-primary-400 bg-primary-50/80 dark:bg-primary-900/40" 
+                            : "text-gray-700 dark:text-gray-200 hover:bg-gray-50/80 dark:hover:bg-gray-800/50"
                         )}
                       >
                         <div className="flex items-center space-x-2">
@@ -290,8 +322,8 @@ export function Navigation() {
                         className={cn(
                           "flex items-center space-x-2 px-4 py-3 text-sm font-medium rounded-lg transition-all duration-200 hover:scale-[1.02]",
                           isActive 
-                            ? "text-primary-600 dark:text-primary-400 bg-primary-50 dark:bg-primary-900/20" 
-                            : "text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800/50"
+                            ? "text-primary-600 dark:text-primary-400 bg-primary-50/80 dark:bg-primary-900/40" 
+                            : "text-gray-700 dark:text-gray-200 hover:bg-gray-50/80 dark:hover:bg-gray-800/50"
                         )}
                       >
                         {item.icon && <item.icon className="h-4 w-4" />}
@@ -310,7 +342,7 @@ export function Navigation() {
                             key={subItem.name}
                             href={subItem.href}
                             onClick={() => setIsMobileMenuOpen(false)}
-                            className="block px-4 py-2 text-sm text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 hover:bg-gray-50 dark:hover:bg-gray-800/50 rounded-lg transition-all duration-200 hover:scale-[1.02]"
+                            className="block px-4 py-2 text-sm text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 hover:bg-gray-50/80 dark:hover:bg-gray-800/50 rounded-lg transition-all duration-200 hover:scale-[1.02]"
                           >
                             {subItem.name}
                           </Link>
