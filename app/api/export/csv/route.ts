@@ -62,7 +62,7 @@ function generateCSVContent(personas: Persona[]): string {
     persona.marketing.motivations.join('; '),
     persona.marketing.buyingBehavior,
     persona.marketing.influences.join('; '),
-    persona.generatedAt.toISOString(),
+    persona.generatedAt instanceof Date ? persona.generatedAt.toISOString() : persona.generatedAt,
     persona.sources.join('; ')
   ]);
 
