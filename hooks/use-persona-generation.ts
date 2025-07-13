@@ -124,6 +124,42 @@ export function usePersonaGeneration(): UsePersonaGenerationReturn {
     }
   }, [storedPersonas]);
 
+  // Synchroniser avec sessionStorage pour la persistance entre onglets
+  useEffect(() => {
+    if (personas.length > 0) {
+      try {
+        // Sauvegarder dans sessionStorage pour les personas récemment générés
+        sessionStorage.setItem('personacraft-session-personas', JSON.stringify(personas));
+      } catch (error) {
+        console.error('Erreur lors de la sauvegarde dans sessionStorage:', error);
+      }
+    }
+  }, [personas]);
+
+  // Écouter les changements de localStorage pour la synchronisation entre onglets
+  useEffect(() => {
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === 'personacraft-personas' && e.newValue) {
+        try {
+          const newPersonas = JSON.parse(e.newValue);
+          setPersonas(newPersonas);
+        } catch (error) {
+          console.error('Erreur lors de la synchronisation localStorage:', error);
+        }
+      }
+    };
+
+    if (typeof window !== 'undefined') {
+      window.addEventListener('storage', handleStorageChange);
+    }
+
+    return () => {
+      if (typeof window !== 'undefined') {
+        window.removeEventListener('storage', handleStorageChange);
+      }
+    };
+  }, []);
+
   // Fonction principale de génération enrichie
   const generatePersonas = useCallback(async (brief: BriefFormData) => {
     try {
