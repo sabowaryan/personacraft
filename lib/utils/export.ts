@@ -108,7 +108,7 @@ export async function exportToJSON(personas: Persona[], options?: {
     },
     personas: personas.map(persona => ({
       ...persona,
-      generatedAt: persona.generatedAt.toISOString()
+      generatedAt: persona.generatedAt instanceof Date ? persona.generatedAt.toISOString() : persona.generatedAt
     }))
   };
 
