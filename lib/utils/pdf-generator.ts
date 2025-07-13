@@ -83,7 +83,7 @@ export class PDFGenerator {
     const info = [
       `Âge: ${persona.age} ans`,
       `Localisation: ${persona.location}`,
-      `Généré le: ${persona.generatedAt.toLocaleDateString('fr-FR')}`
+      `Généré le: ${new Date(persona.generatedAt).toLocaleDateString('fr-FR')}`
     ];
     
     info.forEach(line => {

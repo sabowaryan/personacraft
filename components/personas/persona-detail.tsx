@@ -184,7 +184,7 @@ export function PersonaDetail({ persona, onBack }: PersonaDetailProps) {
                     <div className="flex items-center gap-2 px-3 py-1 bg-white/80 dark:bg-gray-800/80 rounded-full backdrop-blur-sm">
                       <Clock className="h-4 w-4 text-gray-600 dark:text-gray-400" />
                       <span className="font-medium">
-                        {persona.generatedAt.toLocaleDateString('fr-FR', {
+                        {new Date(persona.generatedAt).toLocaleDateString('fr-FR', {
                           day: 'numeric',
                           month: 'long',
                           year: 'numeric'
@@ -657,21 +657,21 @@ export function PersonaDetail({ persona, onBack }: PersonaDetailProps) {
                         <Target className="h-8 w-8 text-primary-600 dark:text-primary-400 mx-auto mb-2" />
                         <h4 className="font-semibold text-sm text-primary-700 dark:text-primary-300">Ciblage</h4>
                         <p className="text-xs text-primary-600 dark:text-primary-400 mt-1">
-                          Focus sur {persona.values[0]} et {persona.communication.preferredChannels[0]}
+                          Focus sur {persona.values?.[0] || 'valeurs clés'} et {persona.communication.preferredChannels?.[0] || 'canaux préférés'}
                         </p>
                       </div>
                       <div className="text-center p-4 bg-white/60 dark:bg-gray-800/60 rounded-lg">
                         <MessageCircle className="h-8 w-8 text-secondary-600 dark:text-secondary-400 mx-auto mb-2" />
                         <h4 className="font-semibold text-sm text-secondary-700 dark:text-secondary-300">Message</h4>
                         <p className="text-xs text-secondary-600 dark:text-secondary-400 mt-1">
-                          Ton {persona.communication.tone.toLowerCase()}, contenu {persona.communication.contentTypes[0].toLowerCase()}
+                          Ton {persona.communication.tone?.toLowerCase() || 'personnalisé'}, contenu {persona.communication.contentTypes?.[0]?.toLowerCase() || 'adapté'}
                         </p>
                       </div>
                       <div className="text-center p-4 bg-white/60 dark:bg-gray-800/60 rounded-lg">
                         <Clock className="h-8 w-8 text-amber-600 dark:text-amber-400 mx-auto mb-2" />
                         <h4 className="font-semibold text-sm text-amber-700 dark:text-amber-300">Timing</h4>
                         <p className="text-xs text-amber-600 dark:text-amber-400 mt-1">
-                          Communication {persona.communication.frequency.toLowerCase()}
+                          Communication {persona.communication.frequency?.toLowerCase() || 'optimale'}
                         </p>
                       </div>
                     </div>

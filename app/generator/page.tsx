@@ -79,17 +79,17 @@ export default function GeneratorPage() {
                   <CardHeader className="bg-gradient-to-r from-blue-50/80 to-indigo-50/80 dark:from-blue-900/30 dark:to-indigo-900/30">
                     <CardTitle className="flex items-center gap-3 text-indigo-700 dark:text-indigo-300">
                     <div className="relative">
-                      <Zap className="h-6 w-6 animate-pulse" />
+                      <Zap className="h-5 w-5 sm:h-6 sm:w-6 animate-pulse" />
                         <div className="absolute -top-1 -right-1 w-2 h-2 bg-indigo-400 rounded-full pulse-ring" />
                     </div>
-                      <span className="text-xl font-bold">Génération en cours...</span>
+                      <span className="text-lg sm:text-xl font-bold">Génération en cours...</span>
                       <Badge variant="outline" className="ml-auto border-indigo-300 dark:border-indigo-600">
                         <Clock className="h-3 w-3 mr-1" />
                         {Math.round(generationState.progress)}%
                       </Badge>
                   </CardTitle>
                 </CardHeader>
-                  <CardContent className="p-6 space-y-6">
+                  <CardContent className="p-4 sm:p-6 space-y-4 sm:space-y-6">
                   <div>
                     <div className="flex justify-between items-center mb-3">
                         <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
@@ -98,47 +98,47 @@ export default function GeneratorPage() {
                         <span className="text-sm font-bold text-indigo-600 dark:text-indigo-400">
                           {generationState.progress}%
                         </span>
-                      </div>
+                    </div>
                       <Progress value={generationState.progress} className="h-3 bg-gray-100 dark:bg-gray-700" />
                   </div>
                   
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                      <div className="glass-card p-4 rounded-lg hover-scale bg-white/60 dark:bg-gray-700/60">
-                        <div className="flex items-center gap-3">
-                          <div className="p-2 bg-blue-100 dark:bg-blue-900/50 rounded-lg">
-                            <Activity className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+                  <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
+                      <div className="glass-card p-3 sm:p-4 rounded-lg hover-scale bg-white/60 dark:bg-gray-700/60">
+                        <div className="flex items-center gap-2 sm:gap-3">
+                          <div className="p-1.5 sm:p-2 bg-blue-100 dark:bg-blue-900/50 rounded-lg">
+                            <Activity className="h-4 w-4 sm:h-5 sm:w-5 text-blue-600 dark:text-blue-400" />
                           </div>
                       <div>
-                            <p className="text-sm font-medium text-gray-700 dark:text-gray-300">Temps moyen</p>
-                            <p className="text-lg font-bold text-blue-600 dark:text-blue-400">
+                            <p className="text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300">Temps moyen</p>
+                            <p className="text-sm sm:text-lg font-bold text-blue-600 dark:text-blue-400">
                           {Math.round(generationState.performance_metrics.average_response_time)}ms
                         </p>
                       </div>
                     </div>
                       </div>
-                      <div className="glass-card p-4 rounded-lg hover-scale bg-white/60 dark:bg-gray-700/60">
-                        <div className="flex items-center gap-3">
-                          <div className="p-2 bg-green-100 dark:bg-green-900/50 rounded-lg">
-                            <TrendingUp className="h-5 w-5 text-green-600 dark:text-green-400" />
+                      <div className="glass-card p-3 sm:p-4 rounded-lg hover-scale bg-white/60 dark:bg-gray-700/60">
+                        <div className="flex items-center gap-2 sm:gap-3">
+                          <div className="p-1.5 sm:p-2 bg-green-100 dark:bg-green-900/50 rounded-lg">
+                            <TrendingUp className="h-4 w-4 sm:h-5 sm:w-5 text-green-600 dark:text-green-400" />
                           </div>
                       <div>
-                            <p className="text-sm font-medium text-gray-700 dark:text-gray-300">Taux de succès</p>
-                            <p className="text-lg font-bold text-green-600 dark:text-green-400">
+                            <p className="text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300">Taux de succès</p>
+                            <p className="text-sm sm:text-lg font-bold text-green-600 dark:text-green-400">
                           {Math.round(generationState.performance_metrics.success_rate * 100)}%
                         </p>
                       </div>
                     </div>
                       </div>
-                      <div className="glass-card p-4 rounded-lg hover-scale bg-white/60 dark:bg-gray-700/60">
-                        <div className="flex items-center gap-3">
-                          <div className="p-2 bg-purple-100 dark:bg-purple-900/50 rounded-lg">
-                            <Gauge className="h-5 w-5 text-purple-600 dark:text-purple-400" />
+                      <div className="glass-card p-3 sm:p-4 rounded-lg hover-scale bg-white/60 dark:bg-gray-700/60 col-span-2 lg:col-span-1">
+                        <div className="flex items-center gap-2 sm:gap-3">
+                          <div className="p-1.5 sm:p-2 bg-purple-100 dark:bg-purple-900/50 rounded-lg">
+                            <Gauge className="h-4 w-4 sm:h-5 sm:w-5 text-purple-600 dark:text-purple-400" />
                           </div>
                       <div>
-                            <p className="text-sm font-medium text-gray-700 dark:text-gray-300">Qualité</p>
-                            <p className="text-lg font-bold text-purple-600 dark:text-purple-400">Optimale</p>
+                            <p className="text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300">Qualité</p>
+                            <p className="text-sm sm:text-lg font-bold text-purple-600 dark:text-purple-400">Optimale</p>
                           </div>
-                        </div>
+                      </div>
                     </div>
                   </div>
                 </CardContent>
@@ -216,7 +216,7 @@ export default function GeneratorPage() {
                     <div className="animate-in slide-in-from-top-2 duration-300">
                       {/* Liste des warnings */}
                       <div className="p-4 space-y-3">
-                        {generationState.warnings.map((warning: string, index: number) => (
+                    {generationState.warnings.map((warning: string, index: number) => (
                           <div 
                             key={index} 
                             className="group flex items-start gap-3 p-3 bg-white/80 dark:bg-gray-800/80 rounded-lg border border-red-200/50 dark:border-red-700/50 hover:bg-white dark:hover:bg-gray-700 transition-all duration-200 animate-in slide-in-from-left-4"
@@ -232,12 +232,12 @@ export default function GeneratorPage() {
                                 </span>
                               </div>
                               <p className="text-sm text-red-800 dark:text-red-200 leading-relaxed font-medium">
-                                {warning}
-                              </p>
+                        {warning}
+                      </p>
                             </div>
                           </div>
-                        ))}
-                      </div>
+                    ))}
+                  </div>
                       
                       {/* Actions recommandées compactes */}
                       <div className="px-4 pb-4">
@@ -260,7 +260,7 @@ export default function GeneratorPage() {
                       </div>
                     </div>
                   )}
-                </div>
+            </div>
               </section>
           )}
 
@@ -291,36 +291,36 @@ export default function GeneratorPage() {
                   </CardTitle>
                 </CardHeader>
                 
-                <CardContent className="p-6">
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-                      <div className="text-center p-6 bg-gradient-to-br from-green-50/80 to-green-100/80 dark:from-green-900/20 dark:to-green-800/20 rounded-xl hover-scale interactive">
-                        <div className="inline-flex items-center justify-center w-16 h-16 bg-green-100 dark:bg-green-900/50 rounded-xl mb-4">
-                          <CheckCircle className="h-8 w-8 text-green-600 dark:text-green-400" />
+                <CardContent className="p-4 sm:p-6">
+                  <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 lg:gap-6 mb-6">
+                      <div className="text-center p-3 sm:p-4 lg:p-6 bg-gradient-to-br from-green-50/80 to-green-100/80 dark:from-green-900/20 dark:to-green-800/20 rounded-xl hover-scale interactive">
+                        <div className="inline-flex items-center justify-center w-10 h-10 sm:w-12 sm:h-12 lg:w-16 lg:h-16 bg-green-100 dark:bg-green-900/50 rounded-xl mb-2 sm:mb-3 lg:mb-4">
+                          <CheckCircle className="h-5 w-5 sm:h-6 sm:w-6 lg:h-8 lg:w-8 text-green-600 dark:text-green-400" />
                       </div>
-                        <div className="text-4xl font-bold text-green-600 dark:text-green-400 mb-2">
+                        <div className="text-2xl sm:text-3xl lg:text-4xl font-bold text-green-600 dark:text-green-400 mb-1 sm:mb-2">
                         {Math.round(generationState.quality_trends.average_completeness * 100)}%
                       </div>
-                        <p className="text-sm text-gray-600 dark:text-gray-400 font-medium">Complétude</p>
+                        <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 font-medium">Complétude</p>
                         <p className="text-xs text-gray-500 dark:text-gray-500 mt-1">Données complètes</p>
                       </div>
-                      <div className="text-center p-6 bg-gradient-to-br from-blue-50/80 to-blue-100/80 dark:from-blue-900/20 dark:to-blue-800/20 rounded-xl hover-scale interactive">
-                        <div className="inline-flex items-center justify-center w-16 h-16 bg-blue-100 dark:bg-blue-900/50 rounded-xl mb-4">
-                          <Shield className="h-8 w-8 text-blue-600 dark:text-blue-400" />
+                      <div className="text-center p-3 sm:p-4 lg:p-6 bg-gradient-to-br from-blue-50/80 to-blue-100/80 dark:from-blue-900/20 dark:to-blue-800/20 rounded-xl hover-scale interactive">
+                        <div className="inline-flex items-center justify-center w-10 h-10 sm:w-12 sm:h-12 lg:w-16 lg:h-16 bg-blue-100 dark:bg-blue-900/50 rounded-xl mb-2 sm:mb-3 lg:mb-4">
+                          <Shield className="h-5 w-5 sm:h-6 sm:w-6 lg:h-8 lg:w-8 text-blue-600 dark:text-blue-400" />
                         </div>
-                        <div className="text-4xl font-bold text-blue-600 dark:text-blue-400 mb-2">
+                        <div className="text-2xl sm:text-3xl lg:text-4xl font-bold text-blue-600 dark:text-blue-400 mb-1 sm:mb-2">
                         {Math.round(generationState.quality_trends.average_consistency * 100)}%
                       </div>
-                        <p className="text-sm text-gray-600 dark:text-gray-400 font-medium">Cohérence</p>
+                        <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 font-medium">Cohérence</p>
                         <p className="text-xs text-gray-500 dark:text-gray-500 mt-1">Logique interne</p>
                       </div>
-                      <div className="text-center p-6 bg-gradient-to-br from-purple-50/80 to-purple-100/80 dark:from-purple-900/20 dark:to-purple-800/20 rounded-xl hover-scale interactive">
-                        <div className="inline-flex items-center justify-center w-16 h-16 bg-purple-100 dark:bg-purple-900/50 rounded-xl mb-4">
-                          <Target className="h-8 w-8 text-purple-600 dark:text-purple-400" />
+                      <div className="text-center p-3 sm:p-4 lg:p-6 bg-gradient-to-br from-purple-50/80 to-purple-100/80 dark:from-purple-900/20 dark:to-purple-800/20 rounded-xl hover-scale interactive col-span-2 lg:col-span-1">
+                        <div className="inline-flex items-center justify-center w-10 h-10 sm:w-12 sm:h-12 lg:w-16 lg:h-16 bg-purple-100 dark:bg-purple-900/50 rounded-xl mb-2 sm:mb-3 lg:mb-4">
+                          <Target className="h-5 w-5 sm:h-6 sm:w-6 lg:h-8 lg:w-8 text-purple-600 dark:text-purple-400" />
                         </div>
-                        <div className="text-4xl font-bold text-purple-600 dark:text-purple-400 mb-2">
+                        <div className="text-2xl sm:text-3xl lg:text-4xl font-bold text-purple-600 dark:text-purple-400 mb-1 sm:mb-2">
                         {Math.round(generationState.quality_trends.average_realism * 100)}%
-                        </div>
-                        <p className="text-sm text-gray-600 dark:text-gray-400 font-medium">Réalisme</p>
+                      </div>
+                        <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 font-medium">Réalisme</p>
                         <p className="text-xs text-gray-500 dark:text-gray-500 mt-1">Crédibilité</p>
                     </div>
                   </div>
@@ -393,10 +393,10 @@ export default function GeneratorPage() {
             <section className="space-y-8">
               {personas.length === 0 && (
               <div className="animate-in fade-in slide-in-from-bottom-6 duration-700">
-                <BriefForm 
-                  onSubmit={generatePersonas} 
-                  isLoading={generationState.isGenerating} 
-                />
+                    <BriefForm 
+                      onSubmit={generatePersonas} 
+                      isLoading={generationState.isGenerating} 
+                    />
               </div>
             )}
 

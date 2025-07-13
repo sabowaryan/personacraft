@@ -15,7 +15,7 @@ ${'─'.repeat(25)}
 Nom: ${persona.name}
 Âge: ${persona.age} ans
 Localisation: ${persona.location}
-Généré le: ${persona.generatedAt.toLocaleDateString('fr-FR')}
+Généré le: ${new Date(persona.generatedAt).toLocaleDateString('fr-FR')}
 
 CITATION PERSONNELLE
 ${'─'.repeat(25)}

@@ -130,20 +130,20 @@ const SelectTrigger = React.forwardRef<
         )}
 
         {/* Trigger */}
-        <SelectPrimitive.Trigger
-          ref={ref}
+  <SelectPrimitive.Trigger
+    ref={ref}
           className={triggerClasses}
           disabled={disabled}
-          {...props}
-        >
-          {children}
-          <SelectPrimitive.Icon asChild>
+    {...props}
+  >
+    {children}
+    <SelectPrimitive.Icon asChild>
             <ChevronDown className={cn(
               "h-4 w-4 text-gray-400 dark:text-gray-500 transition-all duration-300",
               isOpen && "rotate-180 text-primary-500 dark:text-primary-400"
             )} />
-          </SelectPrimitive.Icon>
-        </SelectPrimitive.Trigger>
+    </SelectPrimitive.Icon>
+  </SelectPrimitive.Trigger>
 
         {/* Focus Ring Effect */}
         <div className={cn(

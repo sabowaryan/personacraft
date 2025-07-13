@@ -196,50 +196,50 @@ export function BriefForm({ onSubmit, isLoading = false, isGenerating = false }:
         </div>
 
         {/* Indicateurs de qualité */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-6">
           <div className={cn(
-            "p-4 rounded-xl border-2 transition-all duration-300 hover-lift shadow-sm",
+            "p-3 sm:p-4 rounded-xl border-2 transition-all duration-300 hover-lift shadow-sm",
             isDescriptionValid 
               ? "border-green-300 bg-green-50/80 dark:border-green-600 dark:bg-green-900/30 shadow-green-100 dark:shadow-green-900/20" 
               : "border-gray-300 bg-gray-50/80 dark:border-gray-600 dark:bg-gray-800/30 shadow-gray-100 dark:shadow-gray-900/20"
           )}>
-            <div className="flex items-center gap-3">
-              {isDescriptionValid ? (
-                <div className="p-1.5 bg-green-100 dark:bg-green-800 rounded-lg">
-                  <CheckCircle className="h-4 w-4 text-green-700 dark:text-green-300" />
+            <div className="flex items-center gap-2 sm:gap-3">
+                {isDescriptionValid ? (
+                <div className="p-1 sm:p-1.5 bg-green-100 dark:bg-green-800 rounded-lg">
+                  <CheckCircle className="h-3 w-3 sm:h-4 sm:w-4 text-green-700 dark:text-green-300" />
                 </div>
               ) : (
-                <div className="p-1.5 bg-gray-100 dark:bg-gray-700 rounded-lg">
-                  <Clock className="h-4 w-4 text-gray-500 dark:text-gray-400" />
+                <div className="p-1 sm:p-1.5 bg-gray-100 dark:bg-gray-700 rounded-lg">
+                  <Clock className="h-3 w-3 sm:h-4 sm:w-4 text-gray-500 dark:text-gray-400" />
                 </div>
               )}
               <div>
-                <p className="text-sm font-semibold text-gray-800 dark:text-gray-200">Description</p>
+                <p className="text-xs sm:text-sm font-semibold text-gray-800 dark:text-gray-200">Description</p>
                 <p className="text-xs text-gray-600 dark:text-gray-400">
-                  {descriptionLength}/1000 caractères
+                  {descriptionLength}/1000
                 </p>
               </div>
             </div>
           </div>
           
           <div className={cn(
-            "p-4 rounded-xl border-2 transition-all duration-300 hover-lift shadow-sm",
+            "p-3 sm:p-4 rounded-xl border-2 transition-all duration-300 hover-lift shadow-sm",
             watchedLocation 
               ? "border-blue-300 bg-blue-50/80 dark:border-blue-600 dark:bg-blue-900/30 shadow-blue-100 dark:shadow-blue-900/20" 
               : "border-gray-300 bg-gray-50/80 dark:border-gray-600 dark:bg-gray-800/30 shadow-gray-100 dark:shadow-gray-900/20"
           )}>
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2 sm:gap-3">
               {watchedLocation ? (
-                <div className="p-1.5 bg-blue-100 dark:bg-blue-800 rounded-lg">
-                  <CheckCircle className="h-4 w-4 text-blue-700 dark:text-blue-300" />
+                <div className="p-1 sm:p-1.5 bg-blue-100 dark:bg-blue-800 rounded-lg">
+                  <CheckCircle className="h-3 w-3 sm:h-4 sm:w-4 text-blue-700 dark:text-blue-300" />
                 </div>
               ) : (
-                <div className="p-1.5 bg-gray-100 dark:bg-gray-700 rounded-lg">
-                  <MapPin className="h-4 w-4 text-gray-500 dark:text-gray-400" />
+                <div className="p-1 sm:p-1.5 bg-gray-100 dark:bg-gray-700 rounded-lg">
+                  <MapPin className="h-3 w-3 sm:h-4 sm:w-4 text-gray-500 dark:text-gray-400" />
                 </div>
               )}
               <div>
-                <p className="text-sm font-semibold text-gray-800 dark:text-gray-200">Localisation</p>
+                <p className="text-xs sm:text-sm font-semibold text-gray-800 dark:text-gray-200">Localisation</p>
                 <p className="text-xs text-gray-600 dark:text-gray-400">
                   {watchedLocation ? 'Définie' : 'Optionnelle'}
                 </p>
@@ -248,23 +248,23 @@ export function BriefForm({ onSubmit, isLoading = false, isGenerating = false }:
           </div>
           
           <div className={cn(
-            "p-4 rounded-xl border-2 transition-all duration-300 hover-lift shadow-sm",
+            "p-3 sm:p-4 rounded-xl border-2 transition-all duration-300 hover-lift shadow-sm",
             watchedInterests.length > 0 
               ? "border-primary-300 bg-primary-50/80 dark:border-primary-600 dark:bg-primary-900/30 shadow-primary-100 dark:shadow-primary-900/20" 
               : "border-gray-300 bg-gray-50/80 dark:border-gray-600 dark:bg-gray-800/30 shadow-gray-100 dark:shadow-gray-900/20"
           )}>
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2 sm:gap-3">
               {watchedInterests.length > 0 ? (
-                <div className="p-1.5 bg-primary-100 dark:bg-primary-800 rounded-lg">
-                  <CheckCircle className="h-4 w-4 text-primary-700 dark:text-primary-300" />
+                <div className="p-1 sm:p-1.5 bg-primary-100 dark:bg-primary-800 rounded-lg">
+                  <CheckCircle className="h-3 w-3 sm:h-4 sm:w-4 text-primary-700 dark:text-primary-300" />
                 </div>
               ) : (
-                <div className="p-1.5 bg-gray-100 dark:bg-gray-700 rounded-lg">
-                  <Target className="h-4 w-4 text-gray-500 dark:text-gray-400" />
+                <div className="p-1 sm:p-1.5 bg-gray-100 dark:bg-gray-700 rounded-lg">
+                  <Target className="h-3 w-3 sm:h-4 sm:w-4 text-gray-500 dark:text-gray-400" />
                 </div>
               )}
               <div>
-                <p className="text-sm font-semibold text-gray-800 dark:text-gray-200">Intérêts</p>
+                <p className="text-xs sm:text-sm font-semibold text-gray-800 dark:text-gray-200">Intérêts</p>
                 <p className="text-xs text-gray-600 dark:text-gray-400">
                   {watchedInterests.length} ajoutés
                 </p>
@@ -273,23 +273,23 @@ export function BriefForm({ onSubmit, isLoading = false, isGenerating = false }:
           </div>
           
           <div className={cn(
-            "p-4 rounded-xl border-2 transition-all duration-300 hover-lift shadow-sm",
+            "p-3 sm:p-4 rounded-xl border-2 transition-all duration-300 hover-lift shadow-sm",
             watchedValues.length > 0 
               ? "border-secondary-300 bg-secondary-50/80 dark:border-secondary-600 dark:bg-secondary-900/30 shadow-secondary-100 dark:shadow-secondary-900/20" 
               : "border-gray-300 bg-gray-50/80 dark:border-gray-600 dark:bg-gray-800/30 shadow-gray-100 dark:shadow-gray-900/20"
           )}>
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2 sm:gap-3">
               {watchedValues.length > 0 ? (
-                <div className="p-1.5 bg-secondary-100 dark:bg-secondary-800 rounded-lg">
-                  <CheckCircle className="h-4 w-4 text-secondary-700 dark:text-secondary-300" />
+                <div className="p-1 sm:p-1.5 bg-secondary-100 dark:bg-secondary-800 rounded-lg">
+                  <CheckCircle className="h-3 w-3 sm:h-4 sm:w-4 text-secondary-700 dark:text-secondary-300" />
                 </div>
               ) : (
-                <div className="p-1.5 bg-gray-100 dark:bg-gray-700 rounded-lg">
-                  <Heart className="h-4 w-4 text-gray-500 dark:text-gray-400" />
+                <div className="p-1 sm:p-1.5 bg-gray-100 dark:bg-gray-700 rounded-lg">
+                  <Heart className="h-3 w-3 sm:h-4 sm:w-4 text-gray-500 dark:text-gray-400" />
                 </div>
               )}
               <div>
-                <p className="text-sm font-semibold text-gray-800 dark:text-gray-200">Valeurs</p>
+                <p className="text-xs sm:text-sm font-semibold text-gray-800 dark:text-gray-200">Valeurs</p>
                 <p className="text-xs text-gray-600 dark:text-gray-400">
                   {watchedValues.length} définies
                 </p>
@@ -342,9 +342,9 @@ export function BriefForm({ onSubmit, isLoading = false, isGenerating = false }:
                   <AlertDescription className="text-amber-800 dark:text-amber-200">
                     <strong>Conseil :</strong> Ajoutez plus de détails pour améliorer la précision (minimum 10 caractères)
                   </AlertDescription>
-                </Alert>
-              )}
-            </div>
+              </Alert>
+            )}
+          </div>
 
             {/* Profil démographique */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -356,31 +356,31 @@ export function BriefForm({ onSubmit, isLoading = false, isGenerating = false }:
                   <label className="text-sm font-semibold text-gray-900 dark:text-white flex items-center gap-2">
                     Tranche d'âge
                     <span className="text-danger-500">*</span>
-                  </label>
+            </label>
                 </div>
-                <Select 
-                  onValueChange={(value) => setValue('ageRange', value)}
-                  defaultValue="25-35"
-                  disabled={isDisabled}
-                >
+            <Select 
+              onValueChange={(value) => setValue('ageRange', value)}
+              defaultValue="25-35"
+              disabled={isDisabled}
+            >
                   <SelectTrigger 
                     variant="default"
                     size="md"
                     error={!!errors.ageRange}
                     helperText={errors.ageRange?.message}
                   >
-                    <SelectValue placeholder="Sélectionner une tranche d'âge" />
-                  </SelectTrigger>
-                  <SelectContent>
+                <SelectValue placeholder="Sélectionner une tranche d'âge" />
+              </SelectTrigger>
+              <SelectContent>
                     <SelectItem value="18-25">18-25 ans • Jeunes adultes</SelectItem>
                     <SelectItem value="25-35">25-35 ans • Jeunes professionnels</SelectItem>
                     <SelectItem value="35-45">35-45 ans • Professionnels établis</SelectItem>
                     <SelectItem value="45-55">45-55 ans • Experts confirmés</SelectItem>
                     <SelectItem value="55-65">55-65 ans • Seniors actifs</SelectItem>
                     <SelectItem value="65+">65+ ans • Seniors</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
+              </SelectContent>
+            </Select>
+          </div>
 
               <div className="space-y-3">
                 <div className="flex items-center gap-2">
@@ -392,7 +392,7 @@ export function BriefForm({ onSubmit, isLoading = false, isGenerating = false }:
                     <span className="text-xs text-gray-500 dark:text-gray-400 font-normal">(optionnel)</span>
                   </label>
                 </div>
-                <Input
+            <Input
                   value={watchedLocation}
                   onChange={(e) => setValue('location', e.target.value)}
                   placeholder="ex: Paris, France • Europe • Monde"
@@ -401,10 +401,10 @@ export function BriefForm({ onSubmit, isLoading = false, isGenerating = false }:
                   leftIcon={<MapPin className="h-4 w-4 text-gray-600 dark:text-gray-400" />}
                   error={!!errors.location}
                   helperText={errors.location?.message}
-                  disabled={isDisabled}
-                />
+              disabled={isDisabled}
+            />
               </div>
-            </div>
+          </div>
 
           {/* Centres d'intérêt */}
             <div className="space-y-4">
@@ -423,31 +423,31 @@ export function BriefForm({ onSubmit, isLoading = false, isGenerating = false }:
                 </div>
                 <div className="text-right">
                   <p className="text-xs text-gray-500 dark:text-gray-400">
-                    {watchedInterests.length}/15
+                {watchedInterests.length}/15
                   </p>
                 </div>
               </div>
-              
+            
               <div className="flex gap-3">
-                <Input
-                  value={currentInterest}
-                  onChange={(e) => setCurrentInterest(e.target.value)}
+              <Input
+                value={currentInterest}
+                onChange={(e) => setCurrentInterest(e.target.value)}
                   placeholder="ex: Technologie, Sport, Cuisine, Art..."
-                  onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addInterest())}
+                onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addInterest())}
                   variant="default"
                   size="md"
                   leftIcon={<Target className="h-4 w-4 text-gray-600 dark:text-gray-400" />}
-                  disabled={isDisabled || watchedInterests.length >= 15}
-                />
-                <Button 
-                  type="button" 
-                  onClick={addInterest}
-                  disabled={!currentInterest.trim() || watchedInterests.length >= 15 || isDisabled}
+                disabled={isDisabled || watchedInterests.length >= 15}
+              />
+              <Button 
+                type="button" 
+                onClick={addInterest}
+                disabled={!currentInterest.trim() || watchedInterests.length >= 15 || isDisabled}
                   className="h-10 px-6 bg-primary-600 hover:bg-primary-700 dark:bg-primary-600 dark:hover:bg-primary-700 text-white shadow-lg hover:shadow-xl transition-all duration-300"
-                >
-                  <Plus className="h-4 w-4" />
-                </Button>
-              </div>
+              >
+                <Plus className="h-4 w-4" />
+              </Button>
+            </div>
 
               {watchedInterests.length > 0 && (
                 <div className="space-y-3">
@@ -457,7 +457,7 @@ export function BriefForm({ onSubmit, isLoading = false, isGenerating = false }:
                       Intérêts ajoutés ({watchedInterests.length})
                     </span>
                   </div>
-                  <div className="flex flex-wrap gap-2">
+            <div className="flex flex-wrap gap-2">
                     {watchedInterests.map((interest: string, index: number) => (
                       <div
                         key={interest}
@@ -470,33 +470,33 @@ export function BriefForm({ onSubmit, isLoading = false, isGenerating = false }:
                         <span className="text-sm font-medium text-primary-900 dark:text-primary-50">
                           {interest}
                         </span>
-                        <button
-                          type="button"
-                          onClick={() => removeInterest(interest)}
+                                      <button
+                      type="button"
+                      onClick={() => removeInterest(interest)}
                           className="p-1 text-primary-400 hover:text-red-500 hover:bg-red-50 dark:text-primary-300 dark:hover:text-red-400 dark:hover:bg-red-900/30 rounded transition-all duration-200 group-hover:scale-110"
-                          disabled={isDisabled}
+                      disabled={isDisabled}
                           title="Supprimer cet intérêt"
-                        >
-                          <X className="h-3 w-3" />
-                        </button>
+                    >
+                    <X className="h-3 w-3" />
+                  </button>
                         <div className="absolute inset-0 bg-gradient-to-r from-primary-500/10 to-primary-600/10 dark:from-primary-400/10 dark:to-primary-500/10 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                       </div>
-                    ))}
-                  </div>
+              ))}
+            </div>
                 </div>
               )}
 
-              {errors.interests && (
+            {errors.interests && (
                 <Alert variant="destructive" className="border-red-300 dark:border-red-600 bg-red-50/80 dark:bg-red-900/30 shadow-red-100 dark:shadow-red-900/20">
                   <div className="p-1 bg-red-100 dark:bg-red-800 rounded-lg">
                     <AlertCircle className="h-4 w-4 text-red-700 dark:text-red-300" />
                   </div>
                   <AlertDescription className="text-red-800 dark:text-red-200">{errors.interests.message}</AlertDescription>
-                </Alert>
-              )}
-            </div>
+              </Alert>
+            )}
+          </div>
 
-            {/* Valeurs */}
+          {/* Valeurs */}
             <div className="space-y-4">
               <div className="flex items-center gap-3">
                 <div className="p-2 bg-gradient-to-br from-secondary-100 to-secondary-200 dark:from-secondary-900/50 dark:to-secondary-800/50 rounded-lg shadow-sm">
@@ -513,31 +513,31 @@ export function BriefForm({ onSubmit, isLoading = false, isGenerating = false }:
                 </div>
                 <div className="text-right">
                   <p className="text-xs text-gray-500 dark:text-gray-400">
-                    {watchedValues.length}/10
+                {watchedValues.length}/10
                   </p>
                 </div>
               </div>
-              
+            
               <div className="flex gap-3">
-                <Input
-                  value={currentValue}
-                  onChange={(e) => setCurrentValue(e.target.value)}
+              <Input
+                value={currentValue}
+                onChange={(e) => setCurrentValue(e.target.value)}
                   placeholder="ex: Innovation, Durabilité, Performance, Équité..."
-                  onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addValue())}
+                onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addValue())}
                   variant="default"
                   size="md"
                   leftIcon={<Heart className="h-4 w-4 text-gray-600 dark:text-gray-400" />}
-                  disabled={isDisabled || watchedValues.length >= 10}
-                />
-                <Button 
-                  type="button" 
-                  onClick={addValue}
-                  disabled={!currentValue.trim() || watchedValues.length >= 10 || isDisabled}
+                disabled={isDisabled || watchedValues.length >= 10}
+              />
+              <Button 
+                type="button" 
+                onClick={addValue}
+                disabled={!currentValue.trim() || watchedValues.length >= 10 || isDisabled}
                   className="h-10 px-6 bg-secondary-600 hover:bg-secondary-700 dark:bg-secondary-600 dark:hover:bg-secondary-700 text-white shadow-lg hover:shadow-xl transition-all duration-300"
-                >
-                  <Plus className="h-4 w-4" />
-                </Button>
-              </div>
+              >
+                <Plus className="h-4 w-4" />
+              </Button>
+            </div>
 
               {watchedValues.length > 0 && (
                 <div className="space-y-3">
@@ -547,7 +547,7 @@ export function BriefForm({ onSubmit, isLoading = false, isGenerating = false }:
                       Valeurs définies ({watchedValues.length})
                     </span>
                   </div>
-                  <div className="flex flex-wrap gap-2">
+            <div className="flex flex-wrap gap-2">
                     {watchedValues.map((value: string, index: number) => (
                       <div
                         key={value}
@@ -560,50 +560,50 @@ export function BriefForm({ onSubmit, isLoading = false, isGenerating = false }:
                         <span className="text-sm font-medium text-secondary-900 dark:text-secondary-50">
                           {value}
                         </span>
-                        <button
-                          type="button"
-                          onClick={() => removeValue(value)}
+                                      <button
+                      type="button"
+                      onClick={() => removeValue(value)}
                           className="p-1 text-secondary-400 hover:text-red-500 hover:bg-red-50 dark:text-secondary-300 dark:hover:text-red-400 dark:hover:bg-red-900/30 rounded transition-all duration-200 group-hover:scale-110"
-                          disabled={isDisabled}
+                      disabled={isDisabled}
                           title="Supprimer cette valeur"
-                        >
-                          <X className="h-3 w-3" />
-                        </button>
+                    >
+                    <X className="h-3 w-3" />
+                  </button>
                         <div className="absolute inset-0 bg-gradient-to-r from-secondary-500/10 to-secondary-600/10 dark:from-secondary-400/10 dark:to-secondary-500/10 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                       </div>
-                    ))}
-                  </div>
+              ))}
+            </div>
                 </div>
               )}
 
-              {errors.values && (
+            {errors.values && (
                 <Alert variant="destructive" className="border-red-300 dark:border-red-600 bg-red-50/80 dark:bg-red-900/30 shadow-red-100 dark:shadow-red-900/20">
                   <div className="p-1 bg-red-100 dark:bg-red-800 rounded-lg">
                     <AlertCircle className="h-4 w-4 text-red-700 dark:text-red-300" />
                   </div>
                   <AlertDescription className="text-red-800 dark:text-red-200">{errors.values.message}</AlertDescription>
-                </Alert>
-              )}
-            </div>
+              </Alert>
+            )}
+          </div>
 
             {/* Options de génération */}
             <div className="space-y-4">
               <div className="flex items-center space-x-2 p-4 bg-gray-50/50 dark:bg-gray-800/30 rounded-lg border border-gray-200 dark:border-gray-700">
-                <Checkbox
-                  id="generateMultiple"
+              <Checkbox
+                id="generateMultiple"
                   checked={watchedGenerateMultiple}
                   onCheckedChange={(checked) => setValue('generateMultiple', checked as boolean)}
-                  disabled={isDisabled}
-                />
+                disabled={isDisabled}
+              />
                 <label
                   htmlFor="generateMultiple"
                   className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-gray-800 dark:text-gray-200"
                 >
                   Générer plusieurs variantes de personas
-                </label>
+              </label>
               </div>
             </div>
-
+            
             {/* Bouton de soumission */}
             <div className="flex items-center justify-between pt-6">
               <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
@@ -611,10 +611,10 @@ export function BriefForm({ onSubmit, isLoading = false, isGenerating = false }:
                   <Info className="h-4 w-4 text-gray-600 dark:text-gray-400" />
                 </div>
                 <span>Score de qualité : {completionScore}%</span>
-              </div>
-              
-              <Button 
-                type="submit" 
+          </div>
+
+          <Button 
+            type="submit" 
                 disabled={isDisabled || completionScore < 50}
                 className="px-8 py-3 bg-gradient-to-r from-primary-600 to-secondary-600 hover:from-primary-700 hover:to-secondary-700 dark:from-primary-600 dark:to-secondary-600 dark:hover:from-primary-700 dark:hover:to-secondary-700 text-white shadow-lg hover:shadow-xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
               >
@@ -628,12 +628,12 @@ export function BriefForm({ onSubmit, isLoading = false, isGenerating = false }:
                     <Sparkles className="h-4 w-4 mr-2" />
                     Générer le Persona
                   </>
-                )}
-              </Button>
+            )}
+          </Button>
             </div>
-          </form>
-        </CardContent>
-      </Card>
+        </form>
+      </CardContent>
+    </Card>
     </div>
   );
 }

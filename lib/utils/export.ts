@@ -130,7 +130,7 @@ Marketing:
 - Comportement d'achat: ${persona.marketing.buyingBehavior}
 - Influences: ${persona.marketing.influences.join(', ')}
 
-Généré le: ${persona.generatedAt.toLocaleDateString()}
+Généré le: ${new Date(persona.generatedAt).toLocaleDateString()}
 Sources: ${persona.sources.join(', ')}
   `;
 }
