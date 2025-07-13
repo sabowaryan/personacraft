@@ -69,7 +69,7 @@ export function PersonaList({
   const [isStatsExpanded, setIsStatsExpanded] = useState(true);
   const [copiedCount, setCopiedCount] = useState(false);
   
-  const { exportState, exportPersonas, resetExportState } = useExport();
+  const { exportState, exportPersonas, resetExportState, isExporting } = useExport();
   const router = useRouter();
 
   const handleExportAll = async () => {
@@ -373,9 +373,9 @@ export function PersonaList({
                 <button 
                   onClick={handleExportAll}
                   className="text-xs text-amber-600 dark:text-amber-400 hover:text-amber-700 dark:hover:text-amber-300 transition-colors"
-                  disabled={exportState.isExporting}
+                  disabled={isExporting}
                 >
-                  {exportState.isExporting ? (
+                  {isExporting ? (
                     <Loader2 className="h-3 w-3 animate-spin" />
                   ) : (
                     <ExternalLink className="h-3 w-3" />
@@ -385,7 +385,7 @@ export function PersonaList({
               <div className="flex items-center justify-between">
                 <span className="text-sm font-medium text-amber-600 dark:text-amber-400">Export</span>
                 <span className="text-xs text-amber-500 dark:text-amber-500">
-                  {exportState.isExporting ? 'En cours...' : 'Disponible'}
+                  {isExporting ? 'En cours...' : 'Disponible'}
                 </span>
               </div>
             </div>
