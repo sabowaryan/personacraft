@@ -84,6 +84,20 @@ export function PersonaCard({
   const isDetailed = variant === 'detailed';
   const isEnhanced = 'validation_metrics' in persona;
 
+  // 🐛 DEBUG: Logs pour identifier le problème
+  console.log('🔍 PersonaCard Debug:', {
+    name: persona.name,
+    variant,
+    isCompact,
+    isDetailed,
+    hasCommuncation: !!persona.communication,
+    communicationData: persona.communication,
+    hasMarketing: !!persona.marketing,
+    marketingData: persona.marketing,
+    hasInterests: !!persona.interests,
+    interestsData: persona.interests
+  });
+
   // Calculer le score global de qualité pour les personas enrichis
   const overallQuality = isEnhanced 
     ? Math.round(
@@ -158,11 +172,11 @@ export function PersonaCard({
                 "bg-gradient-to-br from-primary-500 to-secondary-500",
                 isCompact ? "h-12 w-12" : "h-16 w-16"
               )}>
-                <AvatarImage src={persona.avatar} alt={persona.name} />
+              <AvatarImage src={persona.avatar} alt={persona.name} />
                 <AvatarFallback className="text-white font-bold text-lg">
                   {getInitials(persona.name)}
-                </AvatarFallback>
-              </Avatar>
+              </AvatarFallback>
+            </Avatar>
               {/* Indicateur de statut */}
               <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-green-500 rounded-full border-2 border-white dark:border-gray-800 shadow-sm flex items-center justify-center">
                 <CheckCircle className="h-3 w-3 text-white" />
@@ -235,13 +249,13 @@ export function PersonaCard({
 
         {/* Badges de statut */}
         <div className="flex items-center gap-2 mt-4">
-          {isEnhanced && (
+            {isEnhanced && (
             <Badge variant={getConfidenceBadgeVariant(persona.generation_metadata.confidence_level)} className="text-xs">
               {persona.generation_metadata.confidence_level === 'high' ? '🏆 Haute' :
                persona.generation_metadata.confidence_level === 'medium' ? '👍 Moyenne' : '⚠️ Faible'} confiance
-            </Badge>
-          )}
-          
+              </Badge>
+            )}
+            
           <Badge variant="outline" className="text-xs bg-gradient-to-r from-primary-50 to-secondary-50 dark:from-primary-900/20 dark:to-secondary-900/20 border-primary-200 dark:border-primary-700">
             <Sparkles className="h-3 w-3 mr-1 text-primary-600 dark:text-primary-400" />
             IA Premium
@@ -380,6 +394,17 @@ function PersonaOverview({
 }) {
   const [showFullBio, setShowFullBio] = useState(false);
   
+  // 🐛 DEBUG: Logs pour PersonaOverview
+  console.log('🔍 PersonaOverview Debug:', {
+    name: persona.name,
+    isCompact,
+    isDetailed,
+    shouldShowCommunication: !isCompact,
+    communication: persona.communication,
+    communicationChannels: persona.communication?.preferredChannels,
+    communicationTone: persona.communication?.tone
+  });
+  
   // Obtenir l'icône de catégorie
   const getCategoryIcon = (category: string) => {
     const icons = {
@@ -405,7 +430,7 @@ function PersonaOverview({
         <div className="relative">
           <p className="text-gray-700 dark:text-gray-300 leading-relaxed">
             {isCompact && !showFullBio ? truncateText(persona.bio, 120) : persona.bio}
-          </p>
+        </p>
           {isCompact && persona.bio.length > 120 && (
             <button
               onClick={() => setShowFullBio(!showFullBio)}
@@ -466,11 +491,11 @@ function PersonaOverview({
                   <div className="flex items-center gap-2 mb-2">
                     {getCategoryIcon(category)}
                     <span className="text-xs font-medium text-blue-700 dark:text-blue-300 capitalize">{category}</span>
-                  </div>
+              </div>
                   <p className="text-xs text-gray-600 dark:text-gray-400">
                     {formatList(items, 2)}
                   </p>
-                </div>
+              </div>
               ))}
             </div>
           ) : (
@@ -539,7 +564,7 @@ function PersonaMetrics({
             <div className="flex items-center gap-2">
               <CheckCircle className="h-5 w-5 text-blue-600 dark:text-blue-400" />
               <span className="text-sm font-semibold text-blue-700 dark:text-blue-300">Complétude</span>
-            </div>
+          </div>
             <span className="text-lg font-bold text-blue-700 dark:text-blue-300">
               {Math.round(persona.validation_metrics.completeness_score * 100)}%
             </span>
@@ -556,7 +581,7 @@ function PersonaMetrics({
             <div className="flex items-center gap-2">
               <Target className="h-5 w-5 text-green-600 dark:text-green-400" />
               <span className="text-sm font-semibold text-green-700 dark:text-green-300">Cohérence</span>
-            </div>
+          </div>
             <span className="text-lg font-bold text-green-700 dark:text-green-300">
               {Math.round(persona.validation_metrics.consistency_score * 100)}%
             </span>
@@ -573,7 +598,7 @@ function PersonaMetrics({
             <div className="flex items-center gap-2">
               <Shield className="h-5 w-5 text-purple-600 dark:text-purple-400" />
               <span className="text-sm font-semibold text-purple-700 dark:text-purple-300">Réalisme</span>
-            </div>
+          </div>
             <span className="text-lg font-bold text-purple-700 dark:text-purple-300">
               {Math.round(persona.validation_metrics.realism_score * 100)}%
             </span>
@@ -623,40 +648,40 @@ function PersonaPerformance({
       <div className="grid grid-cols-1 gap-4">
         {/* Temps de génération total */}
         <div className="p-4 bg-gradient-to-r from-indigo-50 to-indigo-100 dark:from-indigo-900/20 dark:to-indigo-800/20 rounded-xl border border-indigo-200 dark:border-indigo-700">
-          <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <Clock className="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
               <span className="text-sm font-semibold text-indigo-700 dark:text-indigo-300">Temps total</span>
-            </div>
+          </div>
             <span className="text-lg font-bold text-indigo-700 dark:text-indigo-300">
-              {persona.generation_metadata.total_processing_time}ms
-            </span>
+            {persona.generation_metadata.total_processing_time}ms
+          </span>
           </div>
         </div>
 
         {/* Temps Gemini */}
         <div className="p-4 bg-gradient-to-r from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-800/20 rounded-xl border border-green-200 dark:border-green-700">
-          <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <Brain className="h-5 w-5 text-green-600 dark:text-green-400" />
               <span className="text-sm font-semibold text-green-700 dark:text-green-300">Gemini API</span>
-            </div>
+          </div>
             <span className="text-lg font-bold text-green-700 dark:text-green-300">
-              {persona.generation_metadata.gemini_response_time}ms
-            </span>
+            {persona.generation_metadata.gemini_response_time}ms
+          </span>
           </div>
         </div>
 
         {/* Temps Qloo */}
         <div className="p-4 bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20 rounded-xl border border-blue-200 dark:border-blue-700">
-          <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <TrendingUp className="h-5 w-5 text-blue-600 dark:text-blue-400" />
               <span className="text-sm font-semibold text-blue-700 dark:text-blue-300">Qloo API</span>
-            </div>
+          </div>
             <span className="text-lg font-bold text-blue-700 dark:text-blue-300">
-              {persona.generation_metadata.qloo_response_time}ms
-            </span>
+            {persona.generation_metadata.qloo_response_time}ms
+          </span>
           </div>
         </div>
       </div>

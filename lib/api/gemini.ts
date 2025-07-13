@@ -169,27 +169,42 @@ export class GeminiClient {
       const enhancedPrompt = `${prompt}
 
 IMPORTANT: Votre réponse doit être exclusivement du JSON valide, sans texte additionnel avant ou après. 
-Utilisez cette structure exacte:
+Utilisez cette structure EXACTE (respectez les noms de propriétés) :
 
 {
-  "name": "Nom de la persona",
+  "name": "Nom complet de la persona",
   "age": 30,
-  "location": "Ville, Pays",
-  "bio": "Description détaillée de la persona",
-  "quote": "Une citation représentative",
+  "location": "Ville, Pays", 
+  "bio": "Description détaillée de la persona en 2-3 phrases",
+  "quote": "Une citation personnelle authentique",
   "values": ["Valeur 1", "Valeur 2", "Valeur 3"],
-  "interests": ["Intérêt 1", "Intérêt 2", "Intérêt 3"],
+  "interests": {
+    "music": ["Genre 1", "Genre 2", "Genre 3"],
+    "brands": ["Marque 1", "Marque 2", "Marque 3"],
+    "movies": ["Film 1", "Film 2", "Film 3"],
+    "food": ["Cuisine 1", "Cuisine 2", "Cuisine 3"],
+    "books": ["Livre 1", "Livre 2", "Livre 3"],
+    "lifestyle": ["Activité 1", "Activité 2", "Activité 3"]
+  },
   "communication": {
-    "style": "Style de communication",
-    "tone": "Ton de communication",
-    "channels": ["Canal 1", "Canal 2"]
+    "preferredChannels": ["Instagram", "Email", "LinkedIn"],
+    "tone": "Professionnel et accessible",
+    "contentTypes": ["Articles", "Vidéos", "Stories"],
+    "frequency": "Hebdomadaire"
   },
   "marketing": {
-    "segments": ["Segment 1", "Segment 2"],
-    "approaches": ["Approche 1", "Approche 2"],
-    "channels": ["Canal marketing 1", "Canal marketing 2"]
+    "painPoints": ["Problème 1", "Problème 2", "Problème 3"],
+    "motivations": ["Motivation 1", "Motivation 2", "Motivation 3"],
+    "buyingBehavior": "Description détaillée du comportement d'achat",
+    "influences": ["Source 1", "Source 2", "Source 3"]
   }
 }
+
+ATTENTION: Respectez exactement ces noms de propriétés :
+- communication.preferredChannels (pas "channels")
+- communication.contentTypes (pas "types")
+- marketing.painPoints (pas "pain_points")
+- marketing.buyingBehavior (pas "buying_behavior")
 
 Répondez UNIQUEMENT avec le JSON valide, sans balises de code ni autre formatage.`;
       
@@ -308,38 +323,43 @@ Répondez UNIQUEMENT avec le JSON valide, sans balises de code ni autre formatag
 
   private parsePersonaResponse(content: string): any {
     try {
-      // Nettoyer la réponse pour extraire le JSON
-      let jsonContent = content.trim();
+      console.log('Début parsing réponse Gemini...');
       
-      // Supprimer les balises markdown si présentes
-      jsonContent = jsonContent.replace(/```json\n?/g, '').replace(/```\n?/g, '');
-      
-      // Supprimer les caractères de contrôle et les espaces en trop
-      jsonContent = jsonContent.replace(/[\r\n\t]/g, ' ').replace(/\s+/g, ' ').trim();
-      
-      // Trouver le JSON dans la réponse avec plusieurs stratégies
+      // Extraire le JSON du contenu
       let extractedJson = '';
+      const jsonContent = content.trim();
       
-      // Stratégie 1: Chercher entre les premières accolades
+      // Rechercher les marqueurs JSON
       const jsonStart = jsonContent.indexOf('{');
-      const jsonEnd = jsonContent.lastIndexOf('}') + 1;
+      const jsonEnd = jsonContent.lastIndexOf('}');
       
-      if (jsonStart !== -1 && jsonEnd > jsonStart) {
-        extractedJson = jsonContent.substring(jsonStart, jsonEnd);
+      if (jsonStart !== -1 && jsonEnd !== -1 && jsonEnd > jsonStart) {
+        // Stratégie 1: Extraire entre les accolades
+        extractedJson = jsonContent.substring(jsonStart, jsonEnd + 1);
+        console.log('JSON extrait entre accolades, longueur:', extractedJson.length);
       } else {
         // Stratégie 2: Prendre tout le contenu si pas d'accolades trouvées
         extractedJson = jsonContent;
+        console.log('Utilisation du contenu complet, longueur:', extractedJson.length);
       }
+      
+      // Afficher un aperçu du JSON avant nettoyage
+      console.log('JSON avant nettoyage (premiers 200 chars):', extractedJson.substring(0, 200));
       
       // Nettoyer les caractères problématiques avant parsing
       extractedJson = this.cleanJsonString(extractedJson);
       
+      // Afficher un aperçu du JSON après nettoyage
+      console.log('JSON après nettoyage (premiers 200 chars):', extractedJson.substring(0, 200));
+      
       // Validation basique du JSON avant parsing
       if (!this.isValidJsonStructure(extractedJson)) {
-        throw new Error('Structure JSON invalide détectée');
+        console.warn('Structure JSON invalide détectée, tentative de parsing quand même...');
       }
       
+      console.log('Tentative de parsing JSON...');
       const parsedData = JSON.parse(extractedJson);
+      console.log('✅ Parsing JSON réussi');
       
       // Validation des données parsées
       if (!parsedData || typeof parsedData !== 'object') {
@@ -349,31 +369,68 @@ Répondez UNIQUEMENT avec le JSON valide, sans balises de code ni autre formatag
       return parsedData;
       
     } catch (parseError) {
-      console.error('Erreur parsing JSON Gemini:', parseError);
-      console.error('Contenu brut:', content);
-      console.error('Tentative de parsing:', content.substring(0, 1000) + '...');
+      console.error('❌ Erreur parsing JSON Gemini:', parseError);
+      console.error('Contenu brut (premiers 500 chars):', content.substring(0, 500));
+      
+      // Identifier la position de l'erreur si possible
+      if (parseError instanceof SyntaxError && parseError.message.includes('position')) {
+        const positionMatch = parseError.message.match(/position (\d+)/);
+        if (positionMatch) {
+          const position = parseInt(positionMatch[1]);
+          const context = content.substring(Math.max(0, position - 50), position + 50);
+          console.error(`Erreur à la position ${position}, contexte:`, context);
+          console.error('Caractère problématique:', content[position] || 'EOF');
+        }
+      }
+      
+      console.log('🔄 Tentative de récupération avec stratégie de fallback...');
       
       // Tentative de récupération avec une stratégie de fallback
       const fallbackData = this.tryFallbackParsing(content);
       if (fallbackData) {
-        console.warn('Utilisation des données de fallback');
+        console.log('✅ Données de fallback récupérées avec succès');
         return fallbackData;
       }
       
-      throw new Error(`Réponse JSON invalide de Gemini: ${parseError instanceof Error ? parseError.message : 'Erreur inconnue'}`);
+      // Si tout échoue, lancer l'erreur originale
+      throw parseError;
     }
   }
   
   private cleanJsonString(jsonString: string): string {
-    // Nettoyer les caractères échappés incorrectement
-    return jsonString
-      .replace(/\\n/g, ' ')  // Remplacer les \n par des espaces
-      .replace(/\\t/g, ' ')  // Remplacer les \t par des espaces
-      .replace(/\\r/g, ' ')  // Remplacer les \r par des espaces
-      .replace(/\\\\/g, '\\') // Corriger les doubles backslashes
-      .replace(/\\"/g, '"')   // Corriger les guillemets échappés
+    // Première étape : nettoyer les retours à la ligne DANS les chaînes de caractères
+    let cleaned = jsonString;
+    
+    // Fonction pour échapper correctement les retours à la ligne dans les valeurs de chaînes
+    const fixStringValues = (str: string): string => {
+      // Regex pour capturer les valeurs de chaînes (entre guillemets)
+      return str.replace(/"([^"]*(?:\\.[^"]*)*)"/g, (match, content) => {
+        // Nettoyer le contenu de la chaîne
+        const cleanContent = content
+          .replace(/\r?\n/g, ' ')  // Remplacer les vrais retours à la ligne par des espaces
+          .replace(/\s+/g, ' ')    // Normaliser les espaces multiples
+          .replace(/\\n/g, ' ')    // Remplacer les \n échappés par des espaces
+          .replace(/\\t/g, ' ')    // Remplacer les \t échappés par des espaces
+          .replace(/\\r/g, ' ')    // Remplacer les \r échappés par des espaces
+          .trim();                 // Supprimer les espaces en début/fin
+        
+        return `"${cleanContent}"`;
+      });
+    };
+    
+    // Appliquer le nettoyage des chaînes
+    cleaned = fixStringValues(cleaned);
+    
+    // Deuxième étape : nettoyer la structure JSON générale
+    cleaned = cleaned
+      .replace(/\\\\/g, '\\')     // Corriger les doubles backslashes
       .replace(/,(\s*[}\]])/g, '$1')  // Supprimer les virgules avant } ou ]
-      .replace(/([}\]])(\s*[,])/g, '$1'); // Supprimer les virgules après } ou ]
+      .replace(/([}\]])(\s*[,])/g, '$1') // Supprimer les virgules après } ou ]
+      .replace(/,(\s*,)/g, ',')   // Supprimer les virgules doubles
+      .replace(/:\s*,/g, ': null,') // Remplacer les valeurs vides par null
+      .trim();
+    
+    return cleaned;
   }
   
   private isValidJsonStructure(jsonString: string): boolean {
@@ -422,20 +479,85 @@ Répondez UNIQUEMENT avec le JSON valide, sans balises de code ni autre formatag
   
   private tryFallbackParsing(content: string): any | null {
     try {
-      // Stratégie de fallback: créer un objet persona minimal
-      console.log('Tentative de création de persona de fallback...');
+      console.log('🔄 Tentative de récupération JSON avec stratégies multiples...');
       
-      // Extraire des informations basiques du texte
-      const extractedInfo = this.extractBasicInfo(content);
+      // Stratégie 1: Tenter de réparer le JSON en fixant les retours à la ligne
+      try {
+        console.log('Stratégie 1: Réparation des retours à la ligne...');
+        
+        // Extraire le JSON et nettoyer agressivement
+        let jsonStart = content.indexOf('{');
+        let jsonEnd = content.lastIndexOf('}');
+        
+        if (jsonStart !== -1 && jsonEnd !== -1) {
+          let extractedJson = content.substring(jsonStart, jsonEnd + 1);
+          
+          // Réparation agressive des retours à la ligne dans les chaînes
+          extractedJson = extractedJson.replace(/"\s*\n\s*/g, ' '); // Retours à la ligne après guillemets
+          extractedJson = extractedJson.replace(/\n\s*"/g, ' "'); // Retours à la ligne avant guillemets
+          extractedJson = extractedJson.replace(/,\s*\n\s*"/g, ', "'); // Virgule + retour à la ligne + guillemet
+          extractedJson = extractedJson.replace(/"\s*\n\s*,/g, '",'); // Guillemet + retour à la ligne + virgule
+          
+          // Nettoyer les retours à la ligne généraux
+          extractedJson = extractedJson.replace(/\r?\n/g, ' ');
+          extractedJson = extractedJson.replace(/\s+/g, ' ');
+          
+          // Appliquer le nettoyage standard
+          extractedJson = this.cleanJsonString(extractedJson);
+          
+          console.log('JSON réparé (premiers 200 chars):', extractedJson.substring(0, 200));
+          
+          const parsedData = JSON.parse(extractedJson);
+          console.log('✅ Stratégie 1 réussie: JSON réparé et parsé');
+          return parsedData;
+        }
+      } catch (repairError) {
+        console.log('❌ Stratégie 1 échouée:', repairError instanceof Error ? repairError.message : String(repairError));
+      }
+      
+      // Stratégie 2: Extraction par regex des champs principaux
+      try {
+        console.log('Stratégie 2: Extraction par regex...');
+        
+        const extractedInfo = this.extractBasicInfo(content);
+        
+        if (extractedInfo.name || extractedInfo.bio) {
+          console.log('✅ Stratégie 2 réussie: Informations extraites par regex');
+          return {
+            name: extractedInfo.name || 'Persona Générée',
+            age: extractedInfo.age || 30,
+            location: extractedInfo.location || 'France',
+            bio: extractedInfo.bio || 'Persona générée automatiquement',
+            quote: extractedInfo.quote || 'Une citation inspirante',
+            values: extractedInfo.values || ['Qualité', 'Innovation', 'Respect'],
+            interests: extractedInfo.interests || ['Technologie', 'Culture', 'Voyage'],
+            communication: {
+              style: 'Professionnel et accessible',
+              tone: 'Chaleureux et informatif',
+              channels: ['Email', 'Réseaux sociaux']
+            },
+            marketing: {
+              segments: ['Adultes 25-45 ans'],
+              approaches: ['Contenu éducatif', 'Expériences personnalisées'],
+              channels: ['Digital', 'Social media']
+            }
+          };
+        }
+      } catch (regexError) {
+        console.log('❌ Stratégie 2 échouée:', regexError instanceof Error ? regexError.message : String(regexError));
+      }
+      
+      // Stratégie 3: Persona de fallback complet
+      console.log('Stratégie 3: Création d\'un persona de fallback générique...');
       
       return {
-        name: extractedInfo.name || 'Persona Générée',
-        age: extractedInfo.age || 30,
-        location: extractedInfo.location || 'France',
-        bio: extractedInfo.bio || 'Persona générée automatiquement',
-        quote: extractedInfo.quote || 'Une citation inspirante',
-        values: extractedInfo.values || ['Qualité', 'Innovation', 'Respect'],
-        interests: extractedInfo.interests || ['Technologie', 'Culture', 'Voyage'],
+        name: 'Persona Générée',
+        age: 32,
+        location: 'Paris, France',
+        bio: 'Persona générée automatiquement suite à une erreur de parsing. Les données ont été reconstituées avec des valeurs par défaut.',
+        quote: 'L\'innovation et la qualité guident mes choix.',
+        values: ['Qualité', 'Innovation', 'Respect'],
+        interests: ['Technologie', 'Culture', 'Voyage'],
         communication: {
           style: 'Professionnel et accessible',
           tone: 'Chaleureux et informatif',
@@ -447,8 +569,9 @@ Répondez UNIQUEMENT avec le JSON valide, sans balises de code ni autre formatag
           channels: ['Digital', 'Social media']
         }
       };
-    } catch (error) {
-      console.error('Échec du parsing de fallback:', error);
+      
+    } catch (fallbackError) {
+      console.error('❌ Toutes les stratégies de fallback ont échoué:', fallbackError);
       return null;
     }
   }
@@ -540,30 +663,78 @@ Répondez UNIQUEMENT avec le JSON valide, sans balises de code ni autre formatag
       bio: 'Persona générée automatiquement avec des données par défaut',
       quote: 'Une citation inspirante qui représente ma vision',
       values: ['Qualité', 'Innovation', 'Respect'],
-      interests: ['Technologie', 'Culture', 'Voyage'],
+      interests: {
+        music: ['Pop', 'Rock'],
+        brands: ['Apple', 'Nike'],
+        movies: ['Action', 'Comédie'],
+        food: ['Cuisine française', 'Sushi'],
+        books: ['Fiction', 'Biographies'],
+        lifestyle: ['Technologie', 'Sport']
+      },
       communication: {
-        style: 'Professionnel et accessible',
-        tone: 'Chaleureux et informatif',
-        channels: ['Email', 'Réseaux sociaux']
+        preferredChannels: ['Email', 'LinkedIn'],
+        tone: 'Professionnel et accessible',
+        contentTypes: ['Articles', 'Vidéos'],
+        frequency: 'Hebdomadaire'
       },
       marketing: {
-        segments: ['Adultes 25-45 ans'],
-        approaches: ['Contenu éducatif', 'Expériences personnalisées'],
-        channels: ['Digital', 'Social media']
+        painPoints: ['Manque de temps', 'Prix élevés'],
+        motivations: ['Qualité', 'Efficacité'],
+        buyingBehavior: 'Recherche approfondie avant achat',
+        influences: ['Avis clients', 'Recommandations']
       }
     };
+    
+    // Mapper les données Gemini vers la structure attendue
+    const mappedData = { ...data };
+    
+    // Mapper communication si elle existe mais dans un format différent
+    if (data.communication) {
+      mappedData.communication = {
+        preferredChannels: data.communication.channels || data.communication.preferredChannels || defaults.communication.preferredChannels,
+        tone: data.communication.tone || defaults.communication.tone,
+        contentTypes: data.communication.contentTypes || data.communication.types || ['Articles', 'Vidéos'],
+        frequency: data.communication.frequency || 'Hebdomadaire'
+      };
+    }
+    
+    // Mapper marketing si elle existe mais dans un format différent  
+    if (data.marketing) {
+      mappedData.marketing = {
+        painPoints: data.marketing.painPoints || data.marketing.pain_points || ['Manque de temps', 'Prix élevés'],
+        motivations: data.marketing.motivations || data.marketing.approaches || ['Qualité', 'Efficacité'],
+        buyingBehavior: data.marketing.buyingBehavior || data.marketing.buying_behavior || 'Recherche approfondie avant achat',
+        influences: data.marketing.influences || data.marketing.channels || ['Avis clients', 'Recommandations']
+      };
+    }
+    
+    // Mapper interests si elles existent mais sous forme de tableau simple
+    if (data.interests && Array.isArray(data.interests)) {
+      mappedData.interests = {
+        music: data.interests.filter((i: string) => i.toLowerCase().includes('music') || i.toLowerCase().includes('musique')) || defaults.interests.music,
+        brands: data.interests.filter((i: string) => i.toLowerCase().includes('brand') || i.toLowerCase().includes('marque')) || defaults.interests.brands,
+        movies: data.interests.filter((i: string) => i.toLowerCase().includes('film') || i.toLowerCase().includes('movie')) || defaults.interests.movies,
+        food: data.interests.filter((i: string) => i.toLowerCase().includes('food') || i.toLowerCase().includes('cuisine')) || defaults.interests.food,
+        books: data.interests.filter((i: string) => i.toLowerCase().includes('book') || i.toLowerCase().includes('livre')) || defaults.interests.books,
+        lifestyle: data.interests.filter((i: string) => !i.toLowerCase().includes('music') && !i.toLowerCase().includes('film') && !i.toLowerCase().includes('food') && !i.toLowerCase().includes('book')) || defaults.interests.lifestyle
+      };
+    }
     
     // Fusionner les données existantes avec les valeurs par défaut
     return {
       ...defaults,
-      ...data,
+      ...mappedData,
       communication: {
         ...defaults.communication,
-        ...(data.communication || {})
+        ...(mappedData.communication || {})
       },
       marketing: {
         ...defaults.marketing,
-        ...(data.marketing || {})
+        ...(mappedData.marketing || {})
+      },
+      interests: {
+        ...defaults.interests,
+        ...(mappedData.interests || {})
       }
     };
   }
@@ -579,16 +750,25 @@ Répondez UNIQUEMENT avec le JSON valide, sans balises de code ni autre formatag
         bio: 'Professionnel dynamique passionné par les nouvelles technologies et les expériences humaines authentiques.',
         quote: 'L\'innovation naît de la curiosité et de l\'audace d\'explorer l\'inconnu.',
         values: ['Innovation', 'Authenticité', 'Collaboration'],
-        interests: ['Technologie', 'Voyages', 'Gastronomie'],
+        interests: {
+          music: ['Pop', 'Rock', 'Electronic'],
+          brands: ['Apple', 'Nike', 'Tesla'],
+          movies: ['Inception', 'Interstellar', 'The Matrix'],
+          food: ['Cuisine française', 'Sushi', 'Street food'],
+          books: ['Sapiens', 'Atomic Habits', 'The Lean Startup'],
+          lifestyle: ['Technologie', 'Voyages', 'Sport']
+        },
         communication: {
-          style: 'Direct et bienveillant',
+          preferredChannels: ['Email', 'LinkedIn', 'Teams'],
           tone: 'Professionnel avec une touche personnelle',
-          channels: ['Email', 'LinkedIn', 'Teams']
+          contentTypes: ['Articles', 'Vidéos', 'Webinaires'],
+          frequency: 'Hebdomadaire'
         },
         marketing: {
-          segments: ['Professionnels 25-40 ans', 'Early adopters'],
-          approaches: ['Contenu éducatif', 'Témoignages clients', 'Démonstrations'],
-          channels: ['Digital', 'Réseaux sociaux', 'Événements']
+          painPoints: ['Manque de temps', 'Surcharge d\'information', 'Difficulté à rester à jour'],
+          motivations: ['Efficacité', 'Innovation', 'Croissance professionnelle'],
+          buyingBehavior: 'Recherche approfondie en ligne, compare les avis, privilégie la qualité',
+          influences: ['Avis clients', 'Recommandations professionnelles', 'Études de cas']
         }
       },
       business: {
@@ -598,16 +778,25 @@ Répondez UNIQUEMENT avec le JSON valide, sans balises de code ni autre formatag
         bio: 'Dirigeante d\'entreprise expérimentée, focalisée sur la croissance durable et l\'innovation.',
         quote: 'Le succès se mesure par l\'impact positif que nous créons ensemble.',
         values: ['Excellence', 'Durabilité', 'Leadership'],
-        interests: ['Stratégie', 'Développement durable', 'Mentoring'],
+        interests: {
+          music: ['Jazz', 'Classical', 'World Music'],
+          brands: ['Patagonia', 'Tesla', 'B Corp'],
+          movies: ['The Pursuit of Happyness', 'Moneyball', 'Steve Jobs'],
+          food: ['Cuisine bio', 'Restaurants étoilés', 'Cuisine du monde'],
+          books: ['Good to Great', 'Lean In', 'The Infinite Game'],
+          lifestyle: ['Stratégie', 'Développement durable', 'Mentoring']
+        },
         communication: {
-          style: 'Structuré et inspirant',
+          preferredChannels: ['LinkedIn', 'Présentations', 'Webinaires'],
           tone: 'Professionnel et visionnaire',
-          channels: ['Présentations', 'Webinaires', 'Networking']
+          contentTypes: ['Études de cas', 'Rapports', 'Keynotes'],
+          frequency: 'Mensuel'
         },
         marketing: {
-          segments: ['Dirigeants', 'Décideurs B2B'],
-          approaches: ['Thought leadership', 'Études de cas', 'ROI démontré'],
-          channels: ['LinkedIn', 'Événements professionnels', 'Presse spécialisée']
+          painPoints: ['Complexité réglementaire', 'Recrutement de talents', 'Transformation digitale'],
+          motivations: ['Impact social', 'Croissance durable', 'Innovation'],
+          buyingBehavior: 'Décisions basées sur ROI, consultations d\'experts, processus structuré',
+          influences: ['Études sectorielles', 'Réseaux professionnels', 'Consultants experts']
         }
       },
       creative: {
@@ -617,16 +806,25 @@ Répondez UNIQUEMENT avec le JSON valide, sans balises de code ni autre formatag
         bio: 'Créatif passionné par le design et l\'art numérique, toujours à la recherche de nouvelles inspirations.',
         quote: 'La créativité est l\'art de transformer l\'ordinaire en extraordinaire.',
         values: ['Créativité', 'Expression', 'Innovation'],
-        interests: ['Design', 'Art', 'Photographie'],
+        interests: {
+          music: ['Indie', 'Electronic', 'Alternative'],
+          brands: ['Adobe', 'Wacom', 'Moleskine'],
+          movies: ['Blade Runner 2049', 'Her', 'The Grand Budapest Hotel'],
+          food: ['Cuisine fusion', 'Food trucks', 'Cuisine végétarienne'],
+          books: ['The Design of Everyday Things', 'Steal Like an Artist', 'Creative Confidence'],
+          lifestyle: ['Design', 'Art', 'Photographie']
+        },
         communication: {
-          style: 'Créatif et engageant',
+          preferredChannels: ['Instagram', 'Behance', 'Dribbble'],
           tone: 'Inspirant et artistique',
-          channels: ['Instagram', 'Behance', 'Portfolios']
+          contentTypes: ['Visuels', 'Stories', 'Portfolios'],
+          frequency: 'Quotidien'
         },
         marketing: {
-          segments: ['Créatifs', 'Millennials', 'Amateurs d\'art'],
-          approaches: ['Contenu visuel', 'Storytelling', 'Expériences immersives'],
-          channels: ['Social media', 'Galeries', 'Événements culturels']
+          painPoints: ['Clients difficiles', 'Revenus irréguliers', 'Concurrence'],
+          motivations: ['Expression artistique', 'Reconnaissance', 'Liberté créative'],
+          buyingBehavior: 'Achats impulsifs pour l\'inspiration, investit dans la qualité des outils',
+          influences: ['Communauté créative', 'Tendances design', 'Influenceurs artistiques']
         }
       },
       user: {
@@ -636,16 +834,25 @@ Répondez UNIQUEMENT avec le JSON valide, sans balises de code ni autre formatag
         bio: 'Utilisatrice experte, toujours à la recherche de solutions pratiques et efficaces.',
         quote: 'La simplicité est la sophistication ultime.',
         values: ['Efficacité', 'Praticité', 'Qualité'],
-        interests: ['Productivité', 'Bien-être', 'Technologie'],
+        interests: {
+          music: ['Pop', 'Podcasts', 'Audiobooks'],
+          brands: ['Apple', 'Notion', 'Spotify'],
+          movies: ['The Social Network', 'Julie & Julia', 'The Intern'],
+          food: ['Cuisine rapide et saine', 'Meal prep', 'Smoothies'],
+          books: ['Productivity guides', 'Self-help', 'Biographies'],
+          lifestyle: ['Productivité', 'Bien-être', 'Technologie']
+        },
         communication: {
-          style: 'Pratique et direct',
+          preferredChannels: ['Applications', 'Email', 'Notifications push'],
           tone: 'Amical et constructif',
-          channels: ['Applications', 'Tutoriels', 'Support']
+          contentTypes: ['Tutoriels', 'Tips', 'Reviews'],
+          frequency: 'Quotidien'
         },
         marketing: {
-          segments: ['Utilisateurs actifs', 'Professionnels'],
-          approaches: ['Guides pratiques', 'Retours d\'expérience', 'Optimisation'],
-          channels: ['Applications', 'Webinaires', 'Forums']
+          painPoints: ['Interfaces complexes', 'Perte de temps', 'Trop d\'options'],
+          motivations: ['Gain de temps', 'Simplicité', 'Efficacité'],
+          buyingBehavior: 'Teste d\'abord, lit les avis, privilégie les solutions simples',
+          influences: ['Avis utilisateurs', 'Tutoriels YouTube', 'Recommandations d\'amis']
         }
       },
       marketing: {
@@ -655,16 +862,25 @@ Répondez UNIQUEMENT avec le JSON valide, sans balises de code ni autre formatag
         bio: 'Expert en marketing digital, spécialisé dans les stratégies data-driven.',
         quote: 'Le marketing, c\'est l\'art de créer des connexions authentiques.',
         values: ['Performance', 'Créativité', 'Analyse'],
-        interests: ['Marketing digital', 'Analytics', 'Growth hacking'],
+        interests: {
+          music: ['Techno', 'House', 'Ambient'],
+          brands: ['Google', 'HubSpot', 'Mailchimp'],
+          movies: ['Mad Men', 'The Wolf of Wall Street', 'Thank You for Smoking'],
+          food: ['Cuisine méditerranéenne', 'Tapas', 'Cuisine fusion'],
+          books: ['Influence', 'Made to Stick', 'Contagious'],
+          lifestyle: ['Marketing digital', 'Analytics', 'Growth hacking']
+        },
         communication: {
-          style: 'Analytique et persuasif',
+          preferredChannels: ['LinkedIn', 'Twitter', 'Webinaires'],
           tone: 'Professionnel et dynamique',
-          channels: ['Campagnes', 'Webinaires', 'Rapports']
+          contentTypes: ['Études de cas', 'Infographies', 'Analyses'],
+          frequency: 'Bi-hebdomadaire'
         },
         marketing: {
-          segments: ['Marketeurs', 'Entreprises', 'Startups'],
-          approaches: ['Données probantes', 'Cas d\'usage', 'ROI'],
-          channels: ['LinkedIn', 'Conférences', 'Études de cas']
+          painPoints: ['Attribution difficile', 'Budgets serrés', 'Évolution constante des plateformes'],
+          motivations: ['ROI élevé', 'Innovation', 'Performance'],
+          buyingBehavior: 'Analyse data-driven, tests A/B, décisions basées sur métriques',
+          influences: ['Études de cas', 'Conférences marketing', 'Thought leaders']
         }
       },
       buyer: {
@@ -674,16 +890,25 @@ Répondez UNIQUEMENT avec le JSON valide, sans balises de code ni autre formatag
         bio: 'Responsable achats expérimentée, focalisée sur la valeur et la qualité.',
         quote: 'Un bon achat, c\'est un investissement pour l\'avenir.',
         values: ['Qualité', 'Valeur', 'Durabilité'],
-        interests: ['Négociation', 'Qualité', 'Sustainability'],
+        interests: {
+          music: ['Classical', 'Opera', 'World Music'],
+          brands: ['Quality certifiées', 'Marques durables', 'B2B leaders'],
+          movies: ['The Big Short', 'Margin Call', 'Up in the Air'],
+          food: ['Cuisine traditionnelle', 'Produits locaux', 'Bio'],
+          books: ['Procurement guides', 'Supply chain', 'Negotiation'],
+          lifestyle: ['Négociation', 'Qualité', 'Sustainability']
+        },
         communication: {
-          style: 'Méthodique et réfléchi',
+          preferredChannels: ['Email professionnel', 'Réunions', 'Rapports'],
           tone: 'Professionnel et exigeant',
-          channels: ['Négociations', 'Présentations', 'Rapports']
+          contentTypes: ['Rapports détaillés', 'Comparatifs', 'Spécifications'],
+          frequency: 'Mensuel'
         },
         marketing: {
-          segments: ['Acheteurs B2B', 'Décideurs'],
-          approaches: ['Preuves de valeur', 'Comparatifs', 'Références'],
-          channels: ['Salons', 'Présentations', 'Dossiers techniques']
+          painPoints: ['Fournisseurs non fiables', 'Pression sur les prix', 'Complexité réglementaire'],
+          motivations: ['Optimisation coûts', 'Qualité garantie', 'Relations durables'],
+          buyingBehavior: 'Processus rigoureux, appels d\'offres, négociation approfondie',
+          influences: ['Références clients', 'Certifications', 'Historique fournisseur']
         }
       },
       brand: {
@@ -693,16 +918,25 @@ Répondez UNIQUEMENT avec le JSON valide, sans balises de code ni autre formatag
         bio: 'Brand manager passionné par la construction d\'identités fortes et mémorables.',
         quote: 'Une marque forte crée une communauté, pas seulement des clients.',
         values: ['Authenticité', 'Cohérence', 'Impact'],
-        interests: ['Branding', 'Storytelling', 'Design'],
+        interests: {
+          music: ['Indie', 'Alternative', 'Experimental'],
+          brands: ['Nike', 'Apple', 'Patagonia'],
+          movies: ['The Greatest Showman', 'A Star is Born', 'La La Land'],
+          food: ['Street food', 'Cuisine créative', 'Pop-up restaurants'],
+          books: ['Building Strong Brands', 'The Brand Gap', 'Zag'],
+          lifestyle: ['Branding', 'Storytelling', 'Design']
+        },
         communication: {
-          style: 'Créatif et cohérent',
+          preferredChannels: ['Instagram', 'TikTok', 'Brand events'],
           tone: 'Inspirant et authentique',
-          channels: ['Campagnes', 'Réseaux sociaux', 'Événements']
+          contentTypes: ['Stories', 'Behind-the-scenes', 'User-generated content'],
+          frequency: 'Quotidien'
         },
         marketing: {
-          segments: ['Communautés', 'Fans de marque', 'Influenceurs'],
-          approaches: ['Storytelling', 'Expériences', 'Engagement'],
-          channels: ['Social media', 'Événements', 'Collaborations']
+          painPoints: ['Différenciation difficile', 'Cohérence multi-canal', 'Mesure de l\'impact'],
+          motivations: ['Authenticité de marque', 'Engagement communauté', 'Impact culturel'],
+          buyingBehavior: 'Choix basés sur l\'alignement de valeurs, expérience premium',
+          influences: ['Communautés de marque', 'Influenceurs authentiques', 'Tendances culturelles']
         }
       }
     };

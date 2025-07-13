@@ -212,72 +212,196 @@ export function PersonaList({
         </Card>
       </div>
 
-      {/* Métriques rapides */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <Card className="border-0 shadow-lg bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20 hover-lift">
-          <CardContent className="p-4">
-            <div className="flex items-center gap-3">
-              <div className="p-2 bg-blue-100 dark:bg-blue-800/50 rounded-lg">
-                <Users className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+      {/* Métriques rapides - Design moderne et professionnel */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 animate-in fade-in slide-in-from-bottom-4 duration-700">
+        {/* Carte Personas */}
+        <Card className="group relative overflow-hidden border-0 shadow-xl bg-gradient-to-br from-primary-50 via-primary-100 to-secondary-100 dark:from-primary-900/30 dark:via-primary-800/30 dark:to-secondary-800/30 hover-lift transition-all duration-300 hover:shadow-2xl">
+          <div className="absolute inset-0 bg-gradient-to-br from-primary-500/5 to-secondary-500/5 dark:from-primary-400/10 dark:to-secondary-400/10" />
+          <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-primary-300/20 to-secondary-300/20 dark:from-primary-600/20 dark:to-secondary-600/20 rounded-bl-full transform translate-x-6 -translate-y-6" />
+          
+          <CardContent className="relative p-6">
+            <div className="flex items-center justify-between mb-4">
+              <div className="p-3 bg-gradient-to-br from-primary-100 to-primary-200 dark:from-primary-800/50 dark:to-primary-700/50 rounded-xl shadow-lg group-hover:scale-110 transition-transform duration-300">
+                <Users className="h-6 w-6 text-primary-600 dark:text-primary-400" />
               </div>
-              <div>
-                <p className="text-2xl font-bold text-blue-700 dark:text-blue-300">
+              <div className="flex items-center gap-1 text-xs text-primary-600 dark:text-primary-400 bg-primary-100/50 dark:bg-primary-800/30 px-2 py-1 rounded-full">
+                <Activity className="h-3 w-3" />
+                <span>Actif</span>
+              </div>
+            </div>
+            
+            <div className="space-y-2">
+              <div className="flex items-baseline gap-2">
+                <span className="text-3xl font-bold text-primary-700 dark:text-primary-300 group-hover:scale-105 transition-transform duration-300">
                   {personas.length}
-                </p>
-                <p className="text-sm text-blue-600 dark:text-blue-400">Personas</p>
+                </span>
+                <button 
+                  onClick={copyPersonasCount}
+                  className="text-xs text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 transition-colors"
+                >
+                  {copiedCount ? (
+                    <CheckCircle className="h-3 w-3" />
+                  ) : (
+                    <Copy className="h-3 w-3" />
+                  )}
+                </button>
               </div>
+              <div className="flex items-center justify-between">
+                <span className="text-sm font-medium text-primary-600 dark:text-primary-400">Personas</span>
+                <span className="text-xs text-primary-500 dark:text-primary-500">
+                  {personas.length === 1 ? 'Généré' : 'Générés'}
+                </span>
+              </div>
+            </div>
+            
+            {/* Barre de progression subtile */}
+            <div className="mt-4 w-full bg-primary-200/50 dark:bg-primary-700/30 rounded-full h-1">
+              <div 
+                className="h-1 bg-gradient-to-r from-primary-500 to-secondary-500 dark:from-primary-400 dark:to-secondary-400 rounded-full transition-all duration-1000"
+                style={{ width: `${Math.min((personas.length / 5) * 100, 100)}%` }}
+              />
             </div>
           </CardContent>
         </Card>
 
-        <Card className="border-0 shadow-lg bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-800/20 hover-lift">
-          <CardContent className="p-4">
-            <div className="flex items-center gap-3">
-              <div className="p-2 bg-green-100 dark:bg-green-800/50 rounded-lg">
-                <Heart className="h-5 w-5 text-green-600 dark:text-green-400" />
+        {/* Carte Validés */}
+        <Card className="group relative overflow-hidden border-0 shadow-xl bg-gradient-to-br from-green-50 via-green-100 to-emerald-100 dark:from-green-900/30 dark:via-green-800/30 dark:to-emerald-800/30 hover-lift transition-all duration-300 hover:shadow-2xl">
+          <div className="absolute inset-0 bg-gradient-to-br from-green-500/5 to-emerald-500/5 dark:from-green-400/10 dark:to-emerald-400/10" />
+          <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-green-300/20 to-emerald-300/20 dark:from-green-600/20 dark:to-emerald-600/20 rounded-bl-full transform translate-x-6 -translate-y-6" />
+          
+          <CardContent className="relative p-6">
+            <div className="flex items-center justify-between mb-4">
+              <div className="p-3 bg-gradient-to-br from-green-100 to-green-200 dark:from-green-800/50 dark:to-green-700/50 rounded-xl shadow-lg group-hover:scale-110 transition-transform duration-300">
+                <CheckCircle className="h-6 w-6 text-green-600 dark:text-green-400" />
               </div>
-              <div>
-                <p className="text-2xl font-bold text-green-700 dark:text-green-300">
+              <div className="flex items-center gap-1 text-xs text-green-600 dark:text-green-400 bg-green-100/50 dark:bg-green-800/30 px-2 py-1 rounded-full">
+                <Shield className="h-3 w-3" />
+                <span>Validé</span>
+              </div>
+            </div>
+            
+            <div className="space-y-2">
+              <div className="flex items-baseline gap-2">
+                <span className="text-3xl font-bold text-green-700 dark:text-green-300 group-hover:scale-105 transition-transform duration-300">
                   {personas.filter(p => 'validation_metrics' in p).length}
-                </p>
-                <p className="text-sm text-green-600 dark:text-green-400">Validés</p>
+                </span>
+                <span className="text-xs text-green-500 dark:text-green-500">
+                  / {personas.length}
+                </span>
               </div>
+              <div className="flex items-center justify-between">
+                <span className="text-sm font-medium text-green-600 dark:text-green-400">Validés</span>
+                <span className="text-xs text-green-500 dark:text-green-500">
+                  {personas.filter(p => 'validation_metrics' in p).length === personas.length ? 'Complet' : 'En cours'}
+                </span>
+              </div>
+            </div>
+            
+            {/* Barre de progression */}
+            <div className="mt-4 w-full bg-green-200/50 dark:bg-green-700/30 rounded-full h-1">
+              <div 
+                className="h-1 bg-gradient-to-r from-green-500 to-emerald-500 dark:from-green-400 dark:to-emerald-400 rounded-full transition-all duration-1000"
+                style={{ width: `${(personas.filter(p => 'validation_metrics' in p).length / personas.length) * 100}%` }}
+              />
             </div>
           </CardContent>
         </Card>
 
-        <Card className="border-0 shadow-lg bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-900/20 dark:to-purple-800/20 hover-lift">
-          <CardContent className="p-4">
-            <div className="flex items-center gap-3">
-              <div className="p-2 bg-purple-100 dark:bg-purple-800/50 rounded-lg">
-                <Target className="h-5 w-5 text-purple-600 dark:text-purple-400" />
+        {/* Carte Qualité */}
+        <Card className="group relative overflow-hidden border-0 shadow-xl bg-gradient-to-br from-purple-50 via-purple-100 to-violet-100 dark:from-purple-900/30 dark:via-purple-800/30 dark:to-violet-800/30 hover-lift transition-all duration-300 hover:shadow-2xl">
+          <div className="absolute inset-0 bg-gradient-to-br from-purple-500/5 to-violet-500/5 dark:from-purple-400/10 dark:to-violet-400/10" />
+          <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-purple-300/20 to-violet-300/20 dark:from-purple-600/20 dark:to-violet-600/20 rounded-bl-full transform translate-x-6 -translate-y-6" />
+          
+          <CardContent className="relative p-6">
+            <div className="flex items-center justify-between mb-4">
+              <div className="p-3 bg-gradient-to-br from-purple-100 to-purple-200 dark:from-purple-800/50 dark:to-purple-700/50 rounded-xl shadow-lg group-hover:scale-110 transition-transform duration-300">
+                <Star className="h-6 w-6 text-purple-600 dark:text-purple-400" />
               </div>
-              <div>
-                <p className="text-2xl font-bold text-purple-700 dark:text-purple-300">
+              <div className="flex items-center gap-1 text-xs text-purple-600 dark:text-purple-400 bg-purple-100/50 dark:bg-purple-800/30 px-2 py-1 rounded-full">
+                <Award className="h-3 w-3" />
+                <span>Premium</span>
+              </div>
+            </div>
+            
+            <div className="space-y-2">
+              <div className="flex items-baseline gap-2">
+                <span className="text-3xl font-bold text-purple-700 dark:text-purple-300 group-hover:scale-105 transition-transform duration-300">
                   {Math.round((personas.filter(p => 'validation_metrics' in p).length / personas.length) * 100)}%
-                </p>
-                <p className="text-sm text-purple-600 dark:text-purple-400">Qualité</p>
+                </span>
+                <span className="text-xs text-purple-500 dark:text-purple-500">score</span>
               </div>
+              <div className="flex items-center justify-between">
+                <span className="text-sm font-medium text-purple-600 dark:text-purple-400">Qualité</span>
+                <span className="text-xs text-purple-500 dark:text-purple-500">
+                  {Math.round((personas.filter(p => 'validation_metrics' in p).length / personas.length) * 100) >= 80 ? 'Excellent' : 
+                   Math.round((personas.filter(p => 'validation_metrics' in p).length / personas.length) * 100) >= 60 ? 'Bon' : 'Moyen'}
+                </span>
+              </div>
+            </div>
+            
+            {/* Barre de progression circulaire */}
+            <div className="mt-4 w-full bg-purple-200/50 dark:bg-purple-700/30 rounded-full h-1">
+              <div 
+                className="h-1 bg-gradient-to-r from-purple-500 to-violet-500 dark:from-purple-400 dark:to-violet-400 rounded-full transition-all duration-1000"
+                style={{ width: `${(personas.filter(p => 'validation_metrics' in p).length / personas.length) * 100}%` }}
+              />
             </div>
           </CardContent>
         </Card>
 
-        <Card className="border-0 shadow-lg bg-gradient-to-br from-amber-50 to-amber-100 dark:from-amber-900/20 dark:to-amber-800/20 hover-lift">
-          <CardContent className="p-4">
-            <div className="flex items-center gap-3">
-              <div className="p-2 bg-amber-100 dark:bg-amber-800/50 rounded-lg">
-                <Zap className="h-5 w-5 text-amber-600 dark:text-amber-400" />
+        {/* Carte Export */}
+        <Card className="group relative overflow-hidden border-0 shadow-xl bg-gradient-to-br from-amber-50 via-amber-100 to-orange-100 dark:from-amber-900/30 dark:via-amber-800/30 dark:to-orange-800/30 hover-lift transition-all duration-300 hover:shadow-2xl">
+          <div className="absolute inset-0 bg-gradient-to-br from-amber-500/5 to-orange-500/5 dark:from-amber-400/10 dark:to-orange-400/10" />
+          <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-amber-300/20 to-orange-300/20 dark:from-amber-600/20 dark:to-orange-600/20 rounded-bl-full transform translate-x-6 -translate-y-6" />
+          
+          <CardContent className="relative p-6">
+            <div className="flex items-center justify-between mb-4">
+              <div className="p-3 bg-gradient-to-br from-amber-100 to-amber-200 dark:from-amber-800/50 dark:to-amber-700/50 rounded-xl shadow-lg group-hover:scale-110 transition-transform duration-300">
+                <Download className="h-6 w-6 text-amber-600 dark:text-amber-400" />
               </div>
-              <div>
-                <p className="text-2xl font-bold text-amber-700 dark:text-amber-300">
+              <div className="flex items-center gap-1 text-xs text-amber-600 dark:text-amber-400 bg-amber-100/50 dark:bg-amber-800/30 px-2 py-1 rounded-full">
+                <Zap className="h-3 w-3" />
+                <span>Prêt</span>
+              </div>
+            </div>
+            
+            <div className="space-y-2">
+              <div className="flex items-baseline gap-2">
+                <span className="text-3xl font-bold text-amber-700 dark:text-amber-300 group-hover:scale-105 transition-transform duration-300">
                   {exportFormat.toUpperCase()}
-                </p>
-                <p className="text-sm text-amber-600 dark:text-amber-400">Export</p>
+                </span>
+                <button 
+                  onClick={handleExportAll}
+                  className="text-xs text-amber-600 dark:text-amber-400 hover:text-amber-700 dark:hover:text-amber-300 transition-colors"
+                  disabled={exportState.isExporting}
+                >
+                  {exportState.isExporting ? (
+                    <Loader2 className="h-3 w-3 animate-spin" />
+                  ) : (
+                    <ExternalLink className="h-3 w-3" />
+                  )}
+                </button>
               </div>
+              <div className="flex items-center justify-between">
+                <span className="text-sm font-medium text-amber-600 dark:text-amber-400">Export</span>
+                <span className="text-xs text-amber-500 dark:text-amber-500">
+                  {exportState.isExporting ? 'En cours...' : 'Disponible'}
+                </span>
+              </div>
+            </div>
+            
+            {/* Indicateur de format */}
+            <div className="mt-4 flex items-center gap-2">
+              <div className="flex-1 bg-amber-200/50 dark:bg-amber-700/30 rounded-full h-1">
+                <div className="h-1 bg-gradient-to-r from-amber-500 to-orange-500 dark:from-amber-400 dark:to-orange-400 rounded-full w-full transition-all duration-300" />
+              </div>
+              <span className="text-xs text-amber-600 dark:text-amber-400 font-medium">
+                {exportFormat === 'csv' ? 'Excel' : exportFormat === 'pdf' ? 'Document' : 'Données'}
+              </span>
             </div>
           </CardContent>
         </Card>
-              </div>
+      </div>
               
       {/* Actions principales */}
       <Card className="border-0 shadow-xl bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm">
@@ -377,146 +501,8 @@ export function PersonaList({
         </CardContent>
         </Card>
 
-      {/* Statistiques globales améliorées */}
-      {globalStats && (
-        <Card className="border-0 shadow-xl bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm overflow-hidden">
-            <CardHeader 
-            className="bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/30 dark:to-emerald-900/30 cursor-pointer hover:from-green-100 hover:to-emerald-100 dark:hover:from-green-800/40 dark:hover:to-emerald-800/40 transition-all duration-300 border-b border-green-200 dark:border-green-700"
-              onClick={() => setIsStatsExpanded(!isStatsExpanded)}
-            >
-            <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                <div className="p-3 bg-green-100 dark:bg-green-800/50 rounded-xl">
-                  <BarChart3 className="h-6 w-6 text-green-600 dark:text-green-400" />
-                  </div>
-                  <div>
-                  <CardTitle className="text-xl text-green-700 dark:text-green-300">Métriques de Performance</CardTitle>
-                  <p className="text-sm text-green-600 dark:text-green-400 font-normal">
-                      Analyse qualitative de vos personas
-                    </p>
-                  </div>
-                </div>
-              <ChevronDown className={cn(
-                "h-6 w-6 text-green-600 dark:text-green-400 transition-transform duration-300",
-                isStatsExpanded && "rotate-180"
-              )} />
-            </div>
-            </CardHeader>
-            
-            <CardContent className="p-6">
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-              <div className="text-center p-6 bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-800/20 rounded-xl hover-lift transition-transform duration-200">
-                <div className="inline-flex items-center justify-center w-16 h-16 bg-green-100 dark:bg-green-800/50 rounded-xl mb-4">
-                  <CheckCircle className="h-8 w-8 text-green-600 dark:text-green-400" />
-                  </div>
-                <div className="text-4xl font-bold text-green-600 dark:text-green-400 mb-2">
-                    {Math.round(globalStats.avgCompleteness * 100)}%
-                  </div>
-                <p className="text-sm text-green-700 dark:text-green-300 font-medium">Complétude</p>
-                <p className="text-xs text-green-600 dark:text-green-400 mt-1">Données complètes</p>
-              </div>
-              
-              <div className="text-center p-6 bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20 rounded-xl hover-lift transition-transform duration-200">
-                <div className="inline-flex items-center justify-center w-16 h-16 bg-blue-100 dark:bg-blue-800/50 rounded-xl mb-4">
-                  <Shield className="h-8 w-8 text-blue-600 dark:text-blue-400" />
-                </div>
-                <div className="text-4xl font-bold text-blue-600 dark:text-blue-400 mb-2">
-                    {Math.round(globalStats.avgConsistency * 100)}%
-                  </div>
-                <p className="text-sm text-blue-700 dark:text-blue-300 font-medium">Cohérence</p>
-                <p className="text-xs text-blue-600 dark:text-blue-400 mt-1">Logique interne</p>
-              </div>
-              
-              <div className="text-center p-6 bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-900/20 dark:to-purple-800/20 rounded-xl hover-lift transition-transform duration-200">
-                <div className="inline-flex items-center justify-center w-16 h-16 bg-purple-100 dark:bg-purple-800/50 rounded-xl mb-4">
-                  <Target className="h-8 w-8 text-purple-600 dark:text-purple-400" />
-                </div>
-                <div className="text-4xl font-bold text-purple-600 dark:text-purple-400 mb-2">
-                    {Math.round(globalStats.avgRealism * 100)}%
-                  </div>
-                <p className="text-sm text-purple-700 dark:text-purple-300 font-medium">Réalisme</p>
-                <p className="text-xs text-purple-600 dark:text-purple-400 mt-1">Crédibilité</p>
-              </div>
-              
-              <div className="text-center p-6 bg-gradient-to-br from-amber-50 to-amber-100 dark:from-amber-900/20 dark:to-amber-800/20 rounded-xl hover-lift transition-transform duration-200">
-                <div className="inline-flex items-center justify-center w-16 h-16 bg-amber-100 dark:bg-amber-800/50 rounded-xl mb-4">
-                  <Clock className="h-8 w-8 text-amber-600 dark:text-amber-400" />
-                </div>
-                <div className="text-4xl font-bold text-amber-600 dark:text-amber-400 mb-2">
-                    {Math.round(globalStats.avgProcessingTime)}ms
-                </div>
-                <p className="text-sm text-amber-700 dark:text-amber-300 font-medium">Temps moyen</p>
-                <p className="text-xs text-amber-600 dark:text-amber-400 mt-1">Génération</p>
-                </div>
-              </div>
-
-              {isStatsExpanded && (
-              <div className="mt-8 pt-8 border-t border-gray-200 dark:border-gray-700 animate-in fade-in slide-in-from-top-2 duration-300">
-                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                  <Card className="border-0 shadow-lg bg-gradient-to-br from-indigo-50 to-purple-50 dark:from-indigo-900/20 dark:to-purple-800/20">
-                    <CardContent className="p-6">
-                      <div className="flex items-center gap-3 mb-4">
-                        <div className="p-2 bg-indigo-100 dark:bg-indigo-800/50 rounded-lg">
-                          <Trophy className="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
-                        </div>
-                        <div>
-                          <h4 className="font-semibold text-indigo-700 dark:text-indigo-300">Niveau de Confiance</h4>
-                          <p className="text-sm text-indigo-600 dark:text-indigo-400">Répartition par qualité</p>
-                        </div>
-                      </div>
-                      <div className="space-y-3">
-                        {Object.entries(globalStats.confidenceLevels).map(([level, count]) => (
-                          <div key={level} className="flex items-center justify-between">
-                            <span className="text-sm text-gray-700 dark:text-gray-300 capitalize">{level}</span>
-                            <div className="flex items-center gap-3">
-                              <div className="w-20 h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
-                                <div 
-                                  className={cn(
-                                    "h-full rounded-full transition-all duration-500",
-                                    level === 'high' ? "bg-green-500" : 
-                                    level === 'medium' ? "bg-yellow-500" : "bg-red-500"
-                                  )}
-                                  style={{ width: `${(count / personas.length) * 100}%` }}
-                                />
-                              </div>
-                              <span className="text-sm font-medium text-gray-900 dark:text-gray-100">{count}</span>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    </CardContent>
-                  </Card>
-                  
-                  <Card className="border-0 shadow-lg bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-800/20">
-                    <CardContent className="p-6">
-                      <div className="flex items-center gap-3 mb-4">
-                        <div className="p-2 bg-green-100 dark:bg-green-800/50 rounded-lg">
-                          <TrendingUp className="h-5 w-5 text-green-600 dark:text-green-400" />
-                        </div>
-                        <div>
-                          <h4 className="font-semibold text-green-700 dark:text-green-300">Qualité Globale</h4>
-                          <p className="text-sm text-green-600 dark:text-green-400">Score de performance</p>
-                    </div>
-                      </div>
-                      <div className="text-center">
-                        <div className="text-5xl font-bold text-green-600 dark:text-green-400 mb-2">
-                        {Math.round(((globalStats.avgCompleteness + globalStats.avgConsistency + globalStats.avgRealism) / 3) * 100)}%
-                      </div>
-                        <p className="text-sm text-green-700 dark:text-green-300 font-medium">
-                          Score de qualité excellent
-                        </p>
-                        <p className="text-xs text-green-600 dark:text-green-400 mt-1">
-                          Vos personas sont prêts pour la production
-                      </p>
-                    </div>
-                    </CardContent>
-                  </Card>
-                </div>
-                </div>
-              )}
-            </CardContent>
-          </Card>
-      )}
+      {/* Statistiques globales - Section supprimée car déplacée dans app/generator/page.tsx */}
+      {/* Les métriques détaillées sont maintenant gérées dans la page principale */}
 
       {/* Contrôles d'affichage */}
       <Card className="border-0 shadow-xl bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm">

@@ -44,7 +44,9 @@ import {
   Clock,
   BarChart3,
   Activity,
-  Link
+  Link,
+  MapPin,
+  Lightbulb
 } from 'lucide-react';
 import { Persona } from '@/lib/types/persona';
 import { useExport } from '@/hooks/use-export';
@@ -152,8 +154,8 @@ export function PersonaExport({
   if (variant === 'multiple') {
     return (
       <div className="flex items-center gap-3">
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
+              <DropdownMenu>
+        <DropdownMenuTrigger asChild>
             <Button 
               variant="outline" 
               disabled={exportState.status === 'generating'}
@@ -163,14 +165,14 @@ export function PersonaExport({
                 sizeClasses[size].button
               )}
             >
-              {exportState.status === 'generating' ? (
+            {exportState.status === 'generating' ? (
                 <Loader2 className={cn("mr-2 animate-spin", sizeClasses[size].icon)} />
-              ) : (
+            ) : (
                 <Download className={cn("mr-2", sizeClasses[size].icon)} />
-              )}
-              Exporter tout
-            </Button>
-          </DropdownMenuTrigger>
+            )}
+            Exporter tout
+          </Button>
+        </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-56 bg-white/95 dark:bg-gray-900/95 backdrop-blur-md border-0 shadow-xl">
             <DropdownMenuItem 
               onClick={() => handleExport('csv')}
@@ -301,146 +303,131 @@ export function PersonaExport({
             Partager
           </Button>
         </DialogTrigger>
-        <DialogContent className="sm:max-w-lg bg-white/95 dark:bg-gray-900/95 backdrop-blur-md border-0 shadow-2xl">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2 text-gray-900 dark:text-white">
-              <Globe className="h-5 w-5 text-secondary-600 dark:text-secondary-400" />
+        
+        <DialogContent className="w-[95vw] max-w-sm sm:max-w-md bg-white dark:bg-gray-900 border-0 shadow-xl">
+          <DialogHeader className="pb-3 sm:pb-4">
+            <DialogTitle className="flex items-center gap-2 text-base sm:text-lg font-semibold text-gray-900 dark:text-white">
+              <Share2 className="h-4 w-4 sm:h-5 sm:w-5 text-blue-600 dark:text-blue-400" />
               Partager ce persona
             </DialogTitle>
-            <DialogDescription className="text-gray-600 dark:text-gray-400">
-              Partagez ce persona avec votre équipe ou sur les réseaux sociaux
+            <DialogDescription className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">
+              Partagez avec votre équipe ou sur les réseaux
             </DialogDescription>
           </DialogHeader>
           
-          <div className="space-y-6">
-            {/* Lien partageable avec design moderne */}
-            <Card className="border-0 shadow-lg bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-700">
-              <CardContent className="p-4">
-                <div className="space-y-3">
-                  <label className="text-sm font-semibold text-gray-700 dark:text-gray-300 flex items-center gap-2">
-                    <Link className="h-4 w-4 text-primary-600 dark:text-primary-400" />
-                    Lien partageable
-                  </label>
-                  <div className="flex gap-2">
-                    <input
-                      type="text"
-                      value={generateShareableLink()}
-                      readOnly
-                      className="flex-1 px-3 py-2 text-sm border border-gray-200 dark:border-gray-600 rounded-lg bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm focus:outline-none focus:ring-2 focus:ring-primary-500/20"
-                    />
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => copyToClipboard(generateShareableLink())}
-                      className="hover-lift bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm"
-                    >
-                      {copied ? (
-                        <CheckCircle className="h-4 w-4 text-green-600" />
-                      ) : (
-                        <Copy className="h-4 w-4" />
-                      )}
-                    </Button>
-                  </div>
-                  {copied && (
-                    <div className="flex items-center gap-2 text-xs text-green-600 dark:text-green-400">
-                      <CheckCircle className="h-3 w-3" />
-                      <span>Lien copié dans le presse-papiers !</span>
-                    </div>
-                  )}
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Options de partage avec design moderne */}
-            <Card className="border-0 shadow-lg bg-gradient-to-r from-primary-50 to-secondary-50 dark:from-primary-900/20 dark:to-secondary-900/20">
-              <CardContent className="p-4">
-                <div className="space-y-3">
-                  <label className="text-sm font-semibold text-gray-700 dark:text-gray-300 flex items-center gap-2">
-                    <Users className="h-4 w-4 text-primary-600 dark:text-primary-400" />
-                    Partager via
-                  </label>
-                  <div className="grid grid-cols-2 gap-3">
-                    <Button 
-                      variant="outline" 
-                      size="sm" 
-                      onClick={shareViaEmail}
-                      className="flex items-center gap-2 hover-lift bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm"
-                    >
-                      <Mail className="h-4 w-4 text-blue-600 dark:text-blue-400" />
-                      <span>Email</span>
-                    </Button>
-                    <Button 
-                      variant="outline" 
-                      size="sm" 
-                      onClick={shareViaLinkedIn}
-                      className="flex items-center gap-2 hover-lift bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm"
-                    >
-                      <Linkedin className="h-4 w-4 text-blue-700 dark:text-blue-400" />
-                      <span>LinkedIn</span>
-                    </Button>
-                    <Button 
-                      variant="outline" 
-                      size="sm" 
-                      onClick={shareViaTwitter}
-                      className="flex items-center gap-2 hover-lift bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm"
-                    >
-                      <Twitter className="h-4 w-4 text-blue-400" />
-                      <span>Twitter</span>
-                    </Button>
-                    <Button 
-                      variant="outline" 
-                      size="sm"
-                      className="flex items-center gap-2 hover-lift bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm"
-                    >
-                      <MessageSquare className="h-4 w-4 text-green-600 dark:text-green-400" />
-                      <span>Slack</span>
-                    </Button>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Informations du persona avec design moderne */}
+          <div className="space-y-3 sm:space-y-4">
+            {/* Aperçu compact du persona */}
             {persona && (
-              <Card className="border-0 shadow-lg bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-indigo-900/20 dark:to-purple-900/20">
-                <CardContent className="p-4">
-                  <div className="flex items-center gap-4">
-                    <div className="relative">
-                      <div className="w-12 h-12 bg-gradient-to-br from-indigo-500 to-purple-500 rounded-full flex items-center justify-center text-white font-bold text-lg shadow-lg">
-                        {getInitials(persona.name)}
-                      </div>
-                      <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-green-500 rounded-full border-2 border-white dark:border-gray-800 flex items-center justify-center">
-                        <CheckCircle className="h-2 w-2 text-white" />
-                      </div>
-                    </div>
-                    <div className="flex-1">
-                      <h4 className="font-bold text-gray-900 dark:text-white">{persona.name}</h4>
-                      <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
-                        <Clock className="h-3 w-3" />
-                        <span>{persona.age} ans • {persona.location}</span>
-                      </div>
-                      <div className="flex flex-wrap gap-1 mt-2">
-                        {persona.values.slice(0, 3).map(value => (
-                          <Badge key={value} variant="secondary" className="text-xs bg-white/60 dark:bg-gray-800/60">
-                            {value}
-                          </Badge>
-                        ))}
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-1 text-yellow-500">
-                      <Star className="h-4 w-4 fill-current" />
-                      <span className="text-sm font-medium">Premium</span>
-                    </div>
+              <div className="bg-gray-50 dark:bg-gray-800/50 rounded-lg p-2 sm:p-3">
+                <div className="flex items-center gap-2 sm:gap-3">
+                  <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-primary-500 to-secondary-500 rounded-full flex items-center justify-center text-white font-bold text-xs sm:text-sm">
+                    {getInitials(persona.name)}
                   </div>
-                </CardContent>
-              </Card>
+                  <div className="flex-1 min-w-0">
+                    <h4 className="font-medium text-sm sm:text-base text-gray-900 dark:text-white truncate">{persona.name}</h4>
+                    <p className="text-xs text-gray-600 dark:text-gray-400">
+                      {persona.age} ans • {persona.location}
+                    </p>
+                  </div>
+                  <Badge variant="secondary" className="text-xs px-2 py-1">
+                    Premium
+                  </Badge>
+                </div>
+              </div>
             )}
+
+            {/* Lien partageable compact */}
+            <div className="space-y-2">
+              <label className="text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300">
+                Lien partageable
+              </label>
+              <div className="flex gap-1 sm:gap-2">
+                <input
+                  type="text"
+                  value={generateShareableLink()}
+                  readOnly
+                  className="flex-1 px-2 sm:px-3 py-2 text-xs bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-md focus:outline-none text-gray-900 dark:text-white"
+                />
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => copyToClipboard(generateShareableLink())}
+                  className="px-2 sm:px-3 bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700"
+                >
+                  {copied ? (
+                    <CheckCircle className="h-4 w-4 text-green-600 dark:text-green-400" />
+                  ) : (
+                    <Copy className="h-4 w-4 text-gray-600 dark:text-gray-400" />
+                  )}
+                </Button>
+              </div>
+              {copied && (
+                <p className="text-xs text-green-600 dark:text-green-400 flex items-center gap-1">
+                  <CheckCircle className="h-3 w-3" />
+                  Copié !
+                </p>
+              )}
+            </div>
+
+            {/* Options de partage compactes */}
+            <div className="space-y-2">
+              <label className="text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300">
+                Partager via
+              </label>
+              <div className="grid grid-cols-2 gap-1 sm:gap-2">
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  onClick={shareViaEmail}
+                  className="flex items-center gap-1 sm:gap-2 justify-start p-1.5 sm:p-2 h-auto bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-900 dark:text-gray-100"
+                >
+                  <Mail className="h-3 w-3 sm:h-4 sm:w-4 text-blue-600 dark:text-blue-400" />
+                  <span className="text-xs">Email</span>
+                </Button>
+                
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  onClick={shareViaLinkedIn}
+                  className="flex items-center gap-1 sm:gap-2 justify-start p-1.5 sm:p-2 h-auto bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-900 dark:text-gray-100"
+                >
+                  <Linkedin className="h-3 w-3 sm:h-4 sm:w-4 text-blue-700 dark:text-blue-400" />
+                  <span className="text-xs">LinkedIn</span>
+                </Button>
+                
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  onClick={shareViaTwitter}
+                  className="flex items-center gap-1 sm:gap-2 justify-start p-1.5 sm:p-2 h-auto bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-900 dark:text-gray-100"
+                >
+                  <Twitter className="h-3 w-3 sm:h-4 sm:w-4 text-blue-400" />
+                  <span className="text-xs">Twitter</span>
+                </Button>
+                
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  className="flex items-center gap-1 sm:gap-2 justify-start p-1.5 sm:p-2 h-auto bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-900 dark:text-gray-100"
+                >
+                  <MessageSquare className="h-3 w-3 sm:h-4 sm:w-4 text-green-600 dark:text-green-400" />
+                  <span className="text-xs">Slack</span>
+                </Button>
+              </div>
+            </div>
+
+            {/* Note compacte */}
+            <div className="bg-blue-50 dark:bg-blue-900/20 rounded-md p-2 sm:p-3">
+              <p className="text-xs text-blue-700 dark:text-blue-300">
+                💡 Le lien reste accessible pendant 30 jours
+              </p>
+              </div>
           </div>
         </DialogContent>
       </Dialog>
 
       {/* Indicateurs d'état avec design moderne */}
-      {exportState.status === 'generating' && (
+             {exportState.status === 'generating' && (
         <div className="flex items-center gap-3 p-3 bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20 rounded-xl border border-blue-200 dark:border-blue-700">
           <div className="p-1 bg-blue-100 dark:bg-blue-800/50 rounded-full">
             <Activity className="h-4 w-4 text-blue-600 dark:text-blue-400 animate-pulse" />

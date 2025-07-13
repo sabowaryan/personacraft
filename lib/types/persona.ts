@@ -9,7 +9,7 @@ export interface Persona {
   communication: CommunicationProfile;
   marketing: MarketingProfile;
   quote: string;
-  generatedAt: Date;
+  generatedAt: Date | string;
   sources: string[];
   avatar?: string;
 }

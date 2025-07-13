@@ -207,7 +207,7 @@ export function Navigation() {
               {getThemeIcon()}
             </Button>
 
-            {/* CTA Button */}
+          {/* CTA Button */}
             <Link href="/generator">
               <Button 
                 size="sm"
@@ -232,18 +232,18 @@ export function Navigation() {
               {getThemeIcon()}
             </Button>
 
-            {/* Mobile Menu Button */}
+          {/* Mobile Menu Button */}
             <Button
               variant="ghost"
               size="sm"
-              onClick={toggleMobileMenu}
+            onClick={toggleMobileMenu}
               className="w-9 h-9 p-0 hover:bg-gray-100 dark:hover:bg-gray-800 hover:scale-110 transition-all duration-200"
-            >
-              {isMobileMenuOpen ? (
+          >
+            {isMobileMenuOpen ? (
                 <X className="h-5 w-5" />
-              ) : (
+            ) : (
                 <Menu className="h-5 w-5" />
-              )}
+            )}
             </Button>
           </div>
         </div>

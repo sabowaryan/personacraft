@@ -1,6 +1,6 @@
 import { Persona } from '../types/persona';
 import { downloadPersonaPDF } from './pdf-generator';
-import { CSVExporter } from './csv-exporter';
+import { CSVExporter, exportPersonasWithAnalytics } from './csv-exporter';
 
 // Export PDF enrichi avec le vrai générateur
 export async function exportToPDF(persona: Persona, options?: {
@@ -9,14 +9,18 @@ export async function exportToPDF(persona: Persona, options?: {
   theme?: 'light' | 'dark' | 'brand';
 }): Promise<void> {
   try {
+    console.log('Début génération PDF pour:', persona.name);
+    
     // Utiliser la fonction utilitaire pour télécharger le PDF
-    downloadPersonaPDF(persona, {
+    await downloadPersonaPDF(persona, {
       format: 'a4',
       orientation: 'portrait',
       includeCharts: options?.includeCharts || false,
       includeMetadata: options?.includeMetadata || true,
       theme: options?.theme || 'brand'
     });
+
+    console.log('PDF généré avec succès');
 
   } catch (error) {
     console.error('Erreur génération PDF:', error);
@@ -27,30 +31,63 @@ export async function exportToPDF(persona: Persona, options?: {
   }
 }
 
-// Export CSV enrichi avec le vrai exporter
+// Export CSV enrichi avec le vrai exporter - Compatible Excel 2025
 export async function exportToCSV(personas: Persona[], options?: {
   delimiter?: ',' | ';' | '\t';
   includeMetadata?: boolean;
   flattenArrays?: boolean;
+  excelCompatible?: boolean;
+  includeAnalytics?: boolean;
+  format?: 'horizontal' | 'vertical' | 'sections';
+  maxCellLength?: number;
+  truncateText?: boolean;
+  wrapText?: boolean;
 }): Promise<void> {
   try {
+    console.log('Début génération CSV pour', personas.length, 'personas');
+
+    // Configuration optimisée pour Excel français avec format lisible et gestion des textes longs
     const csvExporter = new CSVExporter({
-      delimiter: options?.delimiter || ',',
+      delimiter: options?.delimiter || ';', // Point-virgule pour Excel français
       includeHeaders: true,
-      includeMetadata: options?.includeMetadata || true,
-      flattenArrays: options?.flattenArrays || true,
-      dateFormat: 'locale'
+      includeMetadata: options?.includeMetadata !== false, // true par défaut
+      flattenArrays: options?.flattenArrays !== false, // true par défaut
+      dateFormat: 'excel', // Format de date Excel-friendly
+      encoding: 'utf-8-bom', // BOM UTF-8 pour Excel
+      excelCompatible: options?.excelCompatible !== false, // true par défaut
+      format: options?.format || 'sections', // Format sections par défaut pour meilleure lisibilité
+      maxCellLength: options?.maxCellLength || 100, // Limite de caractères par cellule
+      truncateText: options?.truncateText !== false, // Tronquer par défaut
+      wrapText: options?.wrapText || false // Pas de retour à la ligne par défaut
     });
 
-    const csvContent = csvExporter.exportPersonas(personas);
-    const filename = `personas_export_${new Date().toISOString().split('T')[0]}.csv`;
+    let csvContent: string;
     
-    downloadAsText(csvContent, filename, 'text/csv');
+    if (options?.includeAnalytics) {
+      // Export avec analyse statistique avancée
+      csvContent = exportPersonasWithAnalytics(personas);
+      console.log('CSV avec analytics généré');
+    } else {
+      // Export standard avec nouveau format
+      csvContent = csvExporter.exportPersonas(personas);
+      console.log('CSV avec format', options?.format || 'sections', 'généré');
+    }
+
+    // Nom de fichier avec timestamp pour éviter les conflits
+    const timestamp = new Date().toISOString().split('T')[0];
+    const formatSuffix = options?.format ? `_${options.format}` : '_sections';
+    const filename = `PersonaCraft_Export${formatSuffix}_${timestamp}.csv`;
+    
+    // Téléchargement avec type MIME correct pour Excel
+    downloadAsText(csvContent, filename, 'text/csv;charset=utf-8;');
+    
+    console.log('Export CSV terminé:', filename);
 
   } catch (error) {
     console.error('Erreur export CSV:', error);
     
-    // Fallback vers l'ancien système
+    // Fallback amélioré vers l'ancien système
+    console.log('Utilisation du système de fallback...');
     await exportToCSVFallback(personas);
   }
 }
@@ -136,42 +173,55 @@ Sources: ${persona.sources.join(', ')}
 }
 
 async function exportToCSVFallback(personas: Persona[]): Promise<void> {
+  console.log('Utilisation du système de fallback CSV...');
+  
+  // Headers en français pour Excel
   const headers = [
-    'Name', 'Age', 'Location', 'Bio', 'Values', 'Quote',
-    'Music', 'Brands', 'Movies', 'Food', 'Books', 'Lifestyle',
-    'Preferred Channels', 'Tone', 'Content Types', 'Frequency',
-    'Pain Points', 'Motivations', 'Buying Behavior', 'Influences',
-    'Generated At', 'Sources'
+    'Nom', 'Age', 'Localisation', 'Bio', 'Valeurs', 'Citation',
+    'Musique', 'Marques', 'Films', 'Cuisine', 'Livres', 'Lifestyle',
+    'Canaux Préférés', 'Ton', 'Types Contenu', 'Fréquence',
+    'Points Douleur', 'Motivations', 'Comportement Achat', 'Influences',
+    'Date Création', 'Sources'
   ];
 
   const rows = personas.map(persona => [
-    persona.name,
-    persona.age.toString(),
-    persona.location,
-    persona.bio,
-    persona.values.join('; '),
-    persona.quote,
-    persona.interests.music.join('; '),
-    persona.interests.brands.join('; '),
-    persona.interests.movies.join('; '),
-    persona.interests.food.join('; '),
-    persona.interests.books.join('; '),
-    persona.interests.lifestyle.join('; '),
-    persona.communication.preferredChannels.join('; '),
-    persona.communication.tone,
-    persona.communication.contentTypes.join('; '),
-    persona.communication.frequency,
-    persona.marketing.painPoints.join('; '),
-    persona.marketing.motivations.join('; '),
-    persona.marketing.buyingBehavior,
-    persona.marketing.influences.join('; '),
-    persona.generatedAt.toISOString(),
-    persona.sources.join('; ')
+    persona.name || '',
+    persona.age?.toString() || '',
+    persona.location || '',
+    persona.bio || '',
+    persona.values?.join(' | ') || '',
+    persona.quote || '',
+    persona.interests?.music?.join(' | ') || '',
+    persona.interests?.brands?.join(' | ') || '',
+    persona.interests?.movies?.join(' | ') || '',
+    persona.interests?.food?.join(' | ') || '',
+    persona.interests?.books?.join(' | ') || '',
+    persona.interests?.lifestyle?.join(' | ') || '',
+    persona.communication?.preferredChannels?.join(' | ') || '',
+    persona.communication?.tone || '',
+    persona.communication?.contentTypes?.join(' | ') || '',
+    persona.communication?.frequency || '',
+    persona.marketing?.painPoints?.join(' | ') || '',
+    persona.marketing?.motivations?.join(' | ') || '',
+    persona.marketing?.buyingBehavior || '',
+    persona.marketing?.influences?.join(' | ') || '',
+    persona.generatedAt ? new Date(persona.generatedAt).toLocaleDateString('fr-FR') : '',
+    persona.sources?.join(' | ') || ''
   ]);
 
-  const csvContent = [headers, ...rows]
-    .map(row => row.map(field => `"${field.replace(/"/g, '""')}"`).join(','))
-    .join('\n');
+  // Utiliser point-virgule et BOM UTF-8 pour Excel
+  const csvContent = '\uFEFF' + [headers, ...rows]
+    .map(row => row.map(field => {
+      // Nettoyer et échapper les champs
+      const cleaned = String(field || '')
+        .replace(/[\r\n]/g, ' ')
+        .replace(/\s+/g, ' ')
+        .trim()
+        .replace(/"/g, '""');
+      return `"${cleaned}"`;
+    }).join(';'))
+    .join('\r\n');
 
-  downloadAsText(csvContent, `personas_export_${new Date().toISOString().split('T')[0]}.csv`, 'text/csv');
+  const timestamp = new Date().toISOString().split('T')[0];
+  downloadAsText(csvContent, `PersonaCraft_Fallback_${timestamp}.csv`, 'text/csv;charset=utf-8;');
 }

@@ -5,9 +5,9 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Separator } from '@/components/ui/separator';
+
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Progress } from '@/components/ui/progress';
+
 import { 
   ArrowLeft, 
   Download, 
@@ -99,610 +99,556 @@ export function PersonaDetail({ persona, onBack }: PersonaDetailProps) {
   };
 
   return (
-    <div className="max-w-7xl mx-auto space-y-8">
-      {/* Header avec navigation et actions */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-        <div className="flex items-center gap-4">
-          <Button 
-            variant="outline" 
-            onClick={onBack} 
-            className="flex items-center gap-2 hover-lift transition-all duration-200 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm"
-          >
-            <ArrowLeft className="h-4 w-4" />
-            <span>Retour à la liste</span>
-          </Button>
-          <div className="hidden sm:block w-px h-6 bg-gray-300 dark:bg-gray-600" />
-          <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
-            <Eye className="h-4 w-4" />
-            <span>Vue détaillée</span>
-          </div>
-        </div>
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
+      {/* Conteneur principal avec padding-top suffisant pour éviter le chevauchement navbar */}
+      <div className="w-full pt-20 sm:pt-24 lg:pt-28 pb-12">
+        <div className="max-w-7xl mx-auto space-y-6 sm:space-y-8 px-4 sm:px-6 lg:px-8">
         
-        <div className="flex items-center gap-3">
-          <Button 
-            variant="outline" 
-            size="sm"
-            onClick={copyPersonaId}
-            className="flex items-center gap-2 hover-lift"
-          >
-            {copiedId ? (
-              <>
-                <CheckCircle className="h-4 w-4 text-green-600" />
-                <span>Copié !</span>
-              </>
-            ) : (
-              <>
-                <Copy className="h-4 w-4" />
-                <span>Copier ID</span>
-              </>
-            )}
-          </Button>
-          <PersonaExport persona={persona} />
-        </div>
-      </div>
-
-      {/* En-tête du persona avec design moderne */}
-      <Card className="overflow-hidden border-0 shadow-xl bg-gradient-to-br from-white to-gray-50 dark:from-gray-800 dark:to-gray-900">
-        <div className="relative">
-          {/* Bannière de fond */}
-          <div className="h-48 bg-gradient-to-r from-primary-500 via-secondary-500 to-primary-600 relative overflow-hidden">
-            <div className="absolute inset-0 bg-gradient-to-r from-primary-600/20 to-secondary-600/20" />
-            <div className="absolute inset-0 bg-[url('data:image/svg+xml,%3Csvg%20width%3D%2260%22%20height%3D%2260%22%20viewBox%3D%220%200%2060%2060%22%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%3E%3Cg%20fill%3D%22none%22%20fill-rule%3D%22evenodd%22%3E%3Cg%20fill%3D%22%23ffffff%22%20fill-opacity%3D%220.1%22%3E%3Ccircle%20cx%3D%2230%22%20cy%3D%2230%22%20r%3D%222%22/%3E%3C/g%3E%3C/g%3E%3C/svg%3E')] opacity-30" />
+        {/* Header avec navigation et actions - Amélioré pour responsivité */}
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-6">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 w-full sm:w-auto">
+            <Button 
+              variant="outline" 
+              onClick={onBack} 
+              className="flex items-center gap-2 hover-lift transition-all duration-300 bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm border-gray-200 dark:border-gray-700 hover:border-primary-300 dark:hover:border-primary-600 text-gray-700 dark:text-gray-200 hover:text-primary-700 dark:hover:text-primary-300"
+            >
+              <ArrowLeft className="h-4 w-4" />
+              <span className="font-medium">Retour à la liste</span>
+            </Button>
+            
+            <div className="hidden sm:block w-px h-6 bg-gray-300 dark:bg-gray-600" />
+            
+            <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
+              <Eye className="h-4 w-4 text-primary-600 dark:text-primary-400" />
+              <span className="font-medium">Vue détaillée</span>
+            </div>
           </div>
           
-          {/* Contenu de l'en-tête */}
-          <CardContent className="relative pt-0">
-            <div className="flex flex-col lg:flex-row items-start lg:items-end gap-6 -mt-20">
-              {/* Avatar avec design moderne */}
-              <div className="relative">
-                <Avatar className="w-40 h-40 border-4 border-white dark:border-gray-800 shadow-2xl ring-4 ring-primary-500/20 dark:ring-primary-400/20">
-                  <AvatarImage src={persona.avatar} alt={persona.name} />
-                  <AvatarFallback className="bg-gradient-to-br from-primary-500 to-secondary-500 text-white text-3xl font-bold">
-                    {getInitials(persona.name)}
-                  </AvatarFallback>
-                </Avatar>
-                <div className="absolute -bottom-2 -right-2 w-8 h-8 bg-green-500 rounded-full border-4 border-white dark:border-gray-800 flex items-center justify-center">
-                  <CheckCircle className="h-4 w-4 text-white" />
-                </div>
-              </div>
-              
-              {/* Informations principales */}
-              <div className="flex-1 space-y-4">
-                <div>
-                  <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-2">
-                    {persona.name}
-                  </h1>
-                  <div className="flex flex-wrap items-center gap-4 text-gray-600 dark:text-gray-300">
-                    <div className="flex items-center gap-2 px-3 py-1 bg-white/80 dark:bg-gray-800/80 rounded-full backdrop-blur-sm">
-                      <Calendar className="h-4 w-4 text-primary-600 dark:text-primary-400" />
-                      <span className="font-medium">{persona.age} ans</span>
-                    </div>
-                    <div className="flex items-center gap-2 px-3 py-1 bg-white/80 dark:bg-gray-800/80 rounded-full backdrop-blur-sm">
-                      <MapPin className="h-4 w-4 text-secondary-600 dark:text-secondary-400" />
-                      <span className="font-medium">{persona.location}</span>
-                    </div>
-                    <div className="flex items-center gap-2 px-3 py-1 bg-white/80 dark:bg-gray-800/80 rounded-full backdrop-blur-sm">
-                      <Clock className="h-4 w-4 text-gray-600 dark:text-gray-400" />
-                      <span className="font-medium">
-                        {new Date(persona.generatedAt).toLocaleDateString('fr-FR', {
-                          day: 'numeric',
-                          month: 'long',
-                          year: 'numeric'
-                        })}
-                      </span>
-                    </div>
+          <div className="flex items-center gap-3 w-full sm:w-auto justify-end">
+            <Button 
+              variant="outline" 
+              size="sm"
+              onClick={copyPersonaId}
+              className="flex items-center gap-2 hover-lift transition-all duration-300 bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-200"
+            >
+              {copiedId ? (
+                <>
+                  <CheckCircle className="h-4 w-4 text-green-600 dark:text-green-400" />
+                  <span className="text-green-600 dark:text-green-400 font-medium">Copié !</span>
+                </>
+              ) : (
+                <>
+                  <Copy className="h-4 w-4" />
+                  <span className="font-medium">Copier ID</span>
+                </>
+              )}
+            </Button>
+            <PersonaExport persona={persona} />
+          </div>
+        </div>
+
+        {/* En-tête du persona avec design moderne et responsive */}
+        <Card className="overflow-hidden border-0 shadow-2xl bg-gradient-to-br from-white to-gray-50 dark:from-gray-800 dark:to-gray-900 transition-all duration-300 hover:shadow-3xl">
+          <div className="relative">
+            {/* Bannière de fond responsive */}
+            <div 
+              role="banner" 
+              aria-label="Bannière de persona" 
+              className="h-32 sm:h-40 md:h-48 lg:h-56 bg-gradient-to-r from-primary-500 via-secondary-500 to-primary-600 relative overflow-hidden"
+            >
+              <div className="absolute inset-0 bg-gradient-to-r from-primary-600/20 to-secondary-600/20" />
+              <div className="absolute inset-0 bg-[url('data:image/svg+xml,%3Csvg%20width%3D%2260%22%20height%3D%2260%22%20viewBox%3D%220%200%2060%2060%22%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%3E%3Cg%20fill%3D%22none%22%20fill-rule%3D%22evenodd%22%3E%3Cg%20fill%3D%22%23ffffff%22%20fill-opacity%3D%220.1%22%3E%3Ccircle%20cx%3D%2230%22%20cy%3D%2230%22%20r%3D%222%22/%3E%3C/g%3E%3C/g%3E%3C/svg%3E')] opacity-30" />
+            </div>
+            
+            {/* Contenu de l'en-tête responsive */}
+            <CardContent className="relative pt-0 p-4 sm:p-6 lg:p-8">
+              <div className="flex flex-col lg:flex-row items-start lg:items-end gap-6 lg:gap-8 -mt-16 sm:-mt-20 md:-mt-24 lg:-mt-28">
+                
+                {/* Avatar avec design moderne responsive */}
+                <div className="relative flex-shrink-0">
+                  <Avatar className="w-24 h-24 sm:w-32 sm:h-32 md:w-40 md:h-40 border-4 border-white dark:border-gray-800 shadow-2xl ring-4 ring-primary-500/20 dark:ring-primary-400/20 transition-transform duration-300 hover:scale-105">
+                    <AvatarImage src={persona.avatar} alt={persona.name} />
+                    <AvatarFallback className="bg-gradient-to-br from-primary-500 to-secondary-500 text-white text-xl sm:text-2xl md:text-3xl font-bold">
+                      {getInitials(persona.name)}
+                    </AvatarFallback>
+                  </Avatar>
+                  <div className="absolute -bottom-2 -right-2 w-6 h-6 sm:w-8 sm:h-8 bg-green-500 rounded-full border-4 border-white dark:border-gray-800 flex items-center justify-center">
+                    <CheckCircle className="h-3 w-3 sm:h-4 sm:w-4 text-white" />
                   </div>
                 </div>
                 
-                {/* Citation mise en valeur */}
-                <div className="bg-gradient-to-r from-primary-50 to-secondary-50 dark:from-primary-900/30 dark:to-secondary-900/30 p-6 rounded-xl border border-primary-200/50 dark:border-primary-700/50">
-                  <div className="flex items-start gap-3">
-                    <Quote className="h-6 w-6 text-primary-600 dark:text-primary-400 mt-1 flex-shrink-0" />
-                    <div>
-                      <p className="text-lg italic text-gray-800 dark:text-gray-200 font-medium leading-relaxed">
-                        "{persona.quote}"
-                      </p>
-                      <p className="text-sm text-gray-600 dark:text-gray-400 mt-2">
-                        — Citation personnelle
-                      </p>
+                {/* Informations principales responsive */}
+                <div className="flex-1 space-y-4 lg:space-y-6 w-full">
+                  <div>
+                    <h1 className="text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-bold text-gray-900 dark:text-white mb-2 leading-tight">
+                      {persona.name}
+                    </h1>
+                    <div className="flex flex-wrap items-center gap-2 sm:gap-3 lg:gap-4 text-gray-600 dark:text-gray-300">
+                      <div className="flex items-center gap-2 px-3 py-1.5 bg-white/90 dark:bg-gray-800/90 rounded-full backdrop-blur-sm border border-white/20 dark:border-gray-700/20">
+                        <Calendar className="h-4 w-4 text-primary-600 dark:text-primary-400" />
+                        <span className="font-medium text-sm">{persona.age} ans</span>
+                      </div>
+                      <div className="flex items-center gap-2 px-3 py-1.5 bg-white/90 dark:bg-gray-800/90 rounded-full backdrop-blur-sm border border-white/20 dark:border-gray-700/20">
+                        <MapPin className="h-4 w-4 text-secondary-600 dark:text-secondary-400" />
+                        <span className="font-medium text-sm">{persona.location}</span>
+                      </div>
+                      <div className="flex items-center gap-2 px-3 py-1.5 bg-white/90 dark:bg-gray-800/90 rounded-full backdrop-blur-sm border border-white/20 dark:border-gray-700/20">
+                        <Clock className="h-4 w-4 text-gray-600 dark:text-gray-400" />
+                        <span className="font-medium text-sm">
+                          {new Date(persona.generatedAt).toLocaleDateString('fr-FR', {
+                            day: 'numeric',
+                            month: 'long',
+                            year: 'numeric'
+                          })}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  {/* Citation mise en valeur responsive */}
+                  <div className="bg-gradient-to-r from-primary-50 to-secondary-50 dark:from-primary-900/30 dark:to-secondary-900/30 p-4 sm:p-6 lg:p-8 rounded-xl border border-primary-200/50 dark:border-primary-700/50 transition-all duration-300 hover:shadow-lg">
+                    <div className="flex items-start gap-3 lg:gap-4">
+                      <Quote className="h-6 w-6 lg:h-8 lg:w-8 text-primary-600 dark:text-primary-400 mt-1 flex-shrink-0" />
+                      <div>
+                        <p className="text-base sm:text-lg lg:text-xl italic text-gray-800 dark:text-gray-200 font-medium leading-relaxed">
+                          "{persona.quote}"
+                        </p>
+                        <p className="text-sm text-gray-600 dark:text-gray-400 mt-3 font-medium">
+                          — Citation personnelle
+                        </p>
+                      </div>
                     </div>
                   </div>
                 </div>
               </div>
-            </div>
-          </CardContent>
+            </CardContent>
+          </div>
+        </Card>
+
+        {/* Métriques rapides responsive et accessibles */}
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+          {/* Carte Valeurs */}
+          <Card className="group border border-gray-200 dark:border-gray-700 shadow-md hover:shadow-lg bg-white dark:bg-gray-800 transition-all duration-300 hover:scale-[1.02]">
+            <CardContent className="p-4 sm:p-6">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="p-3 bg-blue-100 dark:bg-blue-900/30 rounded-xl">
+                    <Users className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+                  </div>
+                  <div>
+                    <p className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">
+                      {persona.values.length}
+                    </p>
+                    <p className="text-sm text-gray-600 dark:text-gray-400 font-medium">Valeurs</p>
+                  </div>
+                </div>
+              </div>
+              <div className="mt-4 w-full bg-gray-200 dark:bg-gray-700 rounded-full h-3">
+                <div 
+                  className="h-full bg-blue-500 dark:bg-blue-400 rounded-full transition-all duration-500"
+                  style={{ width: `${Math.max(Math.min((persona.values.length / 6) * 100, 100), 5)}%` }}
+                />
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Carte Intérêts */}
+          <Card className="group border border-gray-200 dark:border-gray-700 shadow-md hover:shadow-lg bg-white dark:bg-gray-800 transition-all duration-300 hover:scale-[1.02]">
+            <CardContent className="p-4 sm:p-6">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="p-3 bg-green-100 dark:bg-green-900/30 rounded-xl">
+                    <Heart className="h-5 w-5 text-green-600 dark:text-green-400" />
+                  </div>
+                  <div>
+                    <p className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">
+                      {Object.values(persona.interests).flat().length}
+                    </p>
+                    <p className="text-sm text-gray-600 dark:text-gray-400 font-medium">Intérêts</p>
+                  </div>
+                </div>
+              </div>
+              <div className="mt-4 w-full bg-gray-200 dark:bg-gray-700 rounded-full h-3">
+                <div 
+                  className="h-full bg-green-500 dark:bg-green-400 rounded-full transition-all duration-500"
+                  style={{ width: `${Math.max(Math.min((Object.values(persona.interests).flat().length / 25) * 100, 100), 5)}%` }}
+                />
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Carte Canaux */}
+          <Card className="group border border-gray-200 dark:border-gray-700 shadow-md hover:shadow-lg bg-white dark:bg-gray-800 transition-all duration-300 hover:scale-[1.02]">
+            <CardContent className="p-4 sm:p-6">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="p-3 bg-purple-100 dark:bg-purple-900/30 rounded-xl">
+                    <MessageCircle className="h-5 w-5 text-purple-600 dark:text-purple-400" />
+                  </div>
+                  <div>
+                    <p className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">
+                      {persona.communication.preferredChannels.length}
+                    </p>
+                    <p className="text-sm text-gray-600 dark:text-gray-400 font-medium">Canaux</p>
+                  </div>
+                </div>
+              </div>
+              <div className="mt-4 w-full bg-gray-200 dark:bg-gray-700 rounded-full h-3">
+                <div 
+                  className="h-full bg-purple-500 dark:bg-purple-400 rounded-full transition-all duration-500"
+                  style={{ width: `${Math.max(Math.min((persona.communication.preferredChannels.length / 6) * 100, 100), 5)}%` }}
+                />
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Carte Points clés */}
+          <Card className="group border border-gray-200 dark:border-gray-700 shadow-md hover:shadow-lg bg-white dark:bg-gray-800 transition-all duration-300 hover:scale-[1.02]">
+            <CardContent className="p-4 sm:p-6">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="p-3 bg-amber-100 dark:bg-amber-900/30 rounded-xl">
+                    <Target className="h-5 w-5 text-amber-600 dark:text-amber-400" />
+                  </div>
+                  <div>
+                    <p className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">
+                      {persona.marketing.painPoints.length}
+                    </p>
+                    <p className="text-sm text-gray-600 dark:text-gray-400 font-medium">Points clés</p>
+                  </div>
+                </div>
+              </div>
+              <div className="mt-4 w-full bg-gray-200 dark:bg-gray-700 rounded-full h-3">
+                <div 
+                  className="h-full bg-amber-500 dark:bg-amber-400 rounded-full transition-all duration-500"
+                  style={{ width: `${Math.max(Math.min((persona.marketing.painPoints.length / 5) * 100, 100), 5)}%` }}
+                />
+              </div>
+            </CardContent>
+          </Card>
         </div>
-      </Card>
 
-      {/* Métriques rapides */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <Card className="border-0 shadow-lg bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20 hover-lift">
-          <CardContent className="p-4">
-            <div className="flex items-center gap-3">
-              <div className="p-2 bg-blue-100 dark:bg-blue-800/50 rounded-lg">
-                <Users className="h-5 w-5 text-blue-600 dark:text-blue-400" />
-              </div>
-              <div>
-                <p className="text-2xl font-bold text-blue-700 dark:text-blue-300">
-                  {persona.values.length}
-                </p>
-                <p className="text-sm text-blue-600 dark:text-blue-400">Valeurs</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="border-0 shadow-lg bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-800/20 hover-lift">
-          <CardContent className="p-4">
-            <div className="flex items-center gap-3">
-              <div className="p-2 bg-green-100 dark:bg-green-800/50 rounded-lg">
-                <Heart className="h-5 w-5 text-green-600 dark:text-green-400" />
-              </div>
-              <div>
-                <p className="text-2xl font-bold text-green-700 dark:text-green-300">
-                  {Object.values(persona.interests).flat().length}
-                </p>
-                <p className="text-sm text-green-600 dark:text-green-400">Intérêts</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="border-0 shadow-lg bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-900/20 dark:to-purple-800/20 hover-lift">
-          <CardContent className="p-4">
-            <div className="flex items-center gap-3">
-              <div className="p-2 bg-purple-100 dark:bg-purple-800/50 rounded-lg">
-                <MessageCircle className="h-5 w-5 text-purple-600 dark:text-purple-400" />
-              </div>
-              <div>
-                <p className="text-2xl font-bold text-purple-700 dark:text-purple-300">
-                  {persona.communication.preferredChannels.length}
-                </p>
-                <p className="text-sm text-purple-600 dark:text-purple-400">Canaux</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="border-0 shadow-lg bg-gradient-to-br from-amber-50 to-amber-100 dark:from-amber-900/20 dark:to-amber-800/20 hover-lift">
-          <CardContent className="p-4">
-            <div className="flex items-center gap-3">
-              <div className="p-2 bg-amber-100 dark:bg-amber-800/50 rounded-lg">
-                <Target className="h-5 w-5 text-amber-600 dark:text-amber-400" />
-              </div>
-              <div>
-                <p className="text-2xl font-bold text-amber-700 dark:text-amber-300">
-                  {persona.marketing.painPoints.length}
-                </p>
-                <p className="text-sm text-amber-600 dark:text-amber-400">Points clés</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Onglets de contenu avec design moderne */}
-      <Card className="border-0 shadow-xl bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm">
-        <CardContent className="p-0">
+        {/* Onglets de contenu avec design moderne et responsive */}
+        <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-700 overflow-hidden">
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-            <div className="border-b border-gray-200 dark:border-gray-700">
-              <TabsList className="grid w-full grid-cols-4 h-16 bg-transparent border-0">
+            {/* Navigation des onglets - Style Notion */}
+            <div className="bg-gray-50 dark:bg-gray-800/50 border-b border-gray-200 dark:border-gray-700">
+              <TabsList className="w-full bg-transparent border-0 p-1 gap-0 justify-start">
                 <TabsTrigger 
                   value="overview" 
-                  className="flex items-center gap-2 data-[state=active]:bg-primary-50 dark:data-[state=active]:bg-primary-900/30 data-[state=active]:text-primary-700 dark:data-[state=active]:text-primary-300"
+                  className="relative px-6 py-3 text-sm font-medium transition-all duration-200 bg-transparent border-0 data-[state=active]:bg-white dark:data-[state=active]:bg-gray-900 data-[state=active]:shadow-sm data-[state=active]:text-gray-900 dark:data-[state=active]:text-white text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white rounded-lg"
                 >
-                  <Users className="h-4 w-4" />
-                  <span>Vue d'ensemble</span>
+                  <Users className="h-4 w-4 mr-2" />
+                  Profil
                 </TabsTrigger>
                 <TabsTrigger 
                   value="interests" 
-                  className="flex items-center gap-2 data-[state=active]:bg-green-50 dark:data-[state=active]:bg-green-900/30 data-[state=active]:text-green-700 dark:data-[state=active]:text-green-300"
+                  className="relative px-6 py-3 text-sm font-medium transition-all duration-200 bg-transparent border-0 data-[state=active]:bg-white dark:data-[state=active]:bg-gray-900 data-[state=active]:shadow-sm data-[state=active]:text-gray-900 dark:data-[state=active]:text-white text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white rounded-lg"
                 >
-                  <Heart className="h-4 w-4" />
-                  <span>Intérêts</span>
+                  <Heart className="h-4 w-4 mr-2" />
+                  Intérêts
                 </TabsTrigger>
                 <TabsTrigger 
                   value="communication" 
-                  className="flex items-center gap-2 data-[state=active]:bg-blue-50 dark:data-[state=active]:bg-blue-900/30 data-[state=active]:text-blue-700 dark:data-[state=active]:text-blue-300"
+                  className="relative px-6 py-3 text-sm font-medium transition-all duration-200 bg-transparent border-0 data-[state=active]:bg-white dark:data-[state=active]:bg-gray-900 data-[state=active]:shadow-sm data-[state=active]:text-gray-900 dark:data-[state=active]:text-white text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white rounded-lg"
                 >
-                  <MessageCircle className="h-4 w-4" />
-                  <span>Communication</span>
+                  <MessageCircle className="h-4 w-4 mr-2" />
+                  Communication
                 </TabsTrigger>
                 <TabsTrigger 
                   value="marketing" 
-                  className="flex items-center gap-2 data-[state=active]:bg-purple-50 dark:data-[state=active]:bg-purple-900/30 data-[state=active]:text-purple-700 dark:data-[state=active]:text-purple-300"
+                  className="relative px-6 py-3 text-sm font-medium transition-all duration-200 bg-transparent border-0 data-[state=active]:bg-white dark:data-[state=active]:bg-gray-900 data-[state=active]:shadow-sm data-[state=active]:text-gray-900 dark:data-[state=active]:text-white text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white rounded-lg"
                 >
-                  <Target className="h-4 w-4" />
-                  <span>Marketing</span>
+                  <Target className="h-4 w-4 mr-2" />
+                  Marketing
                 </TabsTrigger>
               </TabsList>
             </div>
 
-            <div className="p-6">
-              {/* Vue d'ensemble */}
-              <TabsContent value="overview" className="space-y-6">
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                  <Card className="lg:col-span-2 border-0 shadow-lg bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-700">
-                    <CardHeader>
-                      <CardTitle className="flex items-center gap-2 text-gray-900 dark:text-white">
-                        <Sparkles className="h-5 w-5 text-primary-600 dark:text-primary-400" />
-                        Biographie
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <p className="text-gray-700 dark:text-gray-300 leading-relaxed text-lg">
-                        {persona.bio}
-                      </p>
-                    </CardContent>
-                  </Card>
-
-                  <Card className="border-0 shadow-lg bg-gradient-to-br from-primary-50 to-primary-100 dark:from-primary-900/20 dark:to-primary-800/20">
-                    <CardHeader>
-                      <CardTitle className="flex items-center gap-2 text-primary-700 dark:text-primary-300">
-                        <Award className="h-5 w-5" />
-                        <span>Valeurs fondamentales</span>
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="space-y-4">
-                        {persona.values.map((value, index) => (
-                          <div key={value} className="space-y-2">
-                            <div className="flex items-center justify-between">
-                              <span className="text-sm font-medium text-primary-800 dark:text-primary-200">
-                                {value}
-                              </span>
-                              <span className="text-xs text-primary-600 dark:text-primary-400">
-                                {90 - index * 10}%
-                              </span>
-                            </div>
-                            <Progress 
-                              value={90 - index * 10} 
-                              className="h-2 bg-primary-200 dark:bg-primary-800"
-                            />
-                          </div>
-                        ))}
-                      </div>
-                    </CardContent>
-                  </Card>
+            {/* Contenu des onglets */}
+            <div className="p-8">
+              {/* Onglet Profil - Design épuré */}
+              <TabsContent value="overview" className="space-y-8 mt-0">
+                {/* Biographie principale */}
+                <div className="space-y-4">
+                  <div className="flex items-center gap-3">
+                    <div className="p-2 bg-blue-100 dark:bg-blue-900/30 rounded-lg">
+                      <Sparkles className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+                    </div>
+                    <h3 className="text-xl font-semibold text-gray-900 dark:text-white">À propos</h3>
+                  </div>
+                  <div className="bg-gray-50 dark:bg-gray-800/50 rounded-xl p-6">
+                    <p className="text-gray-700 dark:text-gray-300 leading-relaxed text-base">
+                      {persona.bio}
+                    </p>
+                  </div>
                 </div>
 
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                  <Card className="border-0 shadow-lg bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20">
-                    <CardHeader>
-                      <CardTitle className="flex items-center gap-2 text-blue-700 dark:text-blue-300">
-                        <Smartphone className="h-5 w-5" />
-                        <span>Canaux préférés</span>
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="space-y-3">
-                        {persona.communication.preferredChannels.map((channel, index) => (
-                          <div key={channel} className="flex items-center gap-3 p-2 bg-white/60 dark:bg-gray-800/60 rounded-lg">
-                            <span className="text-lg">{getChannelIcon(channel)}</span>
-                            <span className="text-sm font-medium text-blue-800 dark:text-blue-200">
-                              {channel}
-                            </span>
-                            <div className="ml-auto">
-                              <Badge variant="outline" className="text-xs">
-                                {90 - index * 10}%
-                              </Badge>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    </CardContent>
-                  </Card>
+                {/* Citation mise en valeur */}
+                <div className="space-y-4">
+                  <div className="flex items-center gap-3">
+                    <div className="p-2 bg-purple-100 dark:bg-purple-900/30 rounded-lg">
+                      <Quote className="h-5 w-5 text-purple-600 dark:text-purple-400" />
+                    </div>
+                    <h3 className="text-xl font-semibold text-gray-900 dark:text-white">Citation personnelle</h3>
+                  </div>
+                  <div className="bg-gradient-to-r from-purple-50 to-indigo-50 dark:from-purple-900/20 dark:to-indigo-900/20 rounded-xl p-6 border-l-4 border-purple-400 dark:border-purple-500">
+                    <p className="text-gray-800 dark:text-gray-200 italic font-medium text-lg leading-relaxed">
+                      "{persona.quote}"
+                    </p>
+                  </div>
+                </div>
 
-                  <Card className="border-0 shadow-lg bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-800/20">
-                    <CardHeader>
-                      <CardTitle className="flex items-center gap-2 text-green-700 dark:text-green-300">
-                        <MessageCircle className="h-5 w-5" />
-                        <span>Style de communication</span>
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="space-y-4">
-                        <div>
-                          <span className="text-sm font-medium text-green-800 dark:text-green-200">Ton:</span>
-                          <Badge variant="secondary" className="ml-2 bg-green-100 text-green-800 dark:bg-green-800 dark:text-green-200">
-                            {persona.communication.tone}
-                          </Badge>
+                {/* Valeurs fondamentales */}
+                <div className="space-y-4">
+                  <div className="flex items-center gap-3">
+                    <div className="p-2 bg-green-100 dark:bg-green-900/30 rounded-lg">
+                      <Award className="h-5 w-5 text-green-600 dark:text-green-400" />
+                    </div>
+                    <h3 className="text-xl font-semibold text-gray-900 dark:text-white">Valeurs fondamentales</h3>
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {persona.values.map((value, index) => (
+                      <div key={value} className="bg-gray-50 dark:bg-gray-800/50 rounded-lg p-4">
+                        <div className="flex items-center justify-between mb-2">
+                          <span className="font-medium text-gray-900 dark:text-white">{value}</span>
+                          <span className="text-sm text-gray-500 dark:text-gray-400 font-medium">
+                            {90 - index * 10}%
+                          </span>
                         </div>
-                        <div>
-                          <span className="text-sm font-medium text-green-800 dark:text-green-200">Fréquence:</span>
-                          <Badge variant="outline" className="ml-2 border-green-300 text-green-700 dark:border-green-600 dark:text-green-300">
-                            {persona.communication.frequency}
-                          </Badge>
+                        <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                          <div 
+                            className="bg-green-500 dark:bg-green-400 h-2 rounded-full transition-all duration-500"
+                            style={{ width: `${90 - index * 10}%` }}
+                          />
                         </div>
                       </div>
-                    </CardContent>
-                  </Card>
-
-                  <Card className="border-0 shadow-lg bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-900/20 dark:to-purple-800/20">
-                    <CardHeader>
-                      <CardTitle className="flex items-center gap-2 text-purple-700 dark:text-purple-300">
-                        <ShoppingBag className="h-5 w-5" />
-                        <span>Comportement d'achat</span>
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <p className="text-sm text-purple-800 dark:text-purple-200 leading-relaxed">
-                        {persona.marketing.buyingBehavior}
-                      </p>
-                    </CardContent>
-                  </Card>
+                    ))}
+                  </div>
                 </div>
               </TabsContent>
 
-              {/* Intérêts détaillés */}
-              <TabsContent value="interests" className="space-y-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {/* Onglet Intérêts - Design en grille moderne */}
+              <TabsContent value="interests" className="space-y-6 mt-0">
+                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
                   {Object.entries(persona.interests).map(([category, items]) => (
-                    <Card key={category} className="border-0 shadow-lg bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-800/20 hover-lift">
-                      <CardHeader>
-                        <CardTitle className="flex items-center gap-2 text-green-700 dark:text-green-300 capitalize">
+                    <div key={category} className="bg-gray-50 dark:bg-gray-800/50 rounded-xl p-6 hover:bg-gray-100 dark:hover:bg-gray-800/70 transition-all duration-200">
+                      <div className="flex items-center gap-3 mb-4">
+                        <div className="p-2 bg-white dark:bg-gray-700 rounded-lg shadow-sm">
                           {getCategoryIcon(category)}
-                          <span>{category}</span>
-                        </CardTitle>
-                      </CardHeader>
-                      <CardContent>
-                        <div className="space-y-3">
-                          {items.map((item: string, index: number) => (
-                            <div key={item} className="flex items-center justify-between p-2 bg-white/60 dark:bg-gray-800/60 rounded-lg">
-                              <span className="text-sm font-medium text-green-800 dark:text-green-200">
-                                {item}
-                              </span>
-                              <div className="flex items-center gap-1">
-                                {[...Array(5)].map((_, i) => (
-                                  <Star 
-                                    key={i} 
-                                    className={cn(
-                                      "h-3 w-3",
-                                      i < 4 - index ? "text-yellow-500 fill-current" : "text-gray-300 dark:text-gray-600"
-                                    )} 
-                                  />
-                                ))}
-                              </div>
-                            </div>
-                          ))}
                         </div>
-                      </CardContent>
-                    </Card>
+                        <h3 className="text-lg font-semibold text-gray-900 dark:text-white capitalize">{category}</h3>
+                      </div>
+                      <div className="space-y-2">
+                        {items.map((item: string, index: number) => (
+                          <div key={item} className="flex items-center justify-between py-2 px-3 bg-white dark:bg-gray-700 rounded-lg">
+                            <span className="text-sm font-medium text-gray-700 dark:text-gray-300">{item}</span>
+                            <div className="flex items-center gap-1">
+                              {[...Array(5)].map((_, i) => (
+                                <Star 
+                                  key={i} 
+                                  className={cn(
+                                    "h-3 w-3",
+                                    i < 4 - index ? "text-yellow-500 fill-current" : "text-gray-300 dark:text-gray-600"
+                                  )} 
+                                />
+                              ))}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
                   ))}
                 </div>
               </TabsContent>
 
-              {/* Communication */}
-              <TabsContent value="communication" className="space-y-6">
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                  <Card className="border-0 shadow-lg bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20">
-                    <CardHeader>
-                      <CardTitle className="flex items-center gap-2 text-blue-700 dark:text-blue-300">
-                        <BarChart3 className="h-5 w-5" />
-                        <span>Préférences de contenu</span>
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="space-y-4">
-                        {persona.communication.contentTypes.map((type, index) => (
-                          <div key={type} className="space-y-2">
-                            <div className="flex items-center justify-between">
-                              <span className="font-medium text-blue-800 dark:text-blue-200">{type}</span>
-                              <span className="text-sm text-blue-600 dark:text-blue-400">{85 - index * 15}%</span>
-                            </div>
-                            <div className="w-full bg-blue-200 dark:bg-blue-800 rounded-full h-2">
-                              <div 
-                                className="bg-blue-600 dark:bg-blue-400 h-2 rounded-full transition-all duration-500"
-                                style={{ width: `${85 - index * 15}%` }}
-                              />
-                            </div>
+              {/* Onglet Communication - Design unifié */}
+              <TabsContent value="communication" className="space-y-8 mt-0">
+                {/* Canaux de communication */}
+                <div className="space-y-4">
+                  <div className="flex items-center gap-3">
+                    <div className="p-2 bg-blue-100 dark:bg-blue-900/30 rounded-lg">
+                      <Smartphone className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+                    </div>
+                    <h3 className="text-xl font-semibold text-gray-900 dark:text-white">Canaux préférés</h3>
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {persona.communication.preferredChannels.map((channel, index) => (
+                      <div key={channel} className="bg-gray-50 dark:bg-gray-800/50 rounded-lg p-4">
+                        <div className="flex items-center gap-3 mb-2">
+                          <span className="text-2xl">{getChannelIcon(channel)}</span>
+                          <span className="font-medium text-gray-900 dark:text-white">{channel}</span>
+                        </div>
+                        <div className="flex items-center justify-between">
+                          <div className="flex-1 bg-gray-200 dark:bg-gray-700 rounded-full h-2 mr-3">
+                            <div 
+                              className="bg-blue-500 dark:bg-blue-400 h-2 rounded-full transition-all duration-500"
+                              style={{ width: `${90 - index * 10}%` }}
+                            />
                           </div>
-                        ))}
-                      </div>
-                    </CardContent>
-                  </Card>
-
-                  <Card className="border-0 shadow-lg bg-gradient-to-br from-indigo-50 to-indigo-100 dark:from-indigo-900/20 dark:to-indigo-800/20">
-                    <CardHeader>
-                      <CardTitle className="flex items-center gap-2 text-indigo-700 dark:text-indigo-300">
-                        <Activity className="h-5 w-5" />
-                        <span>Analyse des canaux</span>
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="space-y-4">
-                        {persona.communication.preferredChannels.map((channel, index) => (
-                          <div key={channel} className="space-y-2">
-                            <div className="flex items-center justify-between">
-                              <div className="flex items-center gap-2">
-                                <span className="text-lg">{getChannelIcon(channel)}</span>
-                                <span className="font-medium text-indigo-800 dark:text-indigo-200">{channel}</span>
-                              </div>
-                              <span className="text-sm text-indigo-600 dark:text-indigo-400">{90 - index * 10}%</span>
-                            </div>
-                            <div className="w-full bg-indigo-200 dark:bg-indigo-800 rounded-full h-2">
-                              <div 
-                                className="bg-indigo-600 dark:bg-indigo-400 h-2 rounded-full transition-all duration-500"
-                                style={{ width: `${90 - index * 10}%` }}
-                              />
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    </CardContent>
-                  </Card>
-                </div>
-
-                <Card className="border-0 shadow-lg bg-gradient-to-br from-teal-50 to-teal-100 dark:from-teal-900/20 dark:to-teal-800/20">
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2 text-teal-700 dark:text-teal-300">
-                      <Lightbulb className="h-5 w-5" />
-                      <span>Recommandations de contenu</span>
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      <div className="space-y-3">
-                        <h4 className="font-semibold text-sm text-teal-800 dark:text-teal-200">Formats recommandés</h4>
-                        <div className="flex flex-wrap gap-2">
-                          {persona.communication.contentTypes.map(type => (
-                            <Badge key={type} variant="default" className="bg-teal-100 text-teal-800 dark:bg-teal-800 dark:text-teal-200">
-                              {type}
-                            </Badge>
-                          ))}
+                          <span className="text-sm font-medium text-gray-600 dark:text-gray-400">
+                            {90 - index * 10}%
+                          </span>
                         </div>
                       </div>
-                      <div className="space-y-3">
-                        <h4 className="font-semibold text-sm text-teal-800 dark:text-teal-200">Fréquence optimale</h4>
-                        <Badge variant="outline" className="text-sm border-teal-300 text-teal-700 dark:border-teal-600 dark:text-teal-300">
+                    ))}
+                  </div>
+                </div>
+
+                {/* Style de communication */}
+                <div className="space-y-4">
+                  <div className="flex items-center gap-3">
+                    <div className="p-2 bg-green-100 dark:bg-green-900/30 rounded-lg">
+                      <MessageCircle className="h-5 w-5 text-green-600 dark:text-green-400" />
+                    </div>
+                    <h3 className="text-xl font-semibold text-gray-900 dark:text-white">Style de communication</h3>
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="bg-gray-50 dark:bg-gray-800/50 rounded-lg p-4">
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Ton de communication</span>
+                        <Badge variant="secondary" className="bg-green-100 text-green-800 dark:bg-green-800 dark:text-green-200">
+                          {persona.communication.tone}
+                        </Badge>
+                      </div>
+                    </div>
+                    <div className="bg-gray-50 dark:bg-gray-800/50 rounded-lg p-4">
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Fréquence</span>
+                        <Badge variant="outline" className="border-green-300 text-green-700 dark:border-green-600 dark:text-green-300">
                           {persona.communication.frequency}
                         </Badge>
                       </div>
                     </div>
-                  </CardContent>
-                </Card>
-              </TabsContent>
-
-              {/* Marketing */}
-              <TabsContent value="marketing" className="space-y-6">
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                  <Card className="border-0 shadow-lg bg-gradient-to-br from-red-50 to-red-100 dark:from-red-900/20 dark:to-red-800/20">
-                    <CardHeader>
-                      <CardTitle className="flex items-center gap-2 text-red-700 dark:text-red-300">
-                        <AlertCircle className="h-5 w-5" />
-                        <span>Points de douleur</span>
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="space-y-3">
-                        {persona.marketing.painPoints.map((point, index) => (
-                          <div key={point} className="flex items-start gap-3 p-3 bg-white/60 dark:bg-gray-800/60 rounded-lg border-l-4 border-red-300 dark:border-red-600">
-                            <span className="text-red-600 dark:text-red-400 font-bold text-sm bg-red-100 dark:bg-red-800/50 rounded-full w-6 h-6 flex items-center justify-center">
-                              {index + 1}
-                            </span>
-                            <p className="text-sm text-red-800 dark:text-red-200 leading-relaxed">{point}</p>
-                          </div>
-                        ))}
-                      </div>
-                    </CardContent>
-                  </Card>
-
-                  <Card className="border-0 shadow-lg bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-800/20">
-                    <CardHeader>
-                      <CardTitle className="flex items-center gap-2 text-green-700 dark:text-green-300">
-                        <Zap className="h-5 w-5" />
-                        <span>Motivations</span>
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="space-y-3">
-                        {persona.marketing.motivations.map((motivation, index) => (
-                          <div key={motivation} className="flex items-start gap-3 p-3 bg-white/60 dark:bg-gray-800/60 rounded-lg border-l-4 border-green-300 dark:border-green-600">
-                            <span className="text-green-600 dark:text-green-400 font-bold text-sm bg-green-100 dark:bg-green-800/50 rounded-full w-6 h-6 flex items-center justify-center">
-                              {index + 1}
-                            </span>
-                            <p className="text-sm text-green-800 dark:text-green-200 leading-relaxed">{motivation}</p>
-                          </div>
-                        ))}
-                      </div>
-                    </CardContent>
-                  </Card>
+                  </div>
                 </div>
 
-                <Card className="border-0 shadow-lg bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-900/20 dark:to-purple-800/20">
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2 text-purple-700 dark:text-purple-300">
-                      <TrendingUp className="h-5 w-5" />
-                      <span>Influences et comportement d'achat</span>
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      <div>
-                        <h4 className="font-semibold mb-3 text-purple-800 dark:text-purple-200">Sources d'influence</h4>
-                        <div className="space-y-2">
-                          {persona.marketing.influences.map((influence, index) => (
-                            <div key={influence} className="flex items-center justify-between p-2 bg-white/60 dark:bg-gray-800/60 rounded-lg">
-                              <span className="text-sm text-purple-800 dark:text-purple-200">{influence}</span>
-                              <div className="w-20 bg-purple-200 dark:bg-purple-800 rounded-full h-2">
+                {/* Types de contenu */}
+                <div className="space-y-4">
+                  <div className="flex items-center gap-3">
+                    <div className="p-2 bg-purple-100 dark:bg-purple-900/30 rounded-lg">
+                      <BarChart3 className="h-5 w-5 text-purple-600 dark:text-purple-400" />
+                    </div>
+                    <h3 className="text-xl font-semibold text-gray-900 dark:text-white">Préférences de contenu</h3>
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {persona.communication.contentTypes.map((type, index) => (
+                      <div key={type} className="bg-gray-50 dark:bg-gray-800/50 rounded-lg p-4">
+                        <div className="flex items-center justify-between mb-2">
+                          <span className="font-medium text-gray-900 dark:text-white">{type}</span>
+                          <span className="text-sm text-gray-500 dark:text-gray-400 font-medium">
+                            {85 - index * 15}%
+                          </span>
+                        </div>
+                        <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                          <div 
+                            className="bg-purple-500 dark:bg-purple-400 h-2 rounded-full transition-all duration-500"
+                            style={{ width: `${85 - index * 15}%` }}
+                          />
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </TabsContent>
+
+              {/* Onglet Marketing - Design structuré */}
+              <TabsContent value="marketing" className="space-y-8 mt-0">
+                {/* Points de douleur */}
+                <div className="space-y-4">
+                  <div className="flex items-center gap-3">
+                    <div className="p-2 bg-red-100 dark:bg-red-900/30 rounded-lg">
+                      <AlertCircle className="h-5 w-5 text-red-600 dark:text-red-400" />
+                    </div>
+                    <h3 className="text-xl font-semibold text-gray-900 dark:text-white">Points de douleur</h3>
+                  </div>
+                  <div className="space-y-3">
+                    {persona.marketing.painPoints.map((point, index) => (
+                      <div key={point} className="bg-red-50 dark:bg-red-900/20 rounded-lg p-4 border-l-4 border-red-400 dark:border-red-500">
+                        <div className="flex items-start gap-3">
+                          <span className="flex-shrink-0 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center text-sm font-bold">
+                            {index + 1}
+                          </span>
+                          <p className="text-gray-800 dark:text-gray-200 leading-relaxed">{point}</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Motivations */}
+                <div className="space-y-4">
+                  <div className="flex items-center gap-3">
+                    <div className="p-2 bg-green-100 dark:bg-green-900/30 rounded-lg">
+                      <Zap className="h-5 w-5 text-green-600 dark:text-green-400" />
+                    </div>
+                    <h3 className="text-xl font-semibold text-gray-900 dark:text-white">Motivations</h3>
+                  </div>
+                  <div className="space-y-3">
+                    {persona.marketing.motivations.map((motivation, index) => (
+                      <div key={motivation} className="bg-green-50 dark:bg-green-900/20 rounded-lg p-4 border-l-4 border-green-400 dark:border-green-500">
+                        <div className="flex items-start gap-3">
+                          <span className="flex-shrink-0 w-6 h-6 bg-green-500 text-white rounded-full flex items-center justify-center text-sm font-bold">
+                            {index + 1}
+                          </span>
+                          <p className="text-gray-800 dark:text-gray-200 leading-relaxed">{motivation}</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Comportement d'achat et influences */}
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                  <div className="space-y-4">
+                    <div className="flex items-center gap-3">
+                      <div className="p-2 bg-purple-100 dark:bg-purple-900/30 rounded-lg">
+                        <ShoppingBag className="h-5 w-5 text-purple-600 dark:text-purple-400" />
+                      </div>
+                      <h3 className="text-xl font-semibold text-gray-900 dark:text-white">Comportement d'achat</h3>
+                    </div>
+                    <div className="bg-purple-50 dark:bg-purple-900/20 rounded-xl p-6">
+                      <p className="text-gray-800 dark:text-gray-200 leading-relaxed">
+                        {persona.marketing.buyingBehavior}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="space-y-4">
+                    <div className="flex items-center gap-3">
+                      <div className="p-2 bg-orange-100 dark:bg-orange-900/30 rounded-lg">
+                        <TrendingUp className="h-5 w-5 text-orange-600 dark:text-orange-400" />
+                      </div>
+                      <h3 className="text-xl font-semibold text-gray-900 dark:text-white">Sources d'influence</h3>
+                    </div>
+                    <div className="space-y-3">
+                      {persona.marketing.influences.map((influence, index) => (
+                        <div key={influence} className="bg-gray-50 dark:bg-gray-800/50 rounded-lg p-3">
+                          <div className="flex items-center justify-between">
+                            <span className="text-sm font-medium text-gray-700 dark:text-gray-300">{influence}</span>
+                            <div className="flex items-center gap-2">
+                              <div className="w-16 bg-gray-200 dark:bg-gray-700 rounded-full h-2">
                                 <div 
-                                  className="bg-purple-600 dark:bg-purple-400 h-2 rounded-full transition-all duration-500"
+                                  className="bg-orange-500 dark:bg-orange-400 h-2 rounded-full transition-all duration-500"
                                   style={{ width: `${80 - index * 15}%` }}
                                 />
                               </div>
+                              <span className="text-xs text-gray-500 dark:text-gray-400 font-medium w-8">
+                                {80 - index * 15}%
+                              </span>
                             </div>
-                          ))}
+                          </div>
                         </div>
-                      </div>
-                      <div>
-                        <h4 className="font-semibold mb-3 text-purple-800 dark:text-purple-200">Comportement d'achat</h4>
-                        <p className="text-sm text-purple-800 dark:text-purple-200 leading-relaxed">
-                          {persona.marketing.buyingBehavior}
-                        </p>
-                      </div>
+                      ))}
                     </div>
-                  </CardContent>
-                </Card>
-
-                <Card className="border-0 shadow-lg bg-gradient-to-br from-amber-50 to-amber-100 dark:from-amber-900/20 dark:to-amber-800/20">
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2 text-amber-700 dark:text-amber-300">
-                      <Shield className="h-5 w-5" />
-                      <span>Stratégie marketing recommandée</span>
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                      <div className="text-center p-4 bg-white/60 dark:bg-gray-800/60 rounded-lg">
-                        <Target className="h-8 w-8 text-primary-600 dark:text-primary-400 mx-auto mb-2" />
-                        <h4 className="font-semibold text-sm text-primary-700 dark:text-primary-300">Ciblage</h4>
-                        <p className="text-xs text-primary-600 dark:text-primary-400 mt-1">
-                          Focus sur {persona.values?.[0] || 'valeurs clés'} et {persona.communication.preferredChannels?.[0] || 'canaux préférés'}
-                        </p>
-                      </div>
-                      <div className="text-center p-4 bg-white/60 dark:bg-gray-800/60 rounded-lg">
-                        <MessageCircle className="h-8 w-8 text-secondary-600 dark:text-secondary-400 mx-auto mb-2" />
-                        <h4 className="font-semibold text-sm text-secondary-700 dark:text-secondary-300">Message</h4>
-                        <p className="text-xs text-secondary-600 dark:text-secondary-400 mt-1">
-                          Ton {persona.communication.tone?.toLowerCase() || 'personnalisé'}, contenu {persona.communication.contentTypes?.[0]?.toLowerCase() || 'adapté'}
-                        </p>
-                      </div>
-                      <div className="text-center p-4 bg-white/60 dark:bg-gray-800/60 rounded-lg">
-                        <Clock className="h-8 w-8 text-amber-600 dark:text-amber-400 mx-auto mb-2" />
-                        <h4 className="font-semibold text-sm text-amber-700 dark:text-amber-300">Timing</h4>
-                        <p className="text-xs text-amber-600 dark:text-amber-400 mt-1">
-                          Communication {persona.communication.frequency?.toLowerCase() || 'optimale'}
-                        </p>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
+                  </div>
+                </div>
               </TabsContent>
             </div>
           </Tabs>
-        </CardContent>
-      </Card>
-
-      {/* Métadonnées et informations techniques */}
-      <Card className="border-0 shadow-lg bg-gray-50 dark:bg-gray-800/50">
-        <CardHeader>
-          <CardTitle className="text-sm text-gray-600 dark:text-gray-400 flex items-center gap-2">
-            <Info className="h-4 w-4" />
-            <span>Métadonnées de génération</span>
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="flex flex-wrap items-center justify-between text-xs text-gray-500 dark:text-gray-400">
-            <div className="flex items-center gap-4">
-              <span>ID: {persona.id.slice(0, 8)}...</span>
-              <span>Généré le: {persona.generatedAt.toLocaleString('fr-FR')}</span>
-            </div>
-            <div className="flex items-center space-x-2">
-              <span>Sources: {persona.sources.join(', ')}</span>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+        </div>
+        </div>
+      </div>
     </div>
   );
 }

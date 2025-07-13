@@ -31,16 +31,16 @@ Tu réponds TOUJOURS en JSON valide selon le format spécifié.`,
     "lifestyle": ["string"] (4-5 activités/hobbies)
   },
   "communication": {
-    "preferredChannels": ["string"] (2-4 canaux de communication),
-    "tone": "string (style de communication)",
-    "contentTypes": ["string"] (3-4 types de contenu préférés),
-    "frequency": "string (fréquence de communication souhaitée)"
+    "preferredChannels": ["string"] (2-4 canaux comme Instagram, Email, LinkedIn),
+    "tone": "string (style de communication comme Professionnel, Décontracté)",
+    "contentTypes": ["string"] (3-4 types comme Articles, Vidéos, Podcasts, Stories),
+    "frequency": "string (fréquence comme Quotidien, Hebdomadaire, Mensuel)"
   },
   "marketing": {
-    "painPoints": ["string"] (3-4 points de douleur spécifiques),
-    "motivations": ["string"] (3-4 motivations principales),
-    "buyingBehavior": "string (description du comportement d'achat)",
-    "influences": ["string"] (3-4 sources d'influence)
+    "painPoints": ["string"] (3-4 problèmes/frustrations spécifiques),
+    "motivations": ["string"] (3-4 motivations d'achat principales),
+    "buyingBehavior": "string (description détaillée du processus d'achat)",
+    "influences": ["string"] (3-4 sources d'influence comme Avis clients, Influenceurs, Famille)"
   }
 }`,
 

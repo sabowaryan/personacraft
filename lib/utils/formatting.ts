@@ -1,29 +1,45 @@
 import { Persona } from '../types/persona';
 
 // Formatage des dates
-export function formatDate(date: Date, format: 'short' | 'long' | 'iso' | 'relative' = 'short'): string {
+export function formatDate(date: Date | string, format: 'short' | 'long' | 'iso' | 'relative' = 'short'): string {
+  // Convertir en objet Date si nécessaire
+  const dateObj = date instanceof Date ? date : new Date(date);
+  
+  // Vérifier si la date est valide
+  if (isNaN(dateObj.getTime())) {
+    return 'Date invalide';
+  }
+
   switch (format) {
     case 'short':
-      return date.toLocaleDateString('fr-FR');
+      return dateObj.toLocaleDateString('fr-FR');
     case 'long':
-      return date.toLocaleDateString('fr-FR', {
+      return dateObj.toLocaleDateString('fr-FR', {
         weekday: 'long',
         year: 'numeric',
         month: 'long',
         day: 'numeric'
       });
     case 'iso':
-      return date.toISOString();
+      return dateObj.toISOString();
     case 'relative':
-      return formatRelativeDate(date);
+      return formatRelativeDate(dateObj);
     default:
-      return date.toLocaleDateString('fr-FR');
+      return dateObj.toLocaleDateString('fr-FR');
   }
 }
 
-export function formatRelativeDate(date: Date): string {
+export function formatRelativeDate(date: Date | string): string {
+  // Convertir en objet Date si nécessaire
+  const dateObj = date instanceof Date ? date : new Date(date);
+  
+  // Vérifier si la date est valide
+  if (isNaN(dateObj.getTime())) {
+    return 'Date invalide';
+  }
+
   const now = new Date();
-  const diffMs = now.getTime() - date.getTime();
+  const diffMs = now.getTime() - dateObj.getTime();
   const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
   const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
   const diffMinutes = Math.floor(diffMs / (1000 * 60));
@@ -34,7 +50,7 @@ export function formatRelativeDate(date: Date): string {
   if (diffDays < 7) return `Il y a ${diffDays} jour${diffDays > 1 ? 's' : ''}`;
   if (diffDays < 30) return `Il y a ${Math.floor(diffDays / 7)} semaine${Math.floor(diffDays / 7) > 1 ? 's' : ''}`;
   
-  return formatDate(date, 'short');
+  return formatDate(dateObj, 'short');
 }
 
 // Formatage des noms

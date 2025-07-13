@@ -212,7 +212,7 @@ export function usePersonaGeneration(): UsePersonaGenerationReturn {
       // Convertir les personas avec les nouvelles métriques
       const enhancedPersonas: EnhancedPersona[] = data.personas.map((p: any) => ({
         ...p,
-        generatedAt: new Date(p.generatedAt)
+        generatedAt: p.generatedAt ? new Date(p.generatedAt) : new Date()
       }));
 
       // Étape 4: Mise à jour des métriques et insights
@@ -482,8 +482,38 @@ export function usePersonaGeneration(): UsePersonaGenerationReturn {
   }, [personas, setStoredPersonas]);
 
   const loadPersonas = useCallback(() => {
-    if (storedPersonas) {
-      setPersonas(storedPersonas);
+    try {
+      // 1. Essayer de charger depuis le hook d'abord (storedPersonas)
+      if (storedPersonas && storedPersonas.length > 0) {
+        setPersonas(storedPersonas);
+        return;
+      }
+
+      // 2. Essayer de charger depuis sessionStorage (personas récemment générés)
+      if (typeof window !== 'undefined') {
+        const sessionPersonas = sessionStorage.getItem('personacraft-session-personas');
+        if (sessionPersonas) {
+          const parsedSessionPersonas = JSON.parse(sessionPersonas);
+          if (parsedSessionPersonas.length > 0) {
+            setPersonas(parsedSessionPersonas);
+            return;
+          }
+        }
+
+        // 3. En dernier recours, charger depuis localStorage directement
+        const localPersonas = localStorage.getItem('personacraft-personas');
+        if (localPersonas) {
+          const parsedLocalPersonas = JSON.parse(localPersonas).map((p: any) => ({
+            ...p,
+            generatedAt: p.generatedAt ? new Date(p.generatedAt) : new Date()
+          }));
+          if (parsedLocalPersonas.length > 0) {
+            setPersonas(parsedLocalPersonas);
+          }
+        }
+      }
+    } catch (error) {
+      console.error('Erreur lors du chargement des personas:', error);
     }
   }, [storedPersonas]);
 
