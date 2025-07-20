@@ -318,7 +318,14 @@ Répondez UNIQUEMENT avec le JSON valide, sans balises de code ni autre formatag
       culturalData
     };
 
-    return PERSONA_PROMPTS.GENERATE_PERSONA(baseContext);
+    // Ajout d'une instruction explicite pour éviter les champs vides
+    return `${PERSONA_PROMPTS.GENERATE_PERSONA(baseContext)}
+
+IMPORTANT :
+- Chaque catégorie d'intérêts (music, brands, movies, food, books, lifestyle) doit contenir AU MOINS UN élément pertinent (pas de tableau vide).
+- Les champs de communication (preferredChannels, tone, contentTypes, frequency) doivent TOUJOURS être remplis (pas de champ vide).
+- Si aucune donnée n'est disponible, invente une valeur plausible et réaliste.
+- Ne laisse JAMAIS de tableau vide ou de champ vide dans le JSON final.`;
   }
 
   private parsePersonaResponse(content: string): any {
@@ -664,62 +671,60 @@ Répondez UNIQUEMENT avec le JSON valide, sans balises de code ni autre formatag
       quote: 'Une citation inspirante qui représente ma vision',
       values: ['Qualité', 'Innovation', 'Respect'],
       interests: {
-        music: ['Pop', 'Rock'],
-        brands: ['Apple', 'Nike'],
-        movies: ['Action', 'Comédie'],
-        food: ['Cuisine française', 'Sushi'],
-        books: ['Fiction', 'Biographies'],
-        lifestyle: ['Technologie', 'Sport']
+        music: ['Pop'],
+        brands: ['Apple'],
+        movies: ['Inception'],
+        food: ['Cuisine française'],
+        books: ['Sapiens'],
+        lifestyle: ['Voyage']
       },
       communication: {
-        preferredChannels: ['Email', 'LinkedIn'],
+        preferredChannels: ['Email'],
         tone: 'Professionnel et accessible',
-        contentTypes: ['Articles', 'Vidéos'],
+        contentTypes: ['Articles'],
         frequency: 'Hebdomadaire'
       },
       marketing: {
-        painPoints: ['Manque de temps', 'Prix élevés'],
-        motivations: ['Qualité', 'Efficacité'],
+        painPoints: ['Manque de temps'],
+        motivations: ['Qualité'],
         buyingBehavior: 'Recherche approfondie avant achat',
-        influences: ['Avis clients', 'Recommandations']
+        influences: ['Avis clients']
       }
     };
-    
-    // Mapper les données Gemini vers la structure attendue
+
     const mappedData = { ...data };
-    
-    // Mapper communication si elle existe mais dans un format différent
-    if (data.communication) {
-      mappedData.communication = {
-        preferredChannels: data.communication.channels || data.communication.preferredChannels || defaults.communication.preferredChannels,
-        tone: data.communication.tone || defaults.communication.tone,
-        contentTypes: data.communication.contentTypes || data.communication.types || ['Articles', 'Vidéos'],
-        frequency: data.communication.frequency || 'Hebdomadaire'
-      };
+
+    // Si les intérêts sont un tableau simple, mappe-les vers les catégories
+    if (Array.isArray(data.interests) && !data.interests.music) {
+      mappedData.interests = this.mapSimpleInterestsToCategories(data.interests);
     }
-    
-    // Mapper marketing si elle existe mais dans un format différent  
-    if (data.marketing) {
-      mappedData.marketing = {
-        painPoints: data.marketing.painPoints || data.marketing.pain_points || ['Manque de temps', 'Prix élevés'],
-        motivations: data.marketing.motivations || data.marketing.approaches || ['Qualité', 'Efficacité'],
-        buyingBehavior: data.marketing.buyingBehavior || data.marketing.buying_behavior || 'Recherche approfondie avant achat',
-        influences: data.marketing.influences || data.marketing.channels || ['Avis clients', 'Recommandations']
-      };
-    }
-    
-    // Mapper interests si elles existent mais sous forme de tableau simple
-    if (data.interests && Array.isArray(data.interests)) {
-      mappedData.interests = {
-        music: data.interests.filter((i: string) => i.toLowerCase().includes('music') || i.toLowerCase().includes('musique')) || defaults.interests.music,
-        brands: data.interests.filter((i: string) => i.toLowerCase().includes('brand') || i.toLowerCase().includes('marque')) || defaults.interests.brands,
-        movies: data.interests.filter((i: string) => i.toLowerCase().includes('film') || i.toLowerCase().includes('movie')) || defaults.interests.movies,
-        food: data.interests.filter((i: string) => i.toLowerCase().includes('food') || i.toLowerCase().includes('cuisine')) || defaults.interests.food,
-        books: data.interests.filter((i: string) => i.toLowerCase().includes('book') || i.toLowerCase().includes('livre')) || defaults.interests.books,
-        lifestyle: data.interests.filter((i: string) => !i.toLowerCase().includes('music') && !i.toLowerCase().includes('film') && !i.toLowerCase().includes('food') && !i.toLowerCase().includes('book')) || defaults.interests.lifestyle
-      };
-    }
-    
+
+    // Validation/fallback pour chaque champ d'intérêts
+    mappedData.interests = {
+      music: (mappedData.interests?.music && mappedData.interests.music.length > 0) ? mappedData.interests.music : defaults.interests.music,
+      brands: (mappedData.interests?.brands && mappedData.interests.brands.length > 0) ? mappedData.interests.brands : defaults.interests.brands,
+      movies: (mappedData.interests?.movies && mappedData.interests.movies.length > 0) ? mappedData.interests.movies : defaults.interests.movies,
+      food: (mappedData.interests?.food && mappedData.interests.food.length > 0) ? mappedData.interests.food : defaults.interests.food,
+      books: (mappedData.interests?.books && mappedData.interests.books.length > 0) ? mappedData.interests.books : defaults.interests.books,
+      lifestyle: (mappedData.interests?.lifestyle && mappedData.interests.lifestyle.length > 0) ? mappedData.interests.lifestyle : defaults.interests.lifestyle
+    };
+
+    // Validation/fallback pour chaque champ de communication
+    mappedData.communication = {
+      preferredChannels: (data.communication?.preferredChannels && data.communication.preferredChannels.length > 0) ? data.communication.preferredChannels : defaults.communication.preferredChannels,
+      tone: data.communication?.tone || defaults.communication.tone,
+      contentTypes: (data.communication?.contentTypes && data.communication.contentTypes.length > 0) ? data.communication.contentTypes : defaults.communication.contentTypes,
+      frequency: data.communication?.frequency || defaults.communication.frequency
+    };
+
+    // Validation/fallback pour marketing
+    mappedData.marketing = {
+      painPoints: (data.marketing?.painPoints && data.marketing.painPoints.length > 0) ? data.marketing.painPoints : defaults.marketing.painPoints,
+      motivations: (data.marketing?.motivations && data.marketing.motivations.length > 0) ? data.marketing.motivations : defaults.marketing.motivations,
+      buyingBehavior: data.marketing?.buyingBehavior || defaults.marketing.buyingBehavior,
+      influences: (data.marketing?.influences && data.marketing.influences.length > 0) ? data.marketing.influences : defaults.marketing.influences
+    };
+
     // Fusionner les données existantes avec les valeurs par défaut
     return {
       ...defaults,
@@ -942,6 +947,42 @@ Répondez UNIQUEMENT avec le JSON valide, sans balises de code ni autre formatag
     };
     
     return fallbackPersonas[personaType] || fallbackPersonas.general;
+  }
+
+  private mapSimpleInterestsToCategories(interests: string[] | undefined): any {
+    // Mots-clés pour chaque catégorie
+    const categories = {
+      music: ['musique', 'music', 'pop', 'rock', 'jazz', 'electro', 'afro', 'sessions', 'beats', 'sounds'],
+      brands: ['marque', 'brand', 'apple', 'nike', 'tesla', 'pro', 'eco', 'plus', 'smart'],
+      movies: ['film', 'movie', 'cinéma', 'chronicles', 'story', 'inception', 'matrix', 'adventure'],
+      food: ['cuisine', 'food', 'kitchen', 'fusion', 'bio', 'vegetarienne', 'organic', 'fresh'],
+      books: ['livre', 'book', 'guide', 'manual', 'mastery', 'insights', 'sapiens'],
+      lifestyle: ['style', 'life', 'voyage', 'travel', 'sport', 'way', 'photographie', 'technologie', 'mobility']
+    };
+    const result: any = { music: [], brands: [], movies: [], food: [], books: [], lifestyle: [] };
+    if (!Array.isArray(interests)) return result;
+    for (const interest of interests) {
+      const lower = interest.toLowerCase();
+      let found = false;
+      for (const [cat, keywords] of Object.entries(categories)) {
+        if (keywords.some(k => lower.includes(k))) {
+          result[cat].push(interest);
+          found = true;
+          break;
+        }
+      }
+      if (!found) {
+        // Si aucun mot-clé ne correspond, place dans lifestyle par défaut
+        result.lifestyle.push(interest);
+      }
+    }
+    // S'assurer qu'il y a au moins un élément par catégorie
+    for (const cat of Object.keys(result)) {
+      if (result[cat].length === 0) {
+        result[cat] = [cat.charAt(0).toUpperCase() + cat.slice(1)];
+      }
+    }
+    return result;
   }
 
   // Méthodes utilitaires statiques (rétrocompatibilité)

@@ -57,12 +57,15 @@ export class QlooClient {
         // Tentative d'appel API
         const response = await this.makeApiCallWithParams('/recommendations', params);
         this.updateRateLimits(response.headers);
+        console.log('🔵 Réponse brute Qloo API:', JSON.stringify(response.data, null, 2));
         return this.parseResponse(response);
       } catch (apiError: any) {
         // Si l'API retourne une erreur 403 (Forbidden), utiliser des données fallback
         if (apiError.message?.includes('403') || apiError.message?.includes('Forbidden')) {
           console.log('⚠️ API Qloo hackathon restricted, using fallback data');
-          return this.generateFallbackRecommendations(request);
+          const fallback = this.generateFallbackRecommendations(request);
+          console.log('🟠 Données fallback Qloo générées:', JSON.stringify(fallback, null, 2));
+          return fallback;
         }
         throw apiError;
       }
@@ -70,7 +73,9 @@ export class QlooClient {
     } catch (error) {
       console.error('Qloo API Error:', error);
       // En dernier recours, utiliser des données fallback
-      return this.generateFallbackRecommendations(request);
+      const fallback = this.generateFallbackRecommendations(request);
+      console.log('🟠 Données fallback Qloo générées (erreur):', JSON.stringify(fallback, null, 2));
+      return fallback;
     }
   }
 

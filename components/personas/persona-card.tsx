@@ -154,44 +154,45 @@ export function PersonaCard({
 
   return (
     <Card className={cn(
-      "group h-full transition-all duration-300 border-0 shadow-lg glass-card relative overflow-hidden",
+      "group h-full w-full max-w-md md:max-w-none mx-auto transition-all duration-300 border-0 shadow-lg glass-card relative overflow-hidden",
       "hover:shadow-xl hover:scale-[1.02] hover-lift",
       "bg-gradient-to-br from-white/80 to-gray-50/80 dark:from-gray-800/80 dark:to-gray-900/80",
-      "backdrop-blur-sm"
+      "backdrop-blur-sm",
+      "p-3 sm:p-4 md:p-6 lg:p-8"
     )}>
       {/* Décoration de gradient en haut */}
       <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-primary-500 via-secondary-500 to-accent-500" />
       
       {/* En-tête redesigné */}
       <CardHeader className="pb-4 relative">
-        <div className="flex items-start justify-between">
-          <div className="flex items-center gap-4">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-0">
+          <div className="flex items-center gap-3 sm:gap-4">
             <div className="relative">
               <Avatar className={cn(
                 "ring-2 ring-white dark:ring-gray-800 shadow-lg transition-all duration-300 group-hover:scale-105",
                 "bg-gradient-to-br from-primary-500 to-secondary-500",
-                isCompact ? "h-12 w-12" : "h-16 w-16"
+                isCompact ? "h-10 w-10 sm:h-12 sm:w-12" : "h-14 w-14 sm:h-16 sm:w-16"
               )}>
               <AvatarImage src={persona.avatar} alt={persona.name} />
-                <AvatarFallback className="text-white font-bold text-lg">
+                <AvatarFallback className="text-white font-bold text-base sm:text-lg">
                   {getInitials(persona.name)}
               </AvatarFallback>
             </Avatar>
               {/* Indicateur de statut */}
-              <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-green-500 rounded-full border-2 border-white dark:border-gray-800 shadow-sm flex items-center justify-center">
+              <div className="absolute -bottom-1 -right-1 w-4 h-4 sm:w-5 sm:h-5 bg-green-500 rounded-full border-2 border-white dark:border-gray-800 shadow-sm flex items-center justify-center">
                 <CheckCircle className="h-3 w-3 text-white" />
               </div>
             </div>
             
-            <div className="flex-1">
+            <div className="flex-1 min-w-0">
               <CardTitle className={cn(
-                "text-gray-900 dark:text-white font-bold mb-2 group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors",
-                isCompact ? "text-lg" : "text-xl"
+                "text-gray-900 dark:text-white font-bold mb-2 group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors truncate",
+                isCompact ? "text-base sm:text-lg" : "text-lg sm:text-xl"
               )}>
                 {persona.name}
               </CardTitle>
               
-              <div className="flex items-center flex-wrap gap-3 text-sm text-gray-600 dark:text-gray-400">
+              <div className="flex flex-wrap gap-2 sm:gap-3 text-xs sm:text-sm text-gray-600 dark:text-gray-400">
                 <div className="flex items-center gap-1 px-2 py-1 bg-white/60 dark:bg-gray-800/60 rounded-full backdrop-blur-sm">
                   <Calendar className="h-3 w-3 text-primary-600 dark:text-primary-400" />
                   <span className="font-medium">{formatAge(persona.age)}</span>
@@ -199,7 +200,7 @@ export function PersonaCard({
                 {persona.location && (
                   <div className="flex items-center gap-1 px-2 py-1 bg-white/60 dark:bg-gray-800/60 rounded-full backdrop-blur-sm">
                     <MapPin className="h-3 w-3 text-secondary-600 dark:text-secondary-400" />
-                    <span className="font-medium">{persona.location}</span>
+                    <span className="font-medium truncate max-w-[80px] md:max-w-none">{persona.location}</span>
                   </div>
                 )}
                 {showMetadata && (
@@ -213,11 +214,11 @@ export function PersonaCard({
           </div>
           
           {/* Actions rapides */}
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 mt-4 sm:mt-0">
             <Button
               variant="ghost"
               size="sm"
-              className="opacity-0 group-hover:opacity-100 transition-all duration-300 hover:bg-white/80 dark:hover:bg-gray-800/80"
+              className="opacity-100 sm:opacity-0 group-hover:opacity-100 transition-all duration-300 hover:bg-white/80 dark:hover:bg-gray-800/80"
               onClick={() => setIsBookmarked(!isBookmarked)}
             >
               <Bookmark className={cn(
@@ -228,7 +229,7 @@ export function PersonaCard({
             <Button
               variant="ghost"
               size="sm"
-              className="opacity-0 group-hover:opacity-100 transition-all duration-300 hover:bg-white/80 dark:hover:bg-gray-800/80"
+              className="opacity-100 sm:opacity-0 group-hover:opacity-100 transition-all duration-300 hover:bg-white/80 dark:hover:bg-gray-800/80"
               onClick={copyPersonaId}
             >
               {copiedId ? (
@@ -240,7 +241,7 @@ export function PersonaCard({
             <Button
               variant="ghost"
               size="sm"
-              className="opacity-0 group-hover:opacity-100 transition-all duration-300 hover:bg-white/80 dark:hover:bg-gray-800/80"
+              className="opacity-100 sm:opacity-0 group-hover:opacity-100 transition-all duration-300 hover:bg-white/80 dark:hover:bg-gray-800/80"
             >
               <Share2 className="h-4 w-4 text-gray-400 hover:text-secondary-600" />
             </Button>
@@ -248,7 +249,7 @@ export function PersonaCard({
         </div>
 
         {/* Badges de statut */}
-        <div className="flex items-center gap-2 mt-4">
+        <div className="flex flex-wrap items-center gap-2 mt-4">
             {isEnhanced && (
             <Badge variant={getConfidenceBadgeVariant(persona.generation_metadata.confidence_level)} className="text-xs">
               {persona.generation_metadata.confidence_level === 'high' ? '🏆 Haute' :
@@ -308,7 +309,7 @@ export function PersonaCard({
         {/* Contenu avec onglets pour les personas enrichis en vue détaillée */}
         {isEnhanced && isDetailed && (showMetrics || showPerformance) ? (
           <Tabs value={activeTab} onValueChange={setActiveTab as any} className="w-full">
-            <TabsList className="grid w-full grid-cols-3 mb-4 bg-gray-100 dark:bg-gray-800">
+            <TabsList className="grid w-full grid-cols-1 sm:grid-cols-3 mb-4 bg-gray-100 dark:bg-gray-800">
               <TabsTrigger value="overview" className="flex items-center gap-2 data-[state=active]:bg-primary-50 dark:data-[state=active]:bg-primary-900/30 data-[state=active]:text-primary-700 dark:data-[state=active]:text-primary-300">
                 <Users className="h-4 w-4" />
                 Aperçu
@@ -348,22 +349,22 @@ export function PersonaCard({
         )}
 
         {/* Actions principales */}
-        <div className="flex items-center justify-between pt-4 border-t border-gray-200 dark:border-gray-700">
-          <div className="flex items-center gap-2">
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between pt-4 border-t border-gray-200 dark:border-gray-700 gap-2 sm:gap-0">
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
             {onView && (
-              <Button variant="outline" size="sm" onClick={onView} className="hover-lift bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm">
+              <Button variant="outline" size="sm" onClick={onView} className="hover-lift bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm w-full sm:w-auto">
                 <Eye className="h-4 w-4 mr-2" />
                 Détails
               </Button>
             )}
             {onExport && (
-              <Button variant="outline" size="sm" onClick={onExport} className="hover-lift bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm">
+              <Button variant="outline" size="sm" onClick={onExport} className="hover-lift bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm w-full sm:w-auto">
                 <Download className="h-4 w-4 mr-2" />
                 Export
               </Button>
             )}
             {onRegenerate && (
-              <Button variant="outline" size="sm" onClick={onRegenerate} className="hover-lift bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm">
+              <Button variant="outline" size="sm" onClick={onRegenerate} className="hover-lift bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm w-full sm:w-auto">
                 <Zap className="h-4 w-4 mr-2" />
                 Régénérer
               </Button>
@@ -371,9 +372,9 @@ export function PersonaCard({
           </div>
           
           {showMetadata && (
-            <div className="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
+            <div className="flex flex-col sm:flex-row items-center gap-1 text-xs text-gray-500 dark:text-gray-400 mt-2 sm:mt-0 break-all">
               <Layers className="h-3 w-3" />
-              <span>Sources: {formatList(persona.sources, 2, "+")} APIs</span>
+              <span className="truncate w-full sm:w-auto">Sources: {formatList(persona.sources, 2, "+")} APIs</span>
             </div>
           )}
         </div>
@@ -394,16 +395,7 @@ function PersonaOverview({
 }) {
   const [showFullBio, setShowFullBio] = useState(false);
   
-  // 🐛 DEBUG: Logs pour PersonaOverview
-  console.log('🔍 PersonaOverview Debug:', {
-    name: persona.name,
-    isCompact,
-    isDetailed,
-    shouldShowCommunication: !isCompact,
-    communication: persona.communication,
-    communicationChannels: persona.communication?.preferredChannels,
-    communicationTone: persona.communication?.tone
-  });
+  
   
   // Obtenir l'icône de catégorie
   const getCategoryIcon = (category: string) => {
@@ -485,17 +477,19 @@ function PersonaOverview({
         <div className="space-y-3">
           {isDetailed ? (
             // Vue détaillée avec toutes les catégories
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
               {Object.entries(persona.interests).map(([category, items]) => (
-                <div key={category} className="p-3 bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20 rounded-lg border border-blue-200 dark:border-blue-700">
+                <div key={category} className="p-3 bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20 rounded-lg border border-blue-200 dark:border-blue-700 flex flex-col items-center justify-center min-h-[56px]">
                   <div className="flex items-center gap-2 mb-2">
                     {getCategoryIcon(category)}
                     <span className="text-xs font-medium text-blue-700 dark:text-blue-300 capitalize">{category}</span>
-              </div>
-                  <p className="text-xs text-gray-600 dark:text-gray-400">
-                    {formatList(items, 2)}
-                  </p>
-              </div>
+                  </div>
+                  {items.length === 0 ? (
+                    <Badge variant="outline" className="text-xs text-gray-400 border-gray-300 dark:border-gray-600 mx-auto">Aucun</Badge>
+                  ) : (
+                    <p className="text-xs text-gray-600 dark:text-gray-400 text-center">{formatList(items, 2)}</p>
+                  )}
+                </div>
               ))}
             </div>
           ) : (
@@ -510,10 +504,11 @@ function PersonaOverview({
                   {interest}
                 </Badge>
               ))}
-              {!isCompact && (
-                <Badge variant="outline" className="text-xs text-gray-500 dark:text-gray-400">
-                  +{Object.values(persona.interests).flat().length - 6} autres
-                </Badge>
+              {Object.values(persona.interests).flat().length === 0 && (
+                <Badge variant="outline" className="text-xs text-gray-400 border-gray-300 dark:border-gray-600 mx-auto">Aucun</Badge>
+              )}
+              {!isCompact && Object.values(persona.interests).flat().length > 6 && (
+                <Badge variant="outline" className="text-xs text-gray-500 dark:text-gray-400">+{Object.values(persona.interests).flat().length - 6} autres</Badge>
               )}
             </div>
           )}
@@ -527,18 +522,18 @@ function PersonaOverview({
             <MessageCircle className="h-4 w-4 text-green-500" />
             <span className="text-sm font-semibold text-gray-700 dark:text-gray-300">Communication</span>
           </div>
-          <div className="grid grid-cols-2 gap-3">
-            <div className="p-3 bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-800/20 rounded-lg border border-green-200 dark:border-green-700">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div className="p-3 bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-800/20 rounded-lg border border-green-200 dark:border-green-700 flex flex-col items-center justify-center min-h-[40px]">
               <span className="text-xs font-medium text-green-700 dark:text-green-300">Canaux préférés</span>
-              <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">
-                {formatList(persona.communication.preferredChannels, 2)}
-              </p>
+              {persona.communication.preferredChannels.length === 0 ? (
+                <Badge variant="outline" className="text-xs text-gray-400 border-gray-300 dark:border-gray-600 mt-1">Aucun</Badge>
+              ) : (
+                <p className="text-xs text-gray-600 dark:text-gray-400 mt-1 text-center">{formatList(persona.communication.preferredChannels, 2)}</p>
+              )}
             </div>
-            <div className="p-3 bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-800/20 rounded-lg border border-green-200 dark:border-green-700">
+            <div className="p-3 bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-800/20 rounded-lg border border-green-200 dark:border-green-700 flex flex-col items-center justify-center min-h-[40px]">
               <span className="text-xs font-medium text-green-700 dark:text-green-300">Ton de communication</span>
-              <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">
-                {persona.communication.tone}
-              </p>
+              <p className="text-xs text-gray-600 dark:text-gray-400 mt-1 text-center">{persona.communication.tone || <Badge variant='outline' className='text-xs text-gray-400 border-gray-300 dark:border-gray-600'>Aucun</Badge>}</p>
             </div>
           </div>
         </div>
