@@ -27,17 +27,17 @@ export function PersonaResult({ persona, onBack }: PersonaResultProps) {
   const qualityScore = Math.round(
     (persona.values.length / 5 * 0.3 + 
      Object.keys(persona.interests).length / 10 * 0.3 + 
-     persona.communication.channels.length / 5 * 0.2 + 
+     persona.communication.preferredChannels.length / 5 * 0.2 + 
      persona.marketing.painPoints.length / 5 * 0.2) * 100
   );
   
   const completionScore = Math.round(
-    (!!persona.bio ? 0.2 : 0) +
+    ((!!persona.bio ? 0.2 : 0) +
     (!!persona.quote ? 0.1 : 0) +
     (persona.values.length > 0 ? 0.2 : 0) +
     (Object.keys(persona.interests).length > 0 ? 0.2 : 0) +
-    (persona.communication.channels.length > 0 ? 0.15 : 0) +
-    (persona.marketing.painPoints.length > 0 ? 0.15 : 0) * 100
+    (persona.communication.preferredChannels.length > 0 ? 0.15 : 0) +
+    (persona.marketing.painPoints.length > 0 ? 0.15 : 0)) * 100
   );
 
   const handleExport = () => {
@@ -116,7 +116,7 @@ export function PersonaResult({ persona, onBack }: PersonaResultProps) {
                   </Badge>
                   {persona.values.slice(0, 2).map((value, index) => (
                     <Badge key={index} className="text-xs font-medium bg-primary/10 text-primary hover:bg-primary/20">
-                      {value.name}
+                      {value}
                     </Badge>
                   ))}
                 </div>

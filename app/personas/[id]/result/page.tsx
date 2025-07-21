@@ -20,13 +20,13 @@ export default function PersonaResultPage({ params }: { params: { id: string } }
       try {
         setLoading(true);
         setError(null);
-        
+
         // Récupérer l'ID du persona depuis les paramètres
         const personaId = params.id;
-        
+
         // Essayer de récupérer le persona depuis le state local (si disponible)
         let foundPersona = null;
-        
+
         // Essayer de récupérer depuis localStorage
         const storedPersonas = localStorage.getItem('personas');
         if (storedPersonas) {
@@ -34,7 +34,7 @@ export default function PersonaResultPage({ params }: { params: { id: string } }
           setPersonaCount(parsedPersonas.length);
           foundPersona = parsedPersonas.find((p: Persona) => p.id === personaId);
         }
-        
+
         // Essayer de récupérer depuis sessionStorage si non trouvé
         if (!foundPersona) {
           const sessionPersonas = sessionStorage.getItem('personas');
@@ -44,7 +44,7 @@ export default function PersonaResultPage({ params }: { params: { id: string } }
             foundPersona = parsedSessionPersonas.find((p: Persona) => p.id === personaId);
           }
         }
-        
+
         if (foundPersona) {
           setPersona(foundPersona);
         } else {
@@ -108,32 +108,31 @@ export default function PersonaResultPage({ params }: { params: { id: string } }
   if (error) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[70vh] p-4 max-w-md mx-auto">
-        <ModernNotification 
+        <ModernNotification
           title="Persona non trouvé"
           message={error}
-          variant="error"
+          type="error"
           action={{
             label: "Réessayer",
-            onClick: handleRetry,
-            icon: <RefreshCw className="h-4 w-4" />
+            onClick: handleRetry
           }}
         />
-        
+
         <div className="flex flex-col gap-4 mt-8 w-full">
           <Button onClick={handleBack} variant="outline" className="w-full">
             <ArrowLeft className="mr-2 h-4 w-4" />
             Retour
           </Button>
-          
+
           <Button onClick={handleGoToList} variant="outline" className="w-full">
             Voir tous les personas ({personaCount})
           </Button>
-          
+
           <Button onClick={handleGoToGenerator} className="w-full">
             Créer un nouveau persona
           </Button>
         </div>
-        
+
         <div className="mt-8 p-4 bg-muted rounded-lg text-sm text-muted-foreground">
           <p className="font-medium mb-2">Informations de débogage:</p>
           <p>ID recherché: {params.id}</p>
@@ -146,9 +145,9 @@ export default function PersonaResultPage({ params }: { params: { id: string } }
   return (
     <main className="flex flex-col min-h-screen py-6">
       {persona && (
-        <PersonaResult 
-          persona={persona} 
-          onBack={handleBack} 
+        <PersonaResult
+          persona={persona}
+          onBack={handleBack}
         />
       )}
     </main>

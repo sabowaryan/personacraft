@@ -26,27 +26,27 @@ export function PersonaScoreCard({ qualityScore, completionScore }: PersonaScore
           <h3 className="text-lg font-semibold mb-1">Score du Persona</h3>
           <p className="text-sm text-muted-foreground">Qualité et complétude</p>
         </div>
-        
+
         <div className="grid grid-cols-2 gap-4 mt-4">
           <div className="flex flex-col items-center">
-            <CircularScore 
-              value={qualityScore} 
-              size="lg" 
-              color={qualityColor as any} 
-              label="Qualité" 
+            <CircularScore
+              value={qualityScore}
+              size="lg"
+              color={qualityColor as any}
+              label="Qualité"
             />
             <div className="mt-2 flex items-center text-xs text-muted-foreground">
               <Info className="h-3 w-3 mr-1" />
               <span>Richesse des données</span>
             </div>
           </div>
-          
+
           <div className="flex flex-col items-center">
-            <CircularScore 
-              value={completionScore} 
-              size="lg" 
-              color={completionColor as any} 
-              label="Complétude" 
+            <CircularScore
+              value={completionScore}
+              size="lg"
+              color={completionColor as any}
+              label="Complétude"
             />
             <div className="mt-2 flex items-center text-xs text-muted-foreground">
               <Info className="h-3 w-3 mr-1" />
