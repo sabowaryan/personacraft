@@ -200,27 +200,18 @@ export function PersonaMarketingTab({ persona }: PersonaMarketingTabProps) {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          {marketing.influenceSources && marketing.influenceSources.length > 0 ? (
-            <div className="space-y-6">
-              {marketing.influences?.map((source, index) => (
-                <div key={index} className="space-y-2 persona-animate-in" style={{animationDelay: `${0.3 + index * 0.1}s`}}>
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <ModernBadge variant={getInfluenceVariant(source.type) === 'destructive' ? 'danger' : getInfluenceVariant(source.type) === 'default' ? 'outline' : getInfluenceVariant(source.type)} size="sm">
-                        {typeof source === 'string' ? source : source.type}
-                      </ModernBadge>
-                      <div className="font-medium">{typeof source === 'string' ? source : source.name}</div>
+          {marketing.influences && marketing.influences.length > 0 ? (
+            <div className="space-y-4">
+              {marketing.influences.map((source, index) => (
+                <div key={index} className="flex items-start gap-3 p-3 rounded-lg bg-muted/50 persona-animate-in" style={{animationDelay: `${0.3 + index * 0.1}s`}}>
+                  <div className="mt-0.5">
+                    <div className={`flex items-center justify-center h-6 w-6 rounded-full bg-primary/20 text-primary`}>
+                      {index + 1}
                     </div>
-                    <div className="text-sm text-muted-foreground">{source.score}%</div>
                   </div>
-                  <AnimatedProgress 
-                    value={typeof source === 'object' && source && 'score' in source ? (source as { score: number }).score : 0}
-                    color={getColorForIndex(index) === 'destructive' ? 'danger' : getColorForIndex(index) === 'purple' ? 'secondary' : getColorForIndex(index) === 'primary' ? 'primary' : getColorForIndex(index) === 'success' ? 'success' : getColorForIndex(index) === 'warning' ? 'warning' : undefined}
-                    size="md" 
-                  />
-                  {typeof source === 'object' && 'description' in source && source.description && (
-                    <p className="text-sm text-muted-foreground mt-1">{source.description}</p>
-                  )}
+                  <div>
+                    <h4 className="font-medium">{source}</h4>
+                  </div>
                 </div>
               ))}
             </div>

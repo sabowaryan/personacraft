@@ -1,0 +1,445 @@
+/* Accessibility Styles for WCAG 2.1 AA Compliance */
+
+/* Screen reader only content */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.sr-only:focus {
+  position: static;
+  width: auto;
+  height: auto;
+  padding: inherit;
+  margin: inherit;
+  overflow: visible;
+  clip: auto;
+  white-space: normal;
+}
+
+/* Focus indicators */
+.focus-visible:focus-visible,
+.focus\:outline-none:focus-visible {
+  outline: 2px solid hsl(var(--primary));
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* Skip links */
+.skip-links-container a {
+  position: absolute;
+  top: -40px;
+  left: 6px;
+  background: hsl(var(--primary));
+  color: hsl(var(--primary-foreground));
+  padding: 8px 16px;
+  text-decoration: none;
+  border-radius: 4px;
+  z-index: 1000;
+  font-weight: 500;
+  transition: top 0.3s;
+}
+
+.skip-links-container a:focus {
+  top: 6px;
+}
+
+/* High contrast mode */
+.high-contrast {
+  --background: 0 0% 100%;
+  --foreground: 0 0% 0%;
+  --card: 0 0% 100%;
+  --card-foreground: 0 0% 0%;
+  --popover: 0 0% 100%;
+  --popover-foreground: 0 0% 0%;
+  --primary: 0 0% 0%;
+  --primary-foreground: 0 0% 100%;
+  --secondary: 0 0% 90%;
+  --secondary-foreground: 0 0% 0%;
+  --muted: 0 0% 90%;
+  --muted-foreground: 0 0% 20%;
+  --accent: 0 0% 90%;
+  --accent-foreground: 0 0% 0%;
+  --destructive: 0 84% 37%;
+  --destructive-foreground: 0 0% 100%;
+  --border: 0 0% 50%;
+  --input: 0 0% 90%;
+  --ring: 0 0% 0%;
+}
+
+.high-contrast * {
+  text-shadow: none !important;
+  box-shadow: none !important;
+}
+
+.high-contrast .persona-gradient {
+  background: hsl(var(--primary)) !important;
+}
+
+.high-contrast .persona-glass {
+  background: hsl(var(--background)) !important;
+  backdrop-filter: none !important;
+}
+
+/* Font size adjustments */
+.font-small {
+  font-size: 14px;
+}
+
+.font-small .text-sm {
+  font-size: 12px;
+}
+
+.font-small .text-xs {
+  font-size: 10px;
+}
+
+.font-small .text-lg {
+  font-size: 16px;
+}
+
+.font-small .text-xl {
+  font-size: 18px;
+}
+
+.font-small .text-2xl {
+  font-size: 20px;
+}
+
+.font-medium {
+  font-size: 16px;
+}
+
+.font-large {
+  font-size: 18px;
+}
+
+.font-large .text-sm {
+  font-size: 16px;
+}
+
+.font-large .text-xs {
+  font-size: 14px;
+}
+
+.font-large .text-lg {
+  font-size: 20px;
+}
+
+.font-large .text-xl {
+  font-size: 22px;
+}
+
+.font-large .text-2xl {
+  font-size: 26px;
+}
+
+/* Reduced motion */
+.reduce-motion *,
+.reduce-motion *::before,
+.reduce-motion *::after {
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.01ms !important;
+  scroll-behavior: auto !important;
+}
+
+/* Focus management */
+.focus-trap {
+  position: relative;
+}
+
+.focus-trap::before,
+.focus-trap::after {
+  content: '';
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* Keyboard navigation indicators */
+[data-focus-priority] {
+  position: relative;
+}
+
+[data-focus-priority]:focus-visible::after {
+  content: attr(data-focus-priority);
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  background: hsl(var(--primary));
+  color: hsl(var(--primary-foreground));
+  font-size: 10px;
+  padding: 2px 4px;
+  border-radius: 2px;
+  z-index: 1000;
+}
+
+/* ARIA live regions styling */
+[aria-live] {
+  position: absolute;
+  left: -10000px;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}
+
+/* Error states */
+[aria-invalid="true"] {
+  border-color: hsl(var(--destructive)) !important;
+  box-shadow: 0 0 0 1px hsl(var(--destructive)) !important;
+}
+
+[role="alert"] {
+  color: hsl(var(--destructive));
+  font-weight: 500;
+}
+
+/* Interactive elements */
+[role="button"]:not(button) {
+  cursor: pointer;
+  user-select: none;
+}
+
+[role="button"]:not(button):focus-visible {
+  outline: 2px solid hsl(var(--primary));
+  outline-offset: 2px;
+}
+
+/* Tab navigation */
+[role="tablist"] {
+  display: flex;
+  border-bottom: 1px solid hsl(var(--border));
+}
+
+[role="tab"] {
+  position: relative;
+  cursor: pointer;
+  padding: 8px 16px;
+  border: none;
+  background: transparent;
+  color: hsl(var(--muted-foreground));
+  transition: color 0.2s;
+}
+
+[role="tab"]:hover {
+  color: hsl(var(--foreground));
+}
+
+[role="tab"][aria-selected="true"] {
+  color: hsl(var(--primary));
+}
+
+[role="tab"][aria-selected="true"]::after {
+  content: '';
+  position: absolute;
+  bottom: -1px;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: hsl(var(--primary));
+}
+
+[role="tabpanel"] {
+  padding: 16px 0;
+}
+
+[role="tabpanel"]:focus-visible {
+  outline: 2px solid hsl(var(--primary));
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* Progress indicators */
+[role="progressbar"] {
+  background: hsl(var(--muted));
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+[role="progressbar"]::before {
+  content: '';
+  display: block;
+  height: 100%;
+  background: hsl(var(--primary));
+  width: var(--progress-value, 0%);
+  transition: width 0.3s ease;
+}
+
+/* Status indicators */
+[role="status"] {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+[role="status"][data-status="success"] {
+  background: hsl(var(--primary) / 0.1);
+  color: hsl(var(--primary));
+}
+
+[role="status"][data-status="error"] {
+  background: hsl(var(--destructive) / 0.1);
+  color: hsl(var(--destructive));
+}
+
+[role="status"][data-status="warning"] {
+  background: hsl(45 93% 47% / 0.1);
+  color: hsl(45 93% 47%);
+}
+
+/* Landmark regions */
+main {
+  min-height: 100vh;
+  padding: 16px;
+}
+
+[role="banner"] {
+  border-bottom: 1px solid hsl(var(--border));
+  padding: 16px;
+}
+
+[role="navigation"] {
+  padding: 8px;
+}
+
+[role="complementary"] {
+  border-left: 1px solid hsl(var(--border));
+  padding: 16px;
+}
+
+[role="contentinfo"] {
+  border-top: 1px solid hsl(var(--border));
+  padding: 16px;
+  margin-top: auto;
+}
+
+/* Form elements */
+label {
+  display: block;
+  margin-bottom: 4px;
+  font-weight: 500;
+  color: hsl(var(--foreground));
+}
+
+label[for] {
+  cursor: pointer;
+}
+
+input:required + label::after,
+select:required + label::after,
+textarea:required + label::after {
+  content: ' *';
+  color: hsl(var(--destructive));
+}
+
+/* Tooltip accessibility */
+[role="tooltip"] {
+  position: absolute;
+  z-index: 1000;
+  padding: 8px 12px;
+  background: hsl(var(--popover));
+  color: hsl(var(--popover-foreground));
+  border: 1px solid hsl(var(--border));
+  border-radius: 6px;
+  font-size: 14px;
+  max-width: 300px;
+  word-wrap: break-word;
+}
+
+/* Menu accessibility */
+[role="menu"] {
+  background: hsl(var(--popover));
+  border: 1px solid hsl(var(--border));
+  border-radius: 6px;
+  padding: 4px;
+  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+}
+
+[role="menuitem"] {
+  display: block;
+  width: 100%;
+  padding: 8px 12px;
+  text-align: left;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: background-color 0.2s;
+}
+
+[role="menuitem"]:hover,
+[role="menuitem"]:focus {
+  background: hsl(var(--accent));
+}
+
+[role="menuitem"][aria-disabled="true"] {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Dialog accessibility */
+[role="dialog"] {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: hsl(var(--background));
+  border: 1px solid hsl(var(--border));
+  border-radius: 8px;
+  box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+  max-width: 90vw;
+  max-height: 90vh;
+  overflow: auto;
+}
+
+[role="dialog"]::backdrop {
+  background: rgb(0 0 0 / 0.5);
+}
+
+/* Print styles for accessibility */
+@media print {
+  .sr-only {
+    position: static !important;
+    width: auto !important;
+    height: auto !important;
+    clip: auto !important;
+    overflow: visible !important;
+  }
+  
+  [aria-hidden="true"] {
+    display: none !important;
+  }
+  
+  .skip-links-container {
+    display: none !important;
+  }
+  
+  /* Ensure sufficient contrast in print */
+  * {
+    color: black !important;
+    background: white !important;
+  }
+  
+  a {
+    text-decoration: underline !important;
+  }
+  
+  a[href^="http"]:after {
+    content: " (" attr(href) ")";
+    font-size: 12px;
+  }
+}

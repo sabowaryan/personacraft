@@ -5,3 +5,6 @@ export * from './tabs/persona-profile-tab';
 export * from './tabs/persona-interests-tab';
 export * from './tabs/persona-communication-tab';
 export * from './tabs/persona-marketing-tab';
+export * from './hero';
+export * from './metrics';
+export * from './communication';

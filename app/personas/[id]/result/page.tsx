@@ -4,16 +4,19 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Persona } from '@/lib/types/persona';
 import { PersonaResult } from '@/components/persona-result/persona-result';
+import { MobilePersonaResult } from '@/components/persona-result/responsive/mobile-persona-result';
+import { useBreakpoints } from '@/hooks/use-media-query';
 import { ModernLoading, ModernNotification } from '@/components/ui/modern-elements';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, RefreshCw } from 'lucide-react';
 
-export default function PersonaResultPage({ params }: { params: { id: string } }) {
+export default function PersonaResultPage({ params }: { params: Promise<{ id: string }> }) {
   const router = useRouter();
   const [persona, setPersona] = useState<Persona | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [personaCount, setPersonaCount] = useState(0);
+  const { isMobileOrTablet } = useBreakpoints();
 
   useEffect(() => {
     const fetchPersona = async () => {
@@ -22,7 +25,8 @@ export default function PersonaResultPage({ params }: { params: { id: string } }
         setError(null);
 
         // Récupérer l'ID du persona depuis les paramètres
-        const personaId = params.id;
+        const resolvedParams = await params;
+        const personaId = resolvedParams.id;
 
         // Essayer de récupérer le persona depuis le state local (si disponible)
         let foundPersona = null;
@@ -59,18 +63,19 @@ export default function PersonaResultPage({ params }: { params: { id: string } }
     };
 
     fetchPersona();
-  }, [params.id]);
+  }, [params]);
 
   const handleBack = () => {
     router.back();
   };
 
-  const handleRetry = () => {
+  const handleRetry = async () => {
     setLoading(true);
     setError(null);
     // Réessayer de charger le persona
-    setTimeout(() => {
-      const personaId = params.id;
+    setTimeout(async () => {
+      const resolvedParams = await params;
+      const personaId = resolvedParams.id;
       const storedPersonas = localStorage.getItem('personas');
       if (storedPersonas) {
         const parsedPersonas = JSON.parse(storedPersonas);
@@ -135,7 +140,6 @@ export default function PersonaResultPage({ params }: { params: { id: string } }
 
         <div className="mt-8 p-4 bg-muted rounded-lg text-sm text-muted-foreground">
           <p className="font-medium mb-2">Informations de débogage:</p>
-          <p>ID recherché: {params.id}</p>
           <p>Personas disponibles: {personaCount}</p>
         </div>
       </div>
@@ -143,12 +147,23 @@ export default function PersonaResultPage({ params }: { params: { id: string } }
   }
 
   return (
-    <main className="flex flex-col min-h-screen py-6">
+    <main className="flex flex-col min-h-screen">
       {persona && (
-        <PersonaResult
-          persona={persona}
-          onBack={handleBack}
-        />
+        <>
+          {isMobileOrTablet ? (
+            <MobilePersonaResult
+              persona={persona}
+              onBack={handleBack}
+            />
+          ) : (
+            <div className="py-6">
+              <PersonaResult
+                persona={persona}
+                onBack={handleBack}
+              />
+            </div>
+          )}
+        </>
       )}
     </main>
   );

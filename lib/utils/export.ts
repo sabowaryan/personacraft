@@ -1,4 +1,4 @@
-import { Persona } from '../types/persona';
+import { Persona, EnhancedPersona } from '../types/persona';
 import { downloadPersonaPDF } from './pdf-generator';
 import { CSVExporter, exportPersonasWithAnalytics } from './csv-exporter';
 
@@ -96,28 +96,66 @@ export async function exportToCSV(personas: Persona[], options?: {
 export async function exportToJSON(personas: Persona[], options?: {
   includeMetadata?: boolean;
   prettify?: boolean;
+  filename?: string;
 }): Promise<void> {
-  const data = {
-    metadata: {
-      exported_at: new Date().toISOString(),
-      total_personas: personas.length,
-      exported_by: 'PersonaCraft v2.0',
-      ...(options?.includeMetadata && {
-        export_options: options
-      })
-    },
-    personas: personas.map(persona => ({
-      ...persona,
-      generatedAt: persona.generatedAt instanceof Date ? persona.generatedAt.toISOString() : persona.generatedAt
-    }))
-  };
+  try {
+    console.log('Début génération JSON pour', personas.length, 'personas');
 
-  const jsonContent = options?.prettify 
-    ? JSON.stringify(data, null, 2) 
-    : JSON.stringify(data);
-  
-  const filename = `personas_export_${new Date().toISOString().split('T')[0]}.json`;
-  downloadAsText(jsonContent, filename, 'application/json');
+    const data = {
+      metadata: {
+        exported_at: new Date().toISOString(),
+        total_personas: personas.length,
+        exported_by: 'PersonaCraft v2.0',
+        version: '2.0.0',
+        format_version: '1.0',
+        ...(options?.includeMetadata && {
+          export_options: options,
+          system_info: {
+            user_agent: navigator.userAgent,
+            timestamp: Date.now(),
+            timezone: Intl.DateTimeFormat().resolvedOptions().timeZone
+          }
+        })
+      },
+      personas: personas.map(persona => {
+        const basePersona = {
+          ...persona,
+          generatedAt: persona.generatedAt instanceof Date ? persona.generatedAt.toISOString() : persona.generatedAt
+        };
+
+        // Add enhanced data if available
+        if ('validation_metrics' in persona) {
+          const enhanced = persona as EnhancedPersona;
+          return {
+            ...basePersona,
+            validation_metrics: enhanced.validation_metrics,
+            generation_metadata: enhanced.generation_metadata,
+            enhanced: true
+          };
+        }
+
+        return {
+          ...basePersona,
+          enhanced: false
+        };
+      })
+    };
+
+    const jsonContent = options?.prettify 
+      ? JSON.stringify(data, null, 2) 
+      : JSON.stringify(data);
+    
+    const timestamp = new Date().toISOString().split('T')[0];
+    const filename = options?.filename || `PersonaCraft_Export_${timestamp}.json`;
+    
+    downloadAsText(jsonContent, filename, 'application/json;charset=utf-8');
+    
+    console.log('Export JSON terminé:', filename);
+
+  } catch (error) {
+    console.error('Erreur export JSON:', error);
+    throw new Error('Impossible d\'exporter en JSON');
+  }
 }
 
 // Fonctions utilitaires

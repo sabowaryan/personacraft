@@ -1,0 +1,395 @@
+/* Print-optimized styles for persona results */
+
+@media print {
+  /* Reset and base styles */
+  * {
+    -webkit-print-color-adjust: exact !important;
+    color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif !important;
+    font-size: 12pt !important;
+    line-height: 1.4 !important;
+    color: #000 !important;
+    background: white !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  /* Hide non-essential elements */
+  .no-print,
+  .print-hidden,
+  nav,
+  .navigation,
+  .sidebar,
+  .breadcrumbs,
+  .quick-actions,
+  .export-buttons,
+  .share-buttons,
+  button:not(.print-visible),
+  .dropdown-menu,
+  .tooltip,
+  .toast,
+  .modal,
+  .overlay {
+    display: none !important;
+  }
+
+  /* Page layout */
+  .print-container {
+    width: 100% !important;
+    max-width: none !important;
+    margin: 0 !important;
+    padding: 20pt !important;
+    box-shadow: none !important;
+    border: none !important;
+  }
+
+  /* Headers and titles */
+  .persona-title,
+  .print-title {
+    font-size: 24pt !important;
+    font-weight: bold !important;
+    color: #2563eb !important;
+    margin-bottom: 16pt !important;
+    border-bottom: 2pt solid #e5e7eb !important;
+    padding-bottom: 8pt !important;
+    page-break-after: avoid !important;
+  }
+
+  .section-title {
+    font-size: 16pt !important;
+    font-weight: 600 !important;
+    color: #374151 !important;
+    margin-top: 20pt !important;
+    margin-bottom: 12pt !important;
+    page-break-after: avoid !important;
+  }
+
+  .subsection-title {
+    font-size: 14pt !important;
+    font-weight: 500 !important;
+    color: #4b5563 !important;
+    margin-top: 16pt !important;
+    margin-bottom: 8pt !important;
+    page-break-after: avoid !important;
+  }
+
+  /* Content sections */
+  .persona-section {
+    margin-bottom: 20pt !important;
+    page-break-inside: avoid !important;
+  }
+
+  .persona-info-grid {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important;
+    gap: 12pt !important;
+    margin-bottom: 16pt !important;
+  }
+
+  .persona-info-item {
+    margin-bottom: 8pt !important;
+  }
+
+  .persona-info-label {
+    font-weight: 600 !important;
+    color: #374151 !important;
+    display: inline-block !important;
+    min-width: 80pt !important;
+  }
+
+  .persona-info-value {
+    color: #000 !important;
+  }
+
+  /* Bio and quote sections */
+  .persona-bio {
+    background: #f9fafb !important;
+    padding: 12pt !important;
+    border-radius: 4pt !important;
+    margin: 12pt 0 !important;
+    border-left: 4pt solid #2563eb !important;
+    page-break-inside: avoid !important;
+  }
+
+  .persona-quote {
+    font-style: italic !important;
+    font-size: 14pt !important;
+    color: #374151 !important;
+    border-left: 4pt solid #2563eb !important;
+    padding-left: 16pt !important;
+    margin: 16pt 0 !important;
+    page-break-inside: avoid !important;
+  }
+
+  /* Lists */
+  .persona-list {
+    margin: 8pt 0 !important;
+    padding-left: 20pt !important;
+  }
+
+  .persona-list li {
+    margin-bottom: 4pt !important;
+    line-height: 1.3 !important;
+  }
+
+  .persona-tags {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    gap: 4pt !important;
+    margin: 8pt 0 !important;
+  }
+
+  .persona-tag {
+    background: #e5e7eb !important;
+    color: #374151 !important;
+    padding: 2pt 6pt !important;
+    border-radius: 2pt !important;
+    font-size: 10pt !important;
+    border: 1pt solid #d1d5db !important;
+  }
+
+  /* Tables */
+  .persona-table {
+    width: 100% !important;
+    border-collapse: collapse !important;
+    margin: 12pt 0 !important;
+    page-break-inside: avoid !important;
+  }
+
+  .persona-table th,
+  .persona-table td {
+    border: 1pt solid #d1d5db !important;
+    padding: 8pt !important;
+    text-align: left !important;
+    vertical-align: top !important;
+  }
+
+  .persona-table th {
+    background: #f3f4f6 !important;
+    font-weight: 600 !important;
+    color: #374151 !important;
+  }
+
+  /* Metrics and scores */
+  .metrics-grid {
+    display: grid !important;
+    grid-template-columns: repeat(auto-fit, minmax(120pt, 1fr)) !important;
+    gap: 12pt !important;
+    margin: 16pt 0 !important;
+  }
+
+  .metric-card {
+    border: 1pt solid #d1d5db !important;
+    border-radius: 4pt !important;
+    padding: 12pt !important;
+    text-align: center !important;
+    background: #f9fafb !important;
+    page-break-inside: avoid !important;
+  }
+
+  .metric-value {
+    font-size: 18pt !important;
+    font-weight: bold !important;
+    color: #2563eb !important;
+    display: block !important;
+    margin-bottom: 4pt !important;
+  }
+
+  .metric-label {
+    font-size: 10pt !important;
+    color: #6b7280 !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.5pt !important;
+  }
+
+  /* Charts and visualizations */
+  .chart-container {
+    page-break-inside: avoid !important;
+    margin: 16pt 0 !important;
+  }
+
+  .chart-fallback {
+    border: 1pt solid #d1d5db !important;
+    padding: 20pt !important;
+    text-align: center !important;
+    background: #f9fafb !important;
+    color: #6b7280 !important;
+    font-style: italic !important;
+  }
+
+  /* Hide interactive elements */
+  .interactive-element,
+  .hover-element,
+  .animation-element {
+    display: static !important;
+    animation: none !important;
+    transition: none !important;
+  }
+
+  /* Footer */
+  .print-footer {
+    position: fixed !important;
+    bottom: 20pt !important;
+    left: 20pt !important;
+    right: 20pt !important;
+    border-top: 1pt solid #e5e7eb !important;
+    padding-top: 8pt !important;
+    font-size: 10pt !important;
+    color: #6b7280 !important;
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+  }
+
+  .print-date {
+    font-style: italic !important;
+  }
+
+  .print-logo {
+    font-weight: bold !important;
+    color: #2563eb !important;
+  }
+
+  /* Page breaks */
+  .page-break-before {
+    page-break-before: always !important;
+  }
+
+  .page-break-after {
+    page-break-after: always !important;
+  }
+
+  .page-break-inside-avoid {
+    page-break-inside: avoid !important;
+  }
+
+  /* Specific persona sections */
+  .persona-interests-section {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important;
+    gap: 16pt !important;
+    margin: 16pt 0 !important;
+  }
+
+  .persona-communication-section {
+    margin: 16pt 0 !important;
+  }
+
+  .persona-marketing-section {
+    margin: 16pt 0 !important;
+  }
+
+  /* Avatar and images */
+  .persona-avatar {
+    width: 60pt !important;
+    height: 60pt !important;
+    border-radius: 50% !important;
+    border: 2pt solid #e5e7eb !important;
+    float: right !important;
+    margin-left: 16pt !important;
+    margin-bottom: 16pt !important;
+  }
+
+  /* Quality indicators */
+  .quality-indicator {
+    display: inline-block !important;
+    width: 8pt !important;
+    height: 8pt !important;
+    border-radius: 50% !important;
+    margin-right: 4pt !important;
+  }
+
+  .quality-excellent {
+    background: #10b981 !important;
+  }
+
+  .quality-good {
+    background: #f59e0b !important;
+  }
+
+  .quality-average {
+    background: #ef4444 !important;
+  }
+
+  /* Responsive adjustments for different paper sizes */
+  @page {
+    size: A4 !important;
+    margin: 2cm !important;
+  }
+
+  @page :first {
+    margin-top: 3cm !important;
+  }
+
+  /* Dark mode overrides for print */
+  .dark * {
+    color: #000 !important;
+    background: white !important;
+  }
+
+  /* Ensure text is always black on white for print */
+  .text-white,
+  .text-gray-100,
+  .text-gray-200,
+  .text-gray-300,
+  .text-gray-400,
+  .text-gray-500,
+  .text-gray-600,
+  .text-gray-700,
+  .text-gray-800,
+  .text-gray-900 {
+    color: #000 !important;
+  }
+
+  .bg-gray-50,
+  .bg-gray-100,
+  .bg-gray-200,
+  .bg-gray-300,
+  .bg-gray-400,
+  .bg-gray-500,
+  .bg-gray-600,
+  .bg-gray-700,
+  .bg-gray-800,
+  .bg-gray-900 {
+    background: white !important;
+  }
+}
+
+/* Print-specific utility classes */
+.print-only {
+  display: none;
+}
+
+@media print {
+  .print-only {
+    display: block !important;
+  }
+  
+  .screen-only {
+    display: none !important;
+  }
+}
+
+/* Print preview styles (for screen) */
+.print-preview {
+  background: white;
+  color: black;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  max-width: 210mm;
+  min-height: 297mm;
+  margin: 0 auto;
+  padding: 20mm;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.print-preview .no-print {
+  display: none;
+}
+
+.print-preview .print-only {
+  display: block;
+}

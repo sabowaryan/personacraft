@@ -1,0 +1,859 @@
+/**
+ * PersonaCraft Animations and Utility Classes
+ * Custom CSS animations and utility classes for persona components
+ */
+
+/* CSS Custom Properties for PersonaCraft Design System */
+:root {
+  /* Animation Durations */
+  --animation-duration-fast: 150ms;
+  --animation-duration-normal: 300ms;
+  --animation-duration-slow: 500ms;
+
+  /* Easing Functions */
+  --easing-ease-out: cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  --easing-ease-in-out: cubic-bezier(0.645, 0.045, 0.355, 1);
+  --easing-spring: cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  --easing-bounce: cubic-bezier(0.68, -0.6, 0.32, 1.6);
+
+  /* Spacing Variables */
+  --spacing-persona-xs: 0.25rem;
+  --spacing-persona-sm: 0.5rem;
+  --spacing-persona-md: 1rem;
+  --spacing-persona-lg: 1.5rem;
+  --spacing-persona-xl: 2rem;
+  --spacing-persona-2xl: 3rem;
+  --spacing-persona-3xl: 4rem;
+
+  /* Shadow Variables */
+  --shadow-persona-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --shadow-persona-md: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+  --shadow-persona-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+  --shadow-persona-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1);
+  --shadow-persona-glass: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+
+  /* Gradient Variables */
+  --gradient-persona-primary: linear-gradient(135deg, oklch(0.65 0.15 260), oklch(0.55 0.12 180));
+  --gradient-persona-accent: linear-gradient(135deg, oklch(0.75 0.18 45), oklch(0.65 0.15 260));
+  --gradient-persona-glass: linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.05));
+}
+
+/* Dark mode adjustments */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --shadow-persona-sm: 0 1px 2px 0 rgb(0 0 0 / 0.3);
+    --shadow-persona-md: 0 4px 6px -1px rgb(0 0 0 / 0.4);
+    --shadow-persona-lg: 0 10px 15px -3px rgb(0 0 0 / 0.5);
+    --shadow-persona-xl: 0 20px 25px -5px rgb(0 0 0 / 0.6);
+    --gradient-persona-glass: linear-gradient(135deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.02));
+  }
+}
+
+/* Utility Classes for PersonaCraft Components */
+
+/* Card Styles */
+.persona-card {
+  background-color: white;
+  border-radius: 0.75rem;
+  border: 1px solid rgb(229 231 235);
+  box-shadow: var(--shadow-persona-md);
+  transition: all var(--animation-duration-normal) var(--easing-ease-out);
+}
+
+.dark .persona-card {
+  background-color: rgb(31 41 55);
+  border-color: rgb(55 65 81);
+}
+
+.persona-card:hover {
+  box-shadow: var(--shadow-persona-lg);
+  transform: translateY(-2px);
+}
+
+.persona-card-elevated {
+  background-color: white;
+  border-radius: 0.75rem;
+  border: 1px solid rgb(229 231 235);
+  box-shadow: var(--shadow-persona-xl);
+  transition: all var(--animation-duration-normal) var(--easing-ease-out);
+}
+
+.dark .persona-card-elevated {
+  background-color: rgb(31 41 55);
+  border-color: rgb(55 65 81);
+}
+
+.persona-card-glass {
+  border-radius: 0.75rem;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: var(--gradient-persona-glass);
+  backdrop-filter: blur(16px);
+  box-shadow: var(--shadow-persona-glass);
+}
+
+.dark .persona-card-glass {
+  border-color: rgba(55, 65, 81, 0.5);
+}
+
+/* Gradient Styles */
+.persona-gradient {
+  background: var(--gradient-persona-primary);
+}
+
+.persona-gradient-accent {
+  background: var(--gradient-persona-accent);
+}
+
+.persona-gradient-text {
+  background: var(--gradient-persona-primary);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Button Styles */
+.persona-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0.5rem;
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  transition: all var(--animation-duration-normal) var(--easing-ease-out);
+}
+
+.persona-button-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0.5rem;
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  background: var(--gradient-persona-primary);
+  color: white;
+  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+  transition: all var(--animation-duration-normal) var(--easing-ease-out);
+}
+
+.persona-button-primary:hover {
+  box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+  transform: translateY(-1px);
+  filter: brightness(1.1);
+}
+
+.persona-button-secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0.5rem;
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  background-color: rgb(243 244 246);
+  color: rgb(17 24 39);
+  transition: all var(--animation-duration-normal) var(--easing-ease-out);
+}
+
+.dark .persona-button-secondary {
+  background-color: rgb(55 65 81);
+  color: rgb(243 244 246);
+}
+
+.persona-button-secondary:hover {
+  background-color: rgb(229 231 235);
+}
+
+.dark .persona-button-secondary:hover {
+  background-color: rgb(75 85 99);
+}
+
+.persona-button-ghost {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0.5rem;
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: rgb(55 65 81);
+  transition: all var(--animation-duration-normal) var(--easing-ease-out);
+}
+
+.dark .persona-button-ghost {
+  color: rgb(209 213 219);
+}
+
+.persona-button-ghost:hover {
+  background-color: rgb(243 244 246);
+}
+
+.dark .persona-button-ghost:hover {
+  background-color: rgb(55 65 81);
+}
+
+/* Optimized Animation Classes for 60fps Performance */
+.persona-animate-in {
+  animation: personaFadeIn var(--animation-duration-normal) var(--easing-ease-out);
+  will-change: opacity, transform;
+}
+
+.persona-animate-scale {
+  animation: personaScaleIn var(--animation-duration-normal) var(--easing-ease-out);
+  will-change: transform;
+}
+
+.persona-animate-slide-up {
+  animation: personaSlideUp var(--animation-duration-normal) var(--easing-ease-out);
+  will-change: transform;
+}
+
+.persona-animate-bounce {
+  animation: personaBounceIn var(--animation-duration-slow) var(--easing-spring);
+  will-change: transform;
+}
+
+.persona-animate-float {
+  animation: personaFloat 3s ease-in-out infinite;
+  will-change: transform;
+}
+
+.persona-animate-glow {
+  animation: personaGlow 2s ease-in-out infinite alternate;
+  will-change: opacity, filter;
+}
+
+/* Performance-optimized hover effects using transform and opacity only */
+.persona-hover-lift {
+  transition: transform var(--animation-duration-fast) var(--easing-ease-out),
+              box-shadow var(--animation-duration-fast) var(--easing-ease-out);
+  will-change: transform;
+}
+
+.persona-hover-lift:hover {
+  transform: translateY(-2px) translateZ(0);
+}
+
+.persona-hover-scale {
+  transition: transform var(--animation-duration-fast) var(--easing-ease-out);
+  will-change: transform;
+}
+
+.persona-hover-scale:hover {
+  transform: scale(1.02) translateZ(0);
+}
+
+.persona-hover-glow {
+  transition: box-shadow var(--animation-duration-fast) var(--easing-ease-out);
+  will-change: box-shadow;
+}
+
+.persona-hover-glow:hover {
+  box-shadow: 0 0 20px rgba(99, 102, 241, 0.3);
+}
+
+/* Stagger Animation Delays */
+.persona-stagger-1 {
+  animation-delay: 0.1s;
+}
+
+.persona-stagger-2 {
+  animation-delay: 0.2s;
+}
+
+.persona-stagger-3 {
+  animation-delay: 0.3s;
+}
+
+.persona-stagger-4 {
+  animation-delay: 0.4s;
+}
+
+.persona-stagger-5 {
+  animation-delay: 0.5s;
+}
+
+/* Loading and Skeleton Styles */
+.persona-skeleton {
+  background-color: rgb(229 231 235);
+  border-radius: 0.25rem;
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+.dark .persona-skeleton {
+  background-color: rgb(55 65 81);
+}
+
+.persona-skeleton-text {
+  background-color: rgb(229 231 235);
+  border-radius: 0.25rem;
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  height: 1rem;
+  width: 100%;
+  margin-bottom: 0.5rem;
+}
+
+.dark .persona-skeleton-text {
+  background-color: rgb(55 65 81);
+}
+
+.persona-skeleton-title {
+  background-color: rgb(229 231 235);
+  border-radius: 0.25rem;
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  height: 1.5rem;
+  width: 75%;
+  margin-bottom: 1rem;
+}
+
+.dark .persona-skeleton-title {
+  background-color: rgb(55 65 81);
+}
+
+.persona-skeleton-avatar {
+  background-color: rgb(229 231 235);
+  border-radius: 9999px;
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  width: 4rem;
+  height: 4rem;
+}
+
+.dark .persona-skeleton-avatar {
+  background-color: rgb(55 65 81);
+}
+
+.persona-skeleton-card {
+  background-color: rgb(229 231 235);
+  border-radius: 0.75rem;
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  height: 8rem;
+  width: 100%;
+}
+
+.dark .persona-skeleton-card {
+  background-color: rgb(55 65 81);
+}
+
+/* Loading Spinner */
+.persona-spinner {
+  display: inline-block;
+  width: 1rem;
+  height: 1rem;
+  border: 2px solid currentColor;
+  border-right-color: transparent;
+  border-radius: 9999px;
+  animation: spin 1s linear infinite;
+}
+
+/* Focus Styles for Accessibility */
+.persona-focus:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px #6366f1, 0 0 0 4px rgba(99, 102, 241, 0.1);
+}
+
+.dark .persona-focus:focus {
+  box-shadow: 0 0 0 2px #6366f1, 0 0 0 4px rgba(99, 102, 241, 0.1);
+}
+
+.persona-focus-visible:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px #6366f1, 0 0 0 4px rgba(99, 102, 241, 0.1);
+}
+
+.dark .persona-focus-visible:focus-visible {
+  box-shadow: 0 0 0 2px #6366f1, 0 0 0 4px rgba(99, 102, 241, 0.1);
+}
+
+/* Interactive States */
+.persona-interactive {
+  transition: all var(--animation-duration-fast);
+  cursor: pointer;
+}
+
+.persona-interactive:hover {
+  transform: translateY(-1px);
+}
+
+.persona-interactive:active {
+  transform: translateY(0);
+}
+
+/* Status Indicators */
+.persona-status-excellent {
+  background-color: #10b981;
+  color: white;
+}
+
+.persona-status-good {
+  background-color: #f59e0b;
+  color: white;
+}
+
+.persona-status-average {
+  background-color: #f97316;
+  color: white;
+}
+
+.persona-status-poor {
+  background-color: #ef4444;
+  color: white;
+}
+
+/* Metric Cards */
+.persona-metric-card {
+  background-color: white;
+  border-radius: 0.75rem;
+  border: 1px solid rgb(229 231 235);
+  box-shadow: var(--shadow-persona-md);
+  transition: all var(--animation-duration-normal) var(--easing-ease-out);
+  padding: 1.5rem;
+  text-align: center;
+}
+
+.dark .persona-metric-card {
+  background-color: rgb(31 41 55);
+  border-color: rgb(55 65 81);
+}
+
+.persona-metric-score {
+  font-size: 1.875rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+}
+
+.persona-metric-label {
+  font-size: 0.875rem;
+  color: rgb(75 85 99);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.dark .persona-metric-label {
+  color: rgb(156 163 175);
+}
+
+.persona-metric-trend-up {
+  color: #10b981;
+}
+
+.persona-metric-trend-down {
+  color: #ef4444;
+}
+
+.persona-metric-trend-stable {
+  color: rgb(107 114 128);
+}
+
+/* Avatar Styles */
+.persona-avatar {
+  position: relative;
+  border-radius: 9999px;
+  overflow: hidden;
+}
+
+.persona-avatar-border {
+  box-shadow: 0 0 0 4px #6366f1, 0 0 0 6px rgba(99, 102, 241, 0.1);
+}
+
+.dark .persona-avatar-border {
+  box-shadow: 0 0 0 4px #6366f1, 0 0 0 6px rgba(99, 102, 241, 0.1);
+}
+
+.persona-avatar-gradient-border {
+  position: relative;
+}
+
+.persona-avatar-gradient-border::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 9999px;
+  padding: 1px;
+  background: var(--gradient-persona-primary);
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  mask-composite: xor;
+  -webkit-mask-composite: xor;
+}
+
+/* Glass Effect Utilities */
+.persona-glass-light {
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.persona-glass-dark {
+  background: rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Responsive Utilities */
+@media (max-width: 640px) {
+  .persona-mobile-stack {
+    flex-direction: column;
+    gap: 1rem 0;
+  }
+
+  .persona-mobile-full {
+    width: 100%;
+  }
+
+  .persona-mobile-center {
+    text-align: center;
+  }
+}
+
+/* Reduced Motion Support */
+@media (prefers-reduced-motion: reduce) {
+
+  .persona-animate-in,
+  .persona-animate-scale,
+  .persona-animate-slide-up,
+  .persona-animate-bounce,
+  .persona-animate-float,
+  .persona-animate-glow {
+    animation: none;
+  }
+
+  .persona-card:hover,
+  .persona-button-primary:hover,
+  .persona-interactive:hover {
+    transform: none;
+  }
+
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* High Contrast Mode Support */
+@media (prefers-contrast: high) {
+  .persona-card {
+    border: 2px solid rgb(17 24 39);
+    break-inside: avoid;
+  }
+
+  .dark .persona-card {
+    border-color: white;
+  }
+
+  .persona-button-primary {
+    border: 2px solid white;
+  }
+
+  .persona-focus,
+  .persona-focus-visible {
+    box-shadow: 0 0 0 4px black;
+  }
+
+  .dark .persona-focus,
+  .dark .persona-focus-visible {
+    box-shadow: 0 0 0 4px white;
+  }
+}
+
+/* Print Styles */
+@media print {
+  .persona-card {
+    box-shadow: none;
+    border: 1px solid rgb(209 213 219);
+    break-inside: avoid;
+  }
+
+  .persona-animate-in,
+  .persona-animate-scale,
+  .persona-animate-slide-up,
+  .persona-animate-bounce,
+  .persona-animate-float,
+  .persona-animate-glow {
+    animation: none;
+  }
+
+  .persona-gradient,
+  .persona-gradient-accent {
+    background: #6366f1 !important;
+    color: white !important;
+  }
+}
+/* 
+Keyframe Animations - Optimized for 60fps */
+@keyframes personaFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px) translateZ(0);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) translateZ(0);
+  }
+}
+
+@keyframes personaScaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95) translateZ(0);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateZ(0);
+  }
+}
+
+@keyframes personaSlideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px) translateZ(0);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) translateZ(0);
+  }
+}
+
+@keyframes personaBounceIn {
+  0% {
+    opacity: 0;
+    transform: scale(0.3) translateZ(0);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.05) translateZ(0);
+  }
+  70% {
+    transform: scale(0.9) translateZ(0);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) translateZ(0);
+  }
+}
+
+@keyframes personaFloat {
+  0%, 100% {
+    transform: translateY(0) translateZ(0);
+  }
+  50% {
+    transform: translateY(-10px) translateZ(0);
+  }
+}
+
+@keyframes personaGlow {
+  from {
+    filter: brightness(1) drop-shadow(0 0 5px rgba(99, 102, 241, 0.3));
+  }
+  to {
+    filter: brightness(1.1) drop-shadow(0 0 20px rgba(99, 102, 241, 0.6));
+  }
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+/* View Mode Transition Animations */
+.persona-view-transition {
+  transition: all var(--animation-duration-normal) var(--easing-ease-in-out);
+}
+
+.persona-view-transition-enter {
+  opacity: 0;
+  transform: scale(0.95) translateZ(0);
+}
+
+.persona-view-transition-enter-active {
+  opacity: 1;
+  transform: scale(1) translateZ(0);
+  transition: opacity var(--animation-duration-normal) var(--easing-ease-out),
+              transform var(--animation-duration-normal) var(--easing-ease-out);
+}
+
+.persona-view-transition-exit {
+  opacity: 1;
+  transform: scale(1) translateZ(0);
+}
+
+.persona-view-transition-exit-active {
+  opacity: 0;
+  transform: scale(1.05) translateZ(0);
+  transition: opacity var(--animation-duration-fast) var(--easing-ease-in),
+              transform var(--animation-duration-fast) var(--easing-ease-in);
+}
+
+/* Theme Transition Support */
+.theme-transitioning * {
+  transition: background-color var(--animation-duration-normal) var(--easing-ease-in-out),
+              border-color var(--animation-duration-normal) var(--easing-ease-in-out),
+              color var(--animation-duration-normal) var(--easing-ease-in-out) !important;
+}
+
+/* Performance Optimization Classes */
+.persona-gpu-accelerated {
+  transform: translateZ(0);
+  will-change: transform;
+}
+
+.persona-smooth-scroll {
+  scroll-behavior: smooth;
+}
+
+/* Container Query Support for Modern Browsers */
+@supports (container-type: inline-size) {
+  .persona-container {
+    container-type: inline-size;
+  }
+
+  @container (max-width: 400px) {
+    .persona-responsive-text {
+      font-size: 0.875rem;
+    }
+    
+    .persona-responsive-spacing {
+      padding: 0.75rem;
+    }
+  }
+
+  @container (min-width: 600px) {
+    .persona-responsive-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+}
+
+/* Advanced Animation Controls */
+.persona-animation-paused {
+  animation-play-state: paused;
+}
+
+.persona-animation-running {
+  animation-play-state: running;
+}
+
+/* Intersection Observer Triggered Animations */
+.persona-observe-fade {
+  opacity: 0;
+  transform: translateY(20px) translateZ(0);
+  transition: opacity var(--animation-duration-slow) var(--easing-ease-out),
+              transform var(--animation-duration-slow) var(--easing-ease-out);
+}
+
+.persona-observe-fade.persona-in-view {
+  opacity: 1;
+  transform: translateY(0) translateZ(0);
+}
+
+.persona-observe-scale {
+  opacity: 0;
+  transform: scale(0.8) translateZ(0);
+  transition: opacity var(--animation-duration-slow) var(--easing-ease-out),
+              transform var(--animation-duration-slow) var(--easing-ease-out);
+}
+
+.persona-observe-scale.persona-in-view {
+  opacity: 1;
+  transform: scale(1) translateZ(0);
+}
+
+/* Micro-interaction Feedback */
+.persona-click-feedback {
+  position: relative;
+  overflow: hidden;
+}
+
+.persona-click-feedback::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.3);
+  transform: translate(-50%, -50%);
+  transition: width var(--animation-duration-fast) var(--easing-ease-out),
+              height var(--animation-duration-fast) var(--easing-ease-out);
+}
+
+.persona-click-feedback:active::after {
+  width: 200px;
+  height: 200px;
+}
+
+/* Loading State Optimizations */
+.persona-loading-shimmer {
+  background: linear-gradient(90deg, 
+    rgba(255, 255, 255, 0) 0%, 
+    rgba(255, 255, 255, 0.2) 20%, 
+    rgba(255, 255, 255, 0.5) 60%, 
+    rgba(255, 255, 255, 0) 100%);
+  background-size: 200px 100%;
+  animation: shimmer 2s infinite;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200px 0;
+  }
+  100% {
+    background-position: calc(200px + 100%) 0;
+  }
+}
+
+.dark .persona-loading-shimmer {
+  background: linear-gradient(90deg, 
+    rgba(255, 255, 255, 0) 0%, 
+    rgba(255, 255, 255, 0.05) 20%, 
+    rgba(255, 255, 255, 0.1) 60%, 
+    rgba(255, 255, 255, 0) 100%);
+}
+
+/* Accessibility Enhancements */
+@media (prefers-reduced-motion: reduce) {
+  .persona-observe-fade,
+  .persona-observe-scale {
+    transition: none;
+    opacity: 1;
+    transform: none;
+  }
+  
+  .persona-loading-shimmer {
+    animation: none;
+    background: rgba(255, 255, 255, 0.1);
+  }
+  
+  .persona-click-feedback::after {
+    display: none;
+  }
+}
+
+/* High Performance Mode */
+.persona-performance-mode * {
+  animation-duration: 0.1s !important;
+  transition-duration: 0.1s !important;
+}
+
+.persona-performance-mode .persona-loading-shimmer {
+  animation: none;
+}
+
+.persona-performance-mode .persona-animate-float,
+.persona-performance-mode .persona-animate-glow {
+  animation: none;
+}

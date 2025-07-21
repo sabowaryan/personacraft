@@ -1,0 +1,16 @@
+{
+  "enabled": true,
+  "name": "Réponses en Français",
+  "description": "Hook qui s'assure que toutes les réponses de l'IA sont données en français",
+  "version": "1",
+  "when": {
+    "type": "userTriggered",
+    "patterns": [
+      "**/*"
+    ]
+  },
+  "then": {
+    "type": "askAgent",
+    "prompt": "Tu dois répondre uniquement en français. Toutes tes réponses doivent être dans la langue française, peu importe la langue utilisée dans la question ou le contexte. C'est une exigence absolue de l'utilisateur."
+  }
+}

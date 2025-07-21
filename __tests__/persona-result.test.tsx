@@ -48,7 +48,7 @@ const mockPersona = {
   marketing: {
     painPoints: [
       { name: 'Manque de temps', description: 'Difficulté à gérer toutes les tâches' },
-      { name: 'Surcharge d'information', description: 'Trop de contenu à filtrer' },
+      { name: 'Surcharge d\'information', description: 'Trop de contenu à filtrer' },
     ],
     motivations: [
       { name: 'Efficacité', description: 'Optimiser son temps et ses ressources' },

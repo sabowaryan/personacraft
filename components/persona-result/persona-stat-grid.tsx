@@ -10,15 +10,15 @@ export function PersonaStatGrid({ persona }: PersonaStatGridProps) {
   // Calcul des métriques
   const valuesCount = persona.values.length;
   const interestsCount = Object.keys(persona.interests).reduce(
-(sum: number, category: string) => {
-  const interests = persona.interests[category as keyof typeof persona.interests];
-  return sum + (Array.isArray(interests) ? interests.length : 0);
-}, 0
+    (sum: number, category: string) => {
+      const interests = persona.interests[category as keyof typeof persona.interests];
+      return sum + (Array.isArray(interests) ? interests.length : 0);
+    }, 0
   );
   const channelsCount = persona.communication.preferredChannels?.length || 0;
   const painPointsCount = persona.marketing.painPoints.length;
   const motivationsCount = persona.marketing.motivations.length;
-  
+
   // Calcul du score d'achat basé sur le comportement d'achat
   const purchaseBehaviorScore = persona.marketing.buyingBehavior ?
     Object.values(persona.marketing.buyingBehavior as unknown as Record<string, number>).reduce(
@@ -36,7 +36,7 @@ export function PersonaStatGrid({ persona }: PersonaStatGridProps) {
         color="primary"
         className="persona-animate-in persona-delay-1"
       />
-      
+
       <ModernStatCard
         title="Intérêts"
         icon={<Star className="h-5 w-5" />}
@@ -46,7 +46,7 @@ export function PersonaStatGrid({ persona }: PersonaStatGridProps) {
         color="warning"
         className="persona-animate-in persona-delay-2"
       />
-      
+
       <ModernStatCard
         title="Communication"
         icon={<MessageCircle className="h-5 w-5" />}
@@ -56,7 +56,7 @@ export function PersonaStatGrid({ persona }: PersonaStatGridProps) {
         color="primary"
         className="persona-animate-in persona-delay-3"
       />
-      
+
       <ModernStatCard
         title="Points de douleur"
         icon={<Target className="h-5 w-5" />}
@@ -66,7 +66,7 @@ export function PersonaStatGrid({ persona }: PersonaStatGridProps) {
         color="danger"
         className="persona-animate-in persona-delay-4"
       />
-      
+
       <ModernStatCard
         title="Motivations"
         icon={<Lightbulb className="h-5 w-5" />}
@@ -76,7 +76,7 @@ export function PersonaStatGrid({ persona }: PersonaStatGridProps) {
         color="success"
         className="persona-animate-in persona-delay-5"
       />
-      
+
       <ModernStatCard
         title="Score d'achat"
         icon={<ShoppingBag className="h-5 w-5" />}

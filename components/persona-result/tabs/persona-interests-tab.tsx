@@ -2,6 +2,9 @@ import { Persona } from '@/lib/types/persona';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Star, Music, Film, Book, Gamepad, ShoppingBag, Utensils, Plane, Heart, Activity } from 'lucide-react';
 import { FeatureCard } from '@/components/ui/modern-elements';
+import { InterestsCloud } from '@/components/persona-result/visualizations/interests-cloud';
+import { CulturalDataGrid } from '@/components/persona-result/visualizations/cultural-data-grid';
+import { CulturalInterest, CulturalDataPoint, DEFAULT_INTEREST_CATEGORIES } from '@/lib/types/cultural-interests';
 
 interface PersonaInterestsTabProps {
   persona: Persona;
@@ -37,6 +40,75 @@ export function PersonaInterestsTab({ persona }: PersonaInterestsTabProps) {
     return colorMap[category] || 'gray';
   };
 
+  // Transform persona interests to CulturalInterest format
+  const transformToInterests = (): CulturalInterest[] => {
+    const interests: CulturalInterest[] = [];
+    
+    Object.entries(persona.interests).forEach(([categoryKey, categoryInterests]) => {
+      const category = DEFAULT_INTEREST_CATEGORIES.find(c => c.id === categoryKey) || {
+        id: categoryKey,
+        name: categoryKey.charAt(0).toUpperCase() + categoryKey.slice(1),
+        icon: 'Star',
+        color: getCategoryColor(categoryKey)
+      };
+
+      categoryInterests.forEach((interest: any, index: number) => {
+        interests.push({
+          id: `${categoryKey}-${index}`,
+          name: interest.name,
+          category,
+          score: interest.score || 50,
+          description: interest.description,
+          tags: interest.tags || [],
+          source: 'gemini',
+          confidence: 0.8
+        });
+      });
+    });
+
+    return interests;
+  };
+
+  // Transform persona data to CulturalDataPoint format
+  const transformToCulturalData = (): CulturalDataPoint[] => {
+    const culturalData: CulturalDataPoint[] = [];
+    
+    Object.entries(persona.interests).forEach(([categoryKey, categoryInterests]) => {
+      categoryInterests.forEach((interest: any, index: number) => {
+        // Map category to cultural data type
+        const typeMapping: Record<string, CulturalDataPoint['type']> = {
+          music: 'music',
+          movies: 'movies',
+          books: 'books',
+          shopping: 'brands',
+          food: 'food',
+          travel: 'lifestyle',
+          hobbies: 'lifestyle',
+          sports: 'lifestyle',
+          games: 'lifestyle'
+        };
+
+        culturalData.push({
+          id: `cultural-${categoryKey}-${index}`,
+          type: typeMapping[categoryKey] || 'lifestyle',
+          name: interest.name,
+          category: categoryKey.charAt(0).toUpperCase() + categoryKey.slice(1),
+          score: interest.score || 50,
+          metadata: {
+            description: interest.description,
+            tags: interest.tags,
+            source: 'persona-generation'
+          }
+        });
+      });
+    });
+
+    return culturalData;
+  };
+
+  const interests = transformToInterests();
+  const culturalData = transformToCulturalData();
+
   // Fonction pour générer les étoiles d'évaluation
   const renderStars = (score: number) => {
     const maxStars = 5;
@@ -55,14 +127,51 @@ export function PersonaInterestsTab({ persona }: PersonaInterestsTabProps) {
     );
   };
 
+  const handleInterestClick = (interest: CulturalInterest) => {
+    console.log('Interest clicked:', interest);
+  };
+
+  const handleCulturalDataClick = (item: CulturalDataPoint) => {
+    console.log('Cultural data clicked:', item);
+  };
+
   return (
     <div className="space-y-8">
-      {/* Vue d'ensemble des intérêts */}
-      <Card className="persona-result-card persona-animate-in persona-delay-1">
+      {/* Interactive Interests Cloud */}
+      <InterestsCloud
+        interests={interests}
+        categories={DEFAULT_INTEREST_CATEGORIES}
+        config={{
+          maxItems: 50,
+          minScore: 0,
+          showCategories: true,
+          interactive: true,
+          colorScheme: 'category'
+        }}
+        onInterestClick={handleInterestClick}
+        onCategoryFilter={(categoryId) => console.log('Category filter:', categoryId)}
+        className="persona-animate-in persona-delay-1"
+      />
+
+      {/* Cultural Data Grid */}
+      <CulturalDataGrid
+        data={culturalData}
+        config={{
+          groupBy: 'type',
+          sortBy: 'score',
+          showMetadata: true,
+          compactView: false
+        }}
+        onItemClick={handleCulturalDataClick}
+        className="persona-animate-in persona-delay-2"
+      />
+
+      {/* Traditional View - Fallback */}
+      <Card className="persona-result-card persona-animate-in persona-delay-3">
         <CardHeader>
-          <CardTitle>Centres d'intérêt</CardTitle>
+          <CardTitle>Vue Traditionnelle</CardTitle>
           <CardDescription>
-            Les sujets et activités qui passionnent {persona.name}
+            Organisation classique des centres d'intérêt de {persona.name}
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -78,7 +187,7 @@ export function PersonaInterestsTab({ persona }: PersonaInterestsTabProps) {
                 <CardContent className="p-4">
                   {interests.length > 0 ? (
                     <div className="space-y-3">
-                      {interests.map((interest, index) => (
+                      {interests.map((interest: any, index: number) => (
                         <div key={index} className="space-y-1 persona-animate-in" style={{animationDelay: `${0.4 + index * 0.1}s`}}>
                           <div className="flex justify-between items-center">
                             <span className="font-medium">{interest.name}</span>
@@ -101,7 +210,7 @@ export function PersonaInterestsTab({ persona }: PersonaInterestsTabProps) {
       </Card>
 
       {/* Recommandations basées sur les intérêts */}
-      <Card className="persona-result-card persona-animate-in persona-delay-2">
+      <Card className="persona-result-card persona-animate-in persona-delay-4">
         <CardHeader>
           <CardTitle>Recommandations</CardTitle>
           <CardDescription>
@@ -114,17 +223,14 @@ export function PersonaInterestsTab({ persona }: PersonaInterestsTabProps) {
               .filter(([_, interests]) => interests.length > 0)
               .slice(0, 3)
               .map(([category, interests]) => {
-                const topInterest = interests.sort((a, b) => b.score - a.score)[0];
+                const topInterest = interests.sort((a: any, b: any) => b.score - a.score)[0];
                 return (
                   <FeatureCard
                     key={category}
                     title={`${topInterest.name}`}
                     description={topInterest.description || `Contenu lié à ${topInterest.name}`}
                     icon={categoryIcons[category] || <Star className="h-5 w-5" />}
-                    badge={{
-                      text: category.charAt(0).toUpperCase() + category.slice(1),
-                      variant: getCategoryColor(category) as any
-                    }}
+                    badge={category.charAt(0).toUpperCase() + category.slice(1)}
                   />
                 );
               })}

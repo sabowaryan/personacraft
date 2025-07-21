@@ -45,22 +45,14 @@ export function PersonaProfileTab({ persona }: PersonaProfileTabProps) {
         </CardHeader>
         <CardContent>
           {persona.values && persona.values.length > 0 ? (
-            <div className="space-y-6">
+            <div className="flex flex-wrap gap-2">
               {persona.values.map((value, index) => (
-                <div key={index} className="space-y-2 persona-animate-in" style={{animationDelay: `${0.3 + index * 0.1}s`}}>
-                  <div className="flex items-center justify-between">
-                    <div className="font-medium">{value.name}</div>
-                    <div className="text-sm text-muted-foreground">{value.score}%</div>
-                  </div>
-                  <AnimatedProgress 
-                    value={value.score} 
-                    color={getColorForIndex(index)} 
-                    showLabel={false} 
-                    size="md" 
-                  />
-                  {value.description && (
-                    <p className="text-sm text-muted-foreground mt-1">{value.description}</p>
-                  )}
+                <div 
+                  key={index} 
+                  className="inline-flex items-center px-3 py-1.5 rounded-full text-sm font-medium bg-primary/10 text-primary border border-primary/20 persona-animate-in" 
+                  style={{animationDelay: `${0.3 + index * 0.1}s`}}
+                >
+                  {value}
                 </div>
               ))}
             </div>

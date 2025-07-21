@@ -1,25 +1,50 @@
-// Client API pour Qloo Taste AI avec vraie intégration
+// Client API Qloo conforme aux spécifications officielles du hackathon
+// Implémentation complète avec authentification, gestion d'erreurs et retry logic
 
 import type {
-  QlooRequest,
-  QlooResponse,
-  QlooError,
-  QlooRecommendation,
-  QlooClientConfig,
-  QlooMetadata,
-  QlooRateLimits,
-  QlooInsights,
-  QlooBatchRequest,
-  QlooBatchResponse
-} from '@/lib/types/qloo';
+  QlooCompliantConfig,
+  QlooCompliantError,
+  InsightsParams,
+  QlooInsightsResponse,
+  EntityUrn,
+  SearchParams,
+  SearchResult
+} from '@/lib/types/qloo-compliant';
+import { QlooErrorType } from '@/lib/types/qloo-compliant';
+import { QlooSearchService, type BatchSearchQuery, type BatchSearchResult } from './qloo-search';
+import { QlooTagsService, type TagsByCategoryParams, type TagValidationResult } from './qloo-tags';
+import { QlooAudiencesService, type AudienceFilters, type AudienceValidationResult } from './qloo-audiences';
+import { QlooInsightsService, type InsightsParamsValidationResult } from './qloo-insights';
 
-export class QlooClient {
-  private config: QlooClientConfig;
-  private rateLimits: QlooRateLimits | null = null;
+/**
+ * Configuration par défaut pour le client API Qloo
+ */
+const DEFAULT_CONFIG: Partial<QlooCompliantConfig> = {
+  timeout: 10000,
+  retryAttempts: 3,
+  retryBaseDelay: 1000,
+  retryMaxDelay: 10000,
+  cacheEnabled: true,
+  defaultCacheTtl: 3600000, // 1 heure
+  userAgent: 'PersonaCraft/1.0'
+};
 
-  constructor(apiKey?: string, config?: Partial<QlooClientConfig>) {
+/**
+ * Client API Qloo conforme aux spécifications officielles du hackathon
+ * Implémente l'authentification, la gestion d'erreurs robuste et la logique de retry
+ */
+export class QlooApiClient {
+  private config: QlooCompliantConfig;
+  private requestCount: number = 0;
+  private lastRequestTime: number = 0;
+  private searchService: QlooSearchService;
+  private tagsService: QlooTagsService;
+  private audiencesService: QlooAudiencesService;
+  private insightsService: QlooInsightsService;
+
+  constructor(apiKey?: string, config?: Partial<QlooCompliantConfig>) {
     const providedApiKey = apiKey || process.env.QLOO_API_KEY || '';
-    
+
     if (!providedApiKey) {
       throw new Error(
         'Qloo API key is required. Please provide it via constructor parameter or QLOO_API_KEY environment variable. ' +
@@ -29,225 +54,442 @@ export class QlooClient {
 
     this.config = {
       apiKey: providedApiKey,
-      baseUrl: config?.baseUrl || process.env.QLOO_API_URL || 'https://hackathon.api.qloo.com',
-      timeout: config?.timeout || 10000,
-      retries: config?.retries || 3,
-      cacheEnabled: config?.cacheEnabled ?? true,
-      cacheTTL: config?.cacheTTL || 3600000, // 1 heure
+      baseUrl: 'https://hackathon.api.qloo.com',
+      ...DEFAULT_CONFIG,
       ...config
+    } as QlooCompliantConfig;
+
+    // Initialize search service
+    this.searchService = new QlooSearchService(
+      this.config.apiKey,
+      this.config.baseUrl,
+      this.config.timeout
+    );
+
+    // Initialize tags service
+    this.tagsService = new QlooTagsService(
+      this.config.apiKey,
+      this.config.baseUrl,
+      this.config.timeout
+    );
+
+    // Initialize audiences service
+    this.audiencesService = new QlooAudiencesService(
+      this.config.apiKey,
+      this.config.baseUrl,
+      this.config.timeout
+    );
+
+    // Initialize insights service
+    this.insightsService = new QlooInsightsService(
+      this.config.apiKey,
+      this.config.baseUrl,
+      this.config.timeout
+    );
+  }
+
+  /**
+   * Recherche des entités via l'endpoint /search
+   * Supporte tous les types d'entités documentés
+   */
+  async searchEntities(query: string, type: EntityUrn, options?: Partial<SearchParams>): Promise<SearchResult> {
+    return this.searchService.searchEntities(query, type, options);
+  }
+
+  /**
+   * Recherche par lot pour plusieurs requêtes simultanées
+   * Optimise les appels API en groupant les requêtes similaires
+   */
+  async batchSearch(queries: BatchSearchQuery[]): Promise<BatchSearchResult> {
+    return this.searchService.batchSearch(queries);
+  }
+
+  /**
+   * Valide les types d'entités supportés
+   */
+  validateEntityType(type: string): boolean {
+    return this.searchService.validateEntityType(type);
+  }
+
+  /**
+   * Retourne la liste des types d'entités supportés
+   */
+  getSupportedEntityTypes(): EntityUrn[] {
+    return this.searchService.getSupportedEntityTypes();
+  }
+
+  /**
+   * Récupère les tags par catégorie via l'endpoint /v2/tags
+   * Conforme aux spécifications Qloo pour la découverte de tags
+   */
+  async getTagsByCategory(params: TagsByCategoryParams = {}): Promise<import('@/lib/types/qloo-compliant').TagSearchResult> {
+    return this.tagsService.getTagsByCategory(params);
+  }
+
+  /**
+   * Recherche des tags par terme de recherche
+   * Utilise l'endpoint /v2/tags avec paramètre de recherche
+   */
+  async searchTags(params: import('@/lib/types/qloo-compliant').TagSearchParams): Promise<import('@/lib/types/qloo-compliant').TagSearchResult> {
+    return this.tagsService.searchTags(params);
+  }
+
+  /**
+   * Valide une liste d'IDs de tags pour s'assurer qu'ils sont valides
+   * Utilise l'endpoint /v2/tags avec validation des IDs
+   */
+  async validateTagIds(tagIds: string[]): Promise<TagValidationResult> {
+    return this.tagsService.validateTagIds(tagIds);
+  }
+
+  /**
+   * Retourne les catégories de tags supportées
+   */
+  getSupportedTagCategories(): string[] {
+    return this.tagsService.getSupportedCategories();
+  }
+
+  /**
+   * Valide qu'une catégorie de tag est supportée
+   */
+  validateTagCategory(category: string): boolean {
+    return this.tagsService.validateCategory(category);
+  }
+
+  /**
+   * Récupère les audiences via l'endpoint /v2/audiences
+   * Conforme aux spécifications Qloo pour la découverte d'audiences
+   */
+  async getAudiences(filters: AudienceFilters = {}): Promise<import('@/lib/types/qloo-compliant').AudienceSearchResult> {
+    return this.audiencesService.getAudiences(filters);
+  }
+
+  /**
+   * Recherche des audiences avec paramètres spécifiques
+   * Utilise l'endpoint /v2/audiences avec paramètres de recherche
+   */
+  async searchAudiences(params: import('@/lib/types/qloo-compliant').AudienceSearchParams): Promise<import('@/lib/types/qloo-compliant').AudienceSearchResult> {
+    return this.audiencesService.searchAudiences(params);
+  }
+
+  /**
+   * Valide une liste d'IDs d'audiences pour s'assurer qu'ils sont valides
+   * Utilise l'endpoint /v2/audiences avec validation des IDs
+   */
+  async validateAudienceIds(audienceIds: string[]): Promise<AudienceValidationResult> {
+    return this.audiencesService.validateAudienceIds(audienceIds);
+  }
+
+  /**
+   * Extrait les métadonnées d'une audience
+   * Analyse les données démographiques et comportementales
+   */
+  extractAudienceMetadata(audience: import('@/lib/types/qloo-compliant').QlooAudience): {
+    demographic_summary: string;
+    key_interests: string[];
+    estimated_reach: string;
+    targeting_potential: 'high' | 'medium' | 'low';
+  } {
+    return this.audiencesService.extractAudienceMetadata(audience);
+  }
+
+  /**
+   * Retourne les catégories d'audiences supportées
+   */
+  getSupportedAudienceCategories(): string[] {
+    return this.audiencesService.getSupportedAudienceCategories();
+  }
+
+  /**
+   * Valide qu'une catégorie d'audience est supportée
+   */
+  validateAudienceCategory(category: string): boolean {
+    return this.audiencesService.validateAudienceCategory(category);
+  }
+
+  /**
+   * Valide les paramètres démographiques
+   */
+  validateDemographics(demographics: Partial<import('@/lib/types/qloo-compliant').QlooAudienceDemographics>): {
+    valid: boolean;
+    errors: string[];
+    warnings: string[];
+  } {
+    return this.audiencesService.validateDemographics(demographics);
+  }
+
+  /**
+   * Effectue une requête d'insights conformément aux spécifications Qloo
+   * Utilise le service d'insights dédié avec validation complète des paramètres
+   */
+  async getInsights(params: InsightsParams): Promise<QlooInsightsResponse> {
+    return this.insightsService.getInsights(params);
+  }
+
+  /**
+   * Valide les paramètres d'insights selon les spécifications Qloo
+   * Utilise le service d'insights dédié pour une validation complète
+   */
+  validateInsightsParams(params: InsightsParams): InsightsParamsValidationResult {
+    return this.insightsService.validateParams(params);
+  }
+
+  /**
+   * Retourne les types d'entités supportés pour les insights
+   */
+  getSupportedInsightsEntityTypes(): EntityUrn[] {
+    return this.insightsService.getSupportedEntityTypes();
+  }
+
+  /**
+   * Retourne les langues supportées pour les insights
+   */
+  getSupportedInsightsLanguages(): Array<'en' | 'fr' | 'es' | 'de' | 'it' | 'pt'> {
+    return this.insightsService.getSupportedLanguages();
+  }
+
+  /**
+   * Valide qu'un type d'entité est supporté pour les insights
+   */
+  validateInsightsEntityType(type: string): boolean {
+    return this.insightsService.validateEntityType(type);
+  }
+
+  /**
+   * Valide qu'une langue est supportée pour les insights
+   */
+  validateInsightsLanguage(language: string): boolean {
+    return this.insightsService.validateLanguage(language);
+  }
+
+
+
+  /**
+   * Crée une erreur HTTP appropriée selon le code de statut
+   */
+  private createHttpError(status: number, statusText: string, endpoint: string): QlooCompliantError {
+    switch (status) {
+      case 401:
+        return this.createCompliantError(
+          QlooErrorType.AUTHENTICATION,
+          'UNAUTHORIZED',
+          'Invalid API key. Get your API key at https://docs.qloo.com/'
+        );
+      case 403:
+        return this.createCompliantError(
+          QlooErrorType.AUTHORIZATION,
+          'FORBIDDEN',
+          'API key does not have required permissions'
+        );
+      case 404:
+        return this.createCompliantError(
+          QlooErrorType.NOT_FOUND,
+          'ENDPOINT_NOT_FOUND',
+          `Endpoint not found: ${endpoint}`
+        );
+      case 429:
+        return this.createCompliantError(
+          QlooErrorType.RATE_LIMIT,
+          'RATE_LIMIT_EXCEEDED',
+          'Rate limit exceeded. Please retry after some time.',
+          undefined,
+          true
+        );
+      case 422:
+        return this.createCompliantError(
+          QlooErrorType.VALIDATION,
+          'INVALID_PARAMS',
+          'Invalid request parameters'
+        );
+      default:
+        if (status >= 500) {
+          return this.createCompliantError(
+            QlooErrorType.SERVER_ERROR,
+            'SERVER_ERROR',
+            `Server error: ${status} ${statusText}`,
+            undefined,
+            true
+          );
+        }
+        return this.createCompliantError(
+          QlooErrorType.NETWORK_ERROR,
+          'HTTP_ERROR',
+          `HTTP ${status}: ${statusText}`
+        );
+    }
+  }
+
+  /**
+   * Crée une erreur conforme aux spécifications Qloo
+   */
+  private createCompliantError(
+    type: QlooErrorType,
+    code: string,
+    message: string,
+    details?: any,
+    retryable: boolean = false
+  ): QlooCompliantError {
+    return {
+      type,
+      message,
+      code,
+      details,
+      request_id: crypto.randomUUID(),
+      timestamp: new Date().toISOString(),
+      retryable
     };
   }
 
-  async getRecommendations(request: QlooRequest): Promise<QlooResponse> {
-    try {
-      // Validation des données d'entrée
-      this.validateRequest(request);
-
-      // Pour l'API hackathon, générer des données fallback si nécessaire
-      console.log('🔍 Tentative d\'appel API Qloo hackathon...');
-      
-      // Construire les paramètres pour l'API hackathon Qloo
-      const params = new URLSearchParams();
-      params.append('type', request.categories[0] || 'brands');
-      params.append('age', request.demographics.age.toString());
-      params.append('location', request.demographics.location);
-      params.append('interests', request.interests.join(','));
-      
-      try {
-        // Tentative d'appel API
-        const response = await this.makeApiCallWithParams('/recommendations', params);
-        this.updateRateLimits(response.headers);
-        console.log('🔵 Réponse brute Qloo API:', JSON.stringify(response.data, null, 2));
-        return this.parseResponse(response);
-      } catch (apiError: any) {
-        // Si l'API retourne une erreur 403 (Forbidden), utiliser des données fallback
-        if (apiError.message?.includes('403') || apiError.message?.includes('Forbidden')) {
-          console.log('⚠️ API Qloo hackathon restricted, using fallback data');
-          const fallback = this.generateFallbackRecommendations(request);
-          console.log('🟠 Données fallback Qloo générées:', JSON.stringify(fallback, null, 2));
-          return fallback;
-        }
-        throw apiError;
-      }
-
-    } catch (error) {
-      console.error('Qloo API Error:', error);
-      // En dernier recours, utiliser des données fallback
-      const fallback = this.generateFallbackRecommendations(request);
-      console.log('🟠 Données fallback Qloo générées (erreur):', JSON.stringify(fallback, null, 2));
-      return fallback;
-    }
-  }
-
-  async getBatchRecommendations(batchRequest: QlooBatchRequest): Promise<QlooBatchResponse> {
-    try {
-      const response = await this.makeApiCall('/batch/recommendations', batchRequest);
-      return this.parseBatchResponse(response);
-    } catch (error) {
-      console.error('Qloo Batch API Error:', error);
-      throw this.createQlooError('BATCH_FAILED', error);
-    }
-  }
-
-  async getInsights(request: QlooRequest): Promise<QlooInsights> {
-    try {
-      const response = await this.makeApiCall('/insights', request);
-      return response.data;
-    } catch (error) {
-      console.error('Qloo Insights Error:', error);
-      throw this.createQlooError('INSIGHTS_FAILED', error);
-    }
-  }
-
-  private async makeApiCall(endpoint: string, data: unknown): Promise<any> {
-    const url = `${this.config.baseUrl}${endpoint}`;
+  /**
+   * Détermine si une erreur est récupérable
+   */
+  private isRetryableError(error: any): boolean {
+    if (error?.retryable) return true;
     
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), this.config.timeout);
-
-    try {
-      const response = await fetch(url, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-API-Key': this.config.apiKey,
-          'User-Agent': 'PersonaCraft/1.0'
-        },
-        body: JSON.stringify(data),
-        signal: controller.signal
-      });
-
-      clearTimeout(timeoutId);
-
-      if (!response.ok) {
-        if (response.status === 401) {
-          throw new Error(`HTTP 401: Unauthorized - Vérifiez votre clé API Qloo. Obtenez une clé API sur https://docs.qloo.com/`);
-        } else if (response.status === 403) {
-          throw new Error(`HTTP 403: Forbidden - Votre clé API Qloo n'a pas les permissions nécessaires`);
-        } else if (response.status === 404) {
-          throw new Error(`HTTP 404: Not Found - L'endpoint Qloo n'existe pas: ${endpoint}`);
-        } else if (response.status === 429) {
-          throw new Error(`HTTP 429: Too Many Requests - Limite de taux Qloo atteinte`);
-        } else if (response.status >= 500) {
-          throw new Error(`HTTP ${response.status}: Erreur serveur Qloo - Réessayez plus tard`);
-        } else {
-          throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-        }
-      }
-
-      return {
-        data: await response.json(),
-        headers: response.headers
-      };
-
-    } catch (error) {
-      clearTimeout(timeoutId);
-      throw error;
-    }
+    const retryableTypes = [
+      QlooErrorType.RATE_LIMIT,
+      QlooErrorType.SERVER_ERROR,
+      QlooErrorType.NETWORK_ERROR
+    ];
+    
+    return retryableTypes.includes(error?.type);
   }
 
-  private async makeApiCallWithParams(endpoint: string, params: URLSearchParams): Promise<any> {
-    const url = `${this.config.baseUrl}${endpoint}?${params.toString()}`;
+  /**
+   * Calcule le délai de retry avec backoff exponentiel
+   */
+  private calculateRetryDelay(attempt: number): number {
+    const baseDelay = this.config.retryBaseDelay || 1000;
+    const maxDelay = this.config.retryMaxDelay || 10000;
     
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), this.config.timeout);
-
-    try {
-      const response = await fetch(url, {
-        method: 'GET',
-        headers: {
-          'X-API-Key': this.config.apiKey,
-          'User-Agent': 'PersonaCraft/1.0'
-        },
-        signal: controller.signal
-      });
-
-      clearTimeout(timeoutId);
-
-      if (!response.ok) {
-        if (response.status === 401) {
-          throw new Error(`HTTP 401: Unauthorized - Vérifiez votre clé API Qloo. Obtenez une clé API sur https://docs.qloo.com/`);
-        } else if (response.status === 403) {
-          throw new Error(`HTTP 403: Forbidden - Votre clé API Qloo n'a pas les permissions nécessaires`);
-        } else if (response.status === 404) {
-          throw new Error(`HTTP 404: Not Found - L'endpoint Qloo n'existe pas: ${endpoint}`);
-        } else if (response.status === 429) {
-          throw new Error(`HTTP 429: Too Many Requests - Limite de taux Qloo atteinte`);
-        } else if (response.status >= 500) {
-          throw new Error(`HTTP ${response.status}: Erreur serveur Qloo - Réessayez plus tard`);
-        } else {
-          throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-        }
-      }
-
-      return {
-        data: await response.json(),
-        headers: response.headers
-      };
-
-    } catch (error) {
-      clearTimeout(timeoutId);
-      throw error;
-    }
+    const delay = Math.min(baseDelay * Math.pow(2, attempt - 1), maxDelay);
+    
+    // Ajouter un jitter pour éviter le thundering herd
+    return delay + Math.random() * 1000;
   }
 
-  private parseResponse(response: any): QlooResponse {
-    const data = response.data;
-    
-    // Adapter la réponse pour le format hackathon Qloo
-    const recommendations = this.adaptRecommendations(data);
-    
+  /**
+   * Utilitaire pour attendre
+   */
+  private sleep(ms: number): Promise<void> {
+    return new Promise(resolve => setTimeout(resolve, ms));
+  }
+
+  /**
+   * Met à jour le tracking des requêtes
+   */
+  private updateRequestTracking(): void {
+    this.requestCount++;
+    this.lastRequestTime = Date.now();
+  }
+
+  /**
+   * Retourne les statistiques du client
+   */
+  public getStats(): { requestCount: number; lastRequestTime: number } {
     return {
-      recommendations,
-      metadata: {
-        total_results: recommendations.length,
-        confidence_threshold: 0.5,
-        processing_time: 0,
-        request_id: crypto.randomUUID(),
-        api_version: 'hackathon-v1',
-        cached: false
-      },
-      status: {
-        code: 200,
-        message: 'Success',
-        success: true
-      }
+      requestCount: this.requestCount,
+      lastRequestTime: this.lastRequestTime
     };
   }
+}
 
-  private adaptRecommendations(data: any): QlooRecommendation[] {
-    // Si les données arrivent dans un format différent, les adapter
-    if (Array.isArray(data)) {
-      return data.map((item: any, index: number) => ({
-        id: item.id || `rec_${index}`,
-        type: item.type || 'brands',
-        name: item.name || item.title || `Recommendation ${index + 1}`,
-        confidence: item.confidence || item.score || 0.8,
-        attributes: {
-          popularity: item.popularity || 0.5,
-          cultural_relevance: item.cultural_relevance || 0.7,
-          trending_score: item.trending_score || 0.6,
-          demographic_fit: item.demographic_fit || 0.8,
-          price_range: item.price_range || 'medium',
-          tags: item.tags || []
-        }
-      }));
-    }
+// Backward compatibility wrapper for existing API routes
+export class QlooClient extends QlooApiClient {
+  constructor(apiKey?: string, config?: any) {
+    // Convert old config format to new format
+    const newConfig: Partial<QlooCompliantConfig> = {};
+    if (config?.timeout) newConfig.timeout = config.timeout;
+    if (config?.retries) newConfig.retryAttempts = config.retries;
+    if (config?.cacheEnabled !== undefined) newConfig.cacheEnabled = config.cacheEnabled;
+    if (config?.cacheTTL) newConfig.defaultCacheTtl = config.cacheTTL;
     
-    // Fallback pour des données vides ou mal formatées
-    return [];
+    super(apiKey, newConfig);
   }
 
-  private generateFallbackRecommendations(request: QlooRequest): QlooResponse {
-    console.log('🎯 Génération de données fallback pour Qloo hackathon');
-    
-    // Données fallback basées sur les intérêts et la localisation
-    const fallbackData = this.createFallbackData(request);
-    
+  // Backward compatibility method for existing API routes
+  async getRecommendations(request: any): Promise<any> {
+    // Convert old request format to new insights params
+    const insightsParams: InsightsParams = {
+      'filter.type': this.mapCategoryToUrn(request.categories?.[0] || 'brands'),
+      'signal.interests.tags': request.interests || [],
+      limit: 20,
+      min_confidence: 0.5
+    };
+
+    try {
+      const response = await this.getInsights(insightsParams);
+      
+      // Convert new response format to old format for backward compatibility
+      return {
+        recommendations: this.convertEntitiesToRecommendations(response.entities),
+        metadata: {
+          total_results: response.metadata.total_results,
+          confidence_threshold: response.confidence,
+          processing_time: response.metadata.processing_time,
+          request_id: response.metadata.request_id,
+          api_version: response.metadata.api_version,
+          cached: response.metadata.cached,
+          filters_applied: response.metadata.filters_applied
+        },
+        status: response.status
+      };
+    } catch (error) {
+      // Fallback to mock data for backward compatibility
+      return this.generateFallbackRecommendations(request);
+    }
+  }
+
+  private mapCategoryToUrn(category: string): EntityUrn {
+    const mapping: Record<string, EntityUrn> = {
+      'brands': 'urn:entity:brand',
+      'music': 'urn:entity:artist',
+      'movies': 'urn:entity:movie',
+      'books': 'urn:entity:book',
+      'tv_shows': 'urn:entity:tv_show',
+      'restaurants': 'urn:entity:restaurant',
+      'products': 'urn:entity:product'
+    };
+    return mapping[category] || 'urn:entity:brand';
+  }
+
+  private convertEntitiesToRecommendations(entities: any[]): any[] {
+    return entities.map((entity, index) => ({
+      id: entity.id || `rec_${index}`,
+      type: entity.type?.replace('urn:entity:', '') || 'brands',
+      name: entity.name || `Recommendation ${index + 1}`,
+      confidence: entity.confidence || 0.8,
+      attributes: {
+        popularity: 0.7,
+        cultural_relevance: 0.8,
+        trending_score: 0.6,
+        demographic_fit: 0.8,
+        price_range: 'medium' as const,
+        tags: entity.tags || []
+      }
+    }));
+  }
+
+  private generateFallbackRecommendations(request: any): any {
+    const fallbackRecommendations = (request.interests || ['lifestyle']).slice(0, 5).map((interest: string, index: number) => ({
+      id: `fallback_${index}`,
+      type: request.categories?.[0] || 'brands',
+      name: `${interest} Choice`,
+      confidence: 0.7 + Math.random() * 0.3,
+      attributes: {
+        popularity: 0.6 + Math.random() * 0.4,
+        cultural_relevance: 0.7 + Math.random() * 0.3,
+        trending_score: 0.5 + Math.random() * 0.5,
+        demographic_fit: 0.8 + Math.random() * 0.2,
+        price_range: 'medium' as const,
+        tags: [interest]
+      }
+    }));
+
     return {
-      recommendations: fallbackData,
+      recommendations: fallbackRecommendations,
       metadata: {
-        total_results: fallbackData.length,
+        total_results: fallbackRecommendations.length,
         confidence_threshold: 0.7,
         processing_time: 200,
         request_id: crypto.randomUUID(),
@@ -263,111 +505,50 @@ export class QlooClient {
       }
     };
   }
-
-  private createFallbackData(request: QlooRequest): QlooRecommendation[] {
-    const recommendations: QlooRecommendation[] = [];
-    
-    // Créer des recommandations basées sur les intérêts
-    request.interests.forEach((interest, index) => {
-      request.categories.forEach((category, catIndex) => {
-        recommendations.push({
-          id: `fallback_${index}_${catIndex}`,
-          type: category,
-          name: this.generateRecommendationName(interest, category),
-          confidence: 0.7 + Math.random() * 0.3,
-          attributes: {
-            popularity: 0.6 + Math.random() * 0.4,
-            cultural_relevance: 0.7 + Math.random() * 0.3,
-            trending_score: 0.5 + Math.random() * 0.5,
-            demographic_fit: 0.8 + Math.random() * 0.2,
-            price_range: ['low', 'medium', 'high'][Math.floor(Math.random() * 3)] as 'low' | 'medium' | 'high',
-            tags: [interest, category, request.demographics.location.toLowerCase()]
-          }
-        });
-      });
-    });
-    
-    return recommendations.slice(0, 8); // Limiter à 8 recommandations
-  }
-
-  private generateRecommendationName(interest: string, category: string): string {
-    const nameTemplates = {
-      brands: [`${interest} Pro`, `Eco ${interest}`, `${interest} Plus`, `Smart ${interest}`],
-      music: [`${interest} Beats`, `${interest} Sessions`, `${interest} Sounds`, `Modern ${interest}`],
-      movies: [`${interest} Story`, `The ${interest}`, `${interest} Chronicles`, `${interest} Adventure`],
-      books: [`${interest} Guide`, `The ${interest} Manual`, `${interest} Mastery`, `${interest} Insights`],
-      food: [`${interest} Kitchen`, `Organic ${interest}`, `Fresh ${interest}`, `${interest} Fusion`],
-      lifestyle: [`${interest} Life`, `${interest} Style`, `${interest} Way`, `Pure ${interest}`]
-    };
-    
-    const templates = nameTemplates[category as keyof typeof nameTemplates] || [`${interest} Choice`];
-    return templates[Math.floor(Math.random() * templates.length)];
-  }
-
-  private parseBatchResponse(response: any): QlooBatchResponse {
-    const data = response.data;
-    
-    return {
-      batch_id: data.batch_id || crypto.randomUUID(),
-      responses: data.responses || [],
-      status: data.status || 'completed',
-      summary: {
-        total: data.summary?.total || 0,
-        successful: data.summary?.successful || 0,
-        failed: data.summary?.failed || 0
-      }
-    };
-  }
-
-  private validateRequest(request: QlooRequest): void {
-    if (!request.interests || request.interests.length === 0) {
-      throw this.createQlooError('INVALID_REQUEST', 'Interests are required');
-    }
-
-    if (!request.demographics || !request.demographics.age) {
-      throw this.createQlooError('INVALID_REQUEST', 'Demographics with age are required');
-    }
-
-    if (request.demographics.age < 13 || request.demographics.age > 120) {
-      throw this.createQlooError('INVALID_REQUEST', 'Age must be between 13 and 120');
-    }
-  }
-
-  private createQlooError(code: string, message: unknown): QlooError {
-    return {
-      error: message instanceof Error ? message.message : String(message),
-      code,
-      details: {
-        field: 'request',
-        value: message,
-        constraint: 'validation_failed',
-        suggestion: 'Vérifiez les données envoyées et votre clé API Qloo'
-      },
-      request_id: crypto.randomUUID()
-    };
-  }
-
-  private updateRateLimits(headers: Headers): void {
-    const limit = headers.get('X-RateLimit-Limit');
-    const remaining = headers.get('X-RateLimit-Remaining');
-    const reset = headers.get('X-RateLimit-Reset');
-
-    if (limit && remaining && reset) {
-      // Mise à jour simplifiée des rate limits
-      console.log(`Rate limits: ${remaining}/${limit}, reset: ${reset}`);
-    }
-  }
 }
 
 // Instance par défaut - lèvera une erreur si pas de clé API
-export const qlooClient = new QlooClient();
+let defaultClient: QlooApiClient | null = null;
+
+export function getQlooClient(): QlooApiClient {
+  if (!defaultClient) {
+    defaultClient = new QlooApiClient();
+  }
+  return defaultClient;
+}
+
+// Export du client pour utilisation directe (new compliant client)
+// Note: This will be lazy-loaded when first accessed
+export const qlooClient = (() => {
+  let client: QlooApiClient | null = null;
+  return {
+    get instance() {
+      if (!client) {
+        client = getQlooClient();
+      }
+      return client;
+    }
+  };
+})();
+
+// Backward compatibility export - lazy loaded
+export const qlooClientLegacy = (() => {
+  let client: QlooClient | null = null;
+  return {
+    get instance() {
+      if (!client) {
+        client = new QlooClient();
+      }
+      return client;
+    }
+  };
+})();
 
 // Re-export des types pour faciliter l'utilisation
 export type {
-  QlooRequest,
-  QlooResponse,
-  QlooError,
-  QlooRecommendation,
-  QlooClientConfig,
-  QlooInsights
-} from '@/lib/types/qloo';
+  QlooCompliantConfig,
+  QlooCompliantError,
+  QlooErrorType,
+  InsightsParams,
+  QlooInsightsResponse
+} from '@/lib/types/qloo-compliant';

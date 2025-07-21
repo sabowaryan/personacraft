@@ -102,6 +102,68 @@
 .persona-delay-4 { animation-delay: 0.4s; }
 .persona-delay-5 { animation-delay: 0.5s; }
 
+/* Theme transition styles */
+.theme-transitioning,
+.theme-transitioning *,
+.theme-transitioning *::before,
+.theme-transitioning *::after {
+  transition: background-color 300ms ease-in-out,
+              border-color 300ms ease-in-out,
+              color 300ms ease-in-out,
+              box-shadow 300ms ease-in-out,
+              opacity 300ms ease-in-out !important;
+}
+
+/* Accessibility preferences */
+[data-reduced-motion="true"] * {
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.01ms !important;
+}
+
+[data-high-contrast="true"] {
+  --contrast-multiplier: 1.5;
+}
+
+[data-high-contrast="true"] .persona-result-card {
+  border: 2px solid currentColor;
+}
+
+[data-high-contrast="true"] .persona-gradient-title {
+  background: none;
+  -webkit-background-clip: unset;
+  -webkit-text-fill-color: unset;
+  background-clip: unset;
+  color: currentColor;
+  font-weight: bold;
+}
+
+/* Font size scaling */
+[data-font-size="small"] {
+  font-size: calc(1rem * 0.875);
+}
+
+[data-font-size="large"] {
+  font-size: calc(1rem * 1.125);
+}
+
+/* Animation preferences */
+[data-animations="false"] .persona-result-card {
+  transition: none;
+}
+
+[data-animations="false"] .persona-result-card:hover {
+  transform: none;
+}
+
+[data-animations="false"] .persona-animate-in {
+  animation: none;
+}
+
+[data-animations="false"] .persona-badge-pulse {
+  animation: none;
+}
+
 /* Styles pour le mode sombre */
 .dark .persona-result-card {
   background-color: hsl(var(--card) / 0.8);
