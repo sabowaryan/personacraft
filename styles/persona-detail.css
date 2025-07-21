@@ -1,0 +1,291 @@
+/* Styles spécifiques à la page de détails de persona redesignée */
+
+/* Animation d'entrée pour les éléments */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Animation pour le remplissage des barres de progression */
+@keyframes progressFill {
+  from { width: 0; }
+  to { width: var(--progress-value, 100%); }
+}
+
+/* Animation de flottement pour les cards */
+@keyframes float {
+  0% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+  100% {
+    transform: translateY(0px);
+  }
+}
+
+/* Animation de pulsation pour les badges */
+@keyframes pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(var(--primary-rgb), 0.4);
+  }
+  70% {
+    box-shadow: 0 0 0 10px rgba(var(--primary-rgb), 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(var(--primary-rgb), 0);
+  }
+}
+
+/* Animation de shimmer pour les gradients */
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+/* Styles pour les cartes de statistiques */
+.persona-stat-card {
+  transition: all 0.3s ease;
+}
+
+.persona-stat-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+}
+
+/* Styles pour les barres de progression animées */
+.persona-animated-progress .progress-bar {
+  animation: progressFill 1.5s ease-out forwards;
+}
+
+/* Styles pour les citations */
+.persona-quote {
+  position: relative;
+  font-style: italic;
+  padding: 1rem 2rem;
+}
+
+.persona-quote::before,
+.persona-quote::after {
+  content: '"';
+  font-size: 3rem;
+  position: absolute;
+  opacity: 0.2;
+  font-family: 'Georgia', serif;
+}
+
+.persona-quote::before {
+  top: -1rem;
+  left: 0;
+}
+
+.persona-quote::after {
+  bottom: -2rem;
+  right: 0;
+}
+
+/* Styles pour les avatars avec overlay */
+.persona-avatar-overlay {
+  position: relative;
+}
+
+.persona-avatar-overlay::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 25%;
+  height: 25%;
+  border-radius: 50%;
+  background-color: var(--status-color, #10b981);
+  border: 2px solid white;
+}
+
+/* Styles pour les cards flottantes */
+.persona-floating-card {
+  animation: float 6s ease-in-out infinite;
+  box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+}
+
+.persona-floating-card:hover {
+  transform: translateY(-10px);
+  box-shadow: 0 20px 40px -5px rgba(0, 0, 0, 0.2);
+}
+
+/* Styles pour les onglets */
+.persona-tab {
+  position: relative;
+  transition: all 0.3s ease;
+}
+
+.persona-tab[data-state="active"]::after {
+  content: '';
+  position: absolute;
+  bottom: -1px;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, var(--primary) 0%, var(--secondary) 100%);
+}
+
+/* Styles pour les transitions entre onglets */
+.persona-tab-content {
+  animation: fadeInUp 0.5s ease-out;
+}
+
+/* Styles pour les badges d'intérêts */
+.persona-interest-badge {
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.persona-interest-badge:hover {
+  transform: translateY(-2px) scale(1.05);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* Styles pour les graphiques radar */
+.persona-radar-chart {
+  transition: all 0.3s ease;
+}
+
+.persona-radar-chart:hover {
+  transform: scale(1.02);
+}
+
+/* Styles pour les insights marketing */
+.persona-insight-card {
+  border-left-width: 4px;
+  transition: all 0.3s ease;
+}
+
+.persona-insight-card:hover {
+  transform: translateX(5px);
+}
+
+/* Styles pour les états de chargement */
+.persona-skeleton {
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+/* Styles pour le mode sombre */
+.dark .persona-skeleton {
+  background: linear-gradient(90deg, #2a2a2a 25%, #3a3a3a 50%, #2a2a2a 75%);
+  background-size: 200% 100%;
+}
+
+/* Styles pour les micro-interactions */
+.persona-hover-lift {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.persona-hover-lift:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+}
+
+/* Styles pour les indicateurs de statut */
+.persona-status-indicator {
+  position: relative;
+}
+
+.persona-status-indicator::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  animation: pulse 2s infinite;
+}
+
+.persona-status-indicator.online::before {
+  background: #10b981;
+}
+
+.persona-status-indicator.offline::before {
+  background: #ef4444;
+}
+
+/* Styles pour les boutons d'action */
+.persona-action-button {
+  position: relative;
+  overflow: hidden;
+}
+
+.persona-action-button::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transition: left 0.5s;
+}
+
+.persona-action-button:hover::before {
+  left: 100%;
+}
+
+/* Styles pour les transitions de page */
+.persona-page-transition-enter {
+  opacity: 0;
+  transform: translateY(20px);
+}
+
+.persona-page-transition-enter-active {
+  opacity: 1;
+  transform: translateY(0);
+  transition: all 0.3s ease;
+}
+
+.persona-page-transition-exit {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.persona-page-transition-exit-active {
+  opacity: 0;
+  transform: translateY(-20px);
+  transition: all 0.3s ease;
+}
+
+/* Styles pour les cartes avec effet glassmorphism */
+.persona-glass-card {
+  background: rgba(255, 255, 255, 0.25);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+}
+
+.dark .persona-glass-card {
+  background: rgba(30, 41, 59, 0.25);
+  border: 1px solid rgba(30, 41, 59, 0.18);
+}
+
+/* Styles pour les animations d'entrée avec délai */
+.persona-animate-in {
+  animation: fadeInUp 0.5s ease-out forwards;
+}
+
+.persona-delay-1 { animation-delay: 0.1s; }
+.persona-delay-2 { animation-delay: 0.2s; }
+.persona-delay-3 { animation-delay: 0.3s; }
+.persona-delay-4 { animation-delay: 0.4s; }
+.persona-delay-5 { animation-delay: 0.5s; }
