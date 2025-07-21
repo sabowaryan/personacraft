@@ -27,6 +27,10 @@
 
 
   - [ ] 2.2 Ajouter les actions principales (retour, export, partage)
+
+
+
+
     - Implémenter les boutons d'action avec icônes
     - Assurer l'accessibilité des boutons (ARIA, focus)
     - Optimiser pour les interactions tactiles sur mobile
