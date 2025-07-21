@@ -158,53 +158,59 @@ export function PersonaCard({
       "hover:shadow-xl hover:scale-[1.02] hover-lift",
       "bg-gradient-to-br from-white/80 to-gray-50/80 dark:from-gray-800/80 dark:to-gray-900/80",
       "backdrop-blur-sm",
-      "p-3 sm:p-4 md:p-6 lg:p-8"
+      "p-3 sm:p-4 md:p-6 lg:p-8",
+      "persona-fade-in persona-animate-in"
     )}>
-      {/* Décoration de gradient en haut */}
-      <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-primary-500 via-secondary-500 to-accent-500" />
+      {/* Effet de particules en arrière-plan amélioré */}
+      <div className="absolute inset-0 overflow-hidden opacity-10 pointer-events-none">
+        <div className="absolute top-0 left-0 w-20 h-20 bg-primary-300 dark:bg-primary-600 rounded-full filter blur-xl animate-float-slow transform-gpu"></div>
+        <div className="absolute bottom-0 right-0 w-32 h-32 bg-secondary-300 dark:bg-secondary-600 rounded-full filter blur-xl animate-float transform-gpu"></div>
+      </div>
+      {/* Décoration de gradient en haut avec animation */}
+      <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-primary-500 via-secondary-500 to-accent-500 persona-gradient-shimmer" />
       
-      {/* En-tête redesigné */}
-      <CardHeader className="pb-4 relative">
+      {/* En-tête redesigné avec animations */}
+      <CardHeader className="pb-4 relative persona-animate-in">
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-0">
           <div className="flex items-center gap-3 sm:gap-4">
-            <div className="relative">
+            <div className="relative persona-scale-in">
               <Avatar className={cn(
                 "ring-2 ring-white dark:ring-gray-800 shadow-lg transition-all duration-300 group-hover:scale-105",
                 "bg-gradient-to-br from-primary-500 to-secondary-500",
                 isCompact ? "h-10 w-10 sm:h-12 sm:w-12" : "h-14 w-14 sm:h-16 sm:w-16"
               )}>
-              <AvatarImage src={persona.avatar} alt={persona.name} />
-                <AvatarFallback className="text-white font-bold text-base sm:text-lg">
+              <AvatarImage src={persona.avatar} alt={persona.name} className="object-cover" />
+                <AvatarFallback className="text-white font-bold text-base sm:text-lg bg-gradient-to-br from-primary-500 to-secondary-500">
                   {getInitials(persona.name)}
               </AvatarFallback>
             </Avatar>
-              {/* Indicateur de statut */}
-              <div className="absolute -bottom-1 -right-1 w-4 h-4 sm:w-5 sm:h-5 bg-green-500 rounded-full border-2 border-white dark:border-gray-800 shadow-sm flex items-center justify-center">
+              {/* Indicateur de statut avec animation */}
+              <div className="absolute -bottom-1 -right-1 w-4 h-4 sm:w-5 sm:h-5 bg-green-500 rounded-full border-2 border-white dark:border-gray-800 shadow-sm flex items-center justify-center animate-pulse">
                 <CheckCircle className="h-3 w-3 text-white" />
               </div>
             </div>
             
-            <div className="flex-1 min-w-0">
+            <div className="flex-1 min-w-0 persona-slide-up persona-delay-1">
               <CardTitle className={cn(
-                "text-gray-900 dark:text-white font-bold mb-2 group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors truncate",
+                "text-gray-900 dark:text-white font-bold mb-2 group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors truncate persona-gradient-title",
                 isCompact ? "text-base sm:text-lg" : "text-lg sm:text-xl"
               )}>
                 {persona.name}
               </CardTitle>
               
-              <div className="flex flex-wrap gap-2 sm:gap-3 text-xs sm:text-sm text-gray-600 dark:text-gray-400">
-                <div className="flex items-center gap-1 px-2 py-1 bg-white/60 dark:bg-gray-800/60 rounded-full backdrop-blur-sm">
-                  <Calendar className="h-3 w-3 text-primary-600 dark:text-primary-400" />
+              <div className="flex flex-wrap gap-2 sm:gap-3 text-xs sm:text-sm text-gray-600 dark:text-gray-400 persona-animate-in persona-delay-2">
+                <div className="flex items-center gap-1 px-2 py-1 bg-white/60 dark:bg-gray-800/60 rounded-full backdrop-blur-sm hover:bg-white/80 dark:hover:bg-gray-800/80 transition-colors duration-300 hover:shadow-md">
+                  <Calendar className="h-3 w-3 text-primary-600 dark:text-primary-400 animate-pulse" />
                   <span className="font-medium">{formatAge(persona.age)}</span>
                 </div>
                 {persona.location && (
-                  <div className="flex items-center gap-1 px-2 py-1 bg-white/60 dark:bg-gray-800/60 rounded-full backdrop-blur-sm">
+                  <div className="flex items-center gap-1 px-2 py-1 bg-white/60 dark:bg-gray-800/60 rounded-full backdrop-blur-sm hover:bg-white/80 dark:hover:bg-gray-800/80 transition-colors duration-300 hover:shadow-md">
                     <MapPin className="h-3 w-3 text-secondary-600 dark:text-secondary-400" />
                     <span className="font-medium truncate max-w-[80px] md:max-w-none">{persona.location}</span>
                   </div>
                 )}
                 {showMetadata && (
-                  <div className="flex items-center gap-1 px-2 py-1 bg-white/60 dark:bg-gray-800/60 rounded-full backdrop-blur-sm">
+                  <div className="flex items-center gap-1 px-2 py-1 bg-white/60 dark:bg-gray-800/60 rounded-full backdrop-blur-sm hover:bg-white/80 dark:hover:bg-gray-800/80 transition-colors duration-300 hover:shadow-md">
                     <Clock className="h-3 w-3 text-gray-600 dark:text-gray-400" />
                     <span className="font-medium">{formatDate(persona.generatedAt, 'relative')}</span>
                   </div>
@@ -213,27 +219,27 @@ export function PersonaCard({
             </div>
           </div>
           
-          {/* Actions rapides */}
-          <div className="flex items-center gap-2 mt-4 sm:mt-0">
+          {/* Actions rapides avec animations */}
+          <div className="flex items-center gap-2 mt-4 sm:mt-0 persona-animate-in persona-delay-3">
             <Button
               variant="ghost"
               size="sm"
-              className="opacity-100 sm:opacity-0 group-hover:opacity-100 transition-all duration-300 hover:bg-white/80 dark:hover:bg-gray-800/80"
+              className="opacity-100 sm:opacity-0 group-hover:opacity-100 transition-all duration-300 hover:bg-white/80 dark:hover:bg-gray-800/80 hover:scale-110 hover:shadow-md"
               onClick={() => setIsBookmarked(!isBookmarked)}
             >
               <Bookmark className={cn(
                 "h-4 w-4 transition-all duration-300",
-                isBookmarked ? "fill-current text-yellow-500" : "text-gray-400 hover:text-yellow-500"
+                isBookmarked ? "fill-current text-yellow-500 animate-bounce" : "text-gray-400 hover:text-yellow-500"
               )} />
             </Button>
             <Button
               variant="ghost"
               size="sm"
-              className="opacity-100 sm:opacity-0 group-hover:opacity-100 transition-all duration-300 hover:bg-white/80 dark:hover:bg-gray-800/80"
+              className="opacity-100 sm:opacity-0 group-hover:opacity-100 transition-all duration-300 hover:bg-white/80 dark:hover:bg-gray-800/80 hover:scale-110 hover:shadow-md"
               onClick={copyPersonaId}
             >
               {copiedId ? (
-                <CheckCircle className="h-4 w-4 text-green-600" />
+                <CheckCircle className="h-4 w-4 text-green-600 animate-pulse" />
               ) : (
                 <Copy className="h-4 w-4 text-gray-400 hover:text-primary-600" />
               )}
@@ -241,7 +247,7 @@ export function PersonaCard({
             <Button
               variant="ghost"
               size="sm"
-              className="opacity-100 sm:opacity-0 group-hover:opacity-100 transition-all duration-300 hover:bg-white/80 dark:hover:bg-gray-800/80"
+              className="opacity-100 sm:opacity-0 group-hover:opacity-100 transition-all duration-300 hover:bg-white/80 dark:hover:bg-gray-800/80 hover:scale-110 hover:shadow-md"
             >
               <Share2 className="h-4 w-4 text-gray-400 hover:text-secondary-600" />
             </Button>
@@ -251,19 +257,28 @@ export function PersonaCard({
         {/* Badges de statut */}
         <div className="flex flex-wrap items-center gap-2 mt-4">
             {isEnhanced && (
-            <Badge variant={getConfidenceBadgeVariant(persona.generation_metadata.confidence_level)} className="text-xs">
+            <Badge 
+              variant={getConfidenceBadgeVariant(persona.generation_metadata.confidence_level)} 
+              className="text-xs persona-animate-in persona-delay-1 hover:scale-105 transition-transform duration-300"
+            >
               {persona.generation_metadata.confidence_level === 'high' ? '🏆 Haute' :
                persona.generation_metadata.confidence_level === 'medium' ? '👍 Moyenne' : '⚠️ Faible'} confiance
-              </Badge>
+            </Badge>
             )}
             
-          <Badge variant="outline" className="text-xs bg-gradient-to-r from-primary-50 to-secondary-50 dark:from-primary-900/20 dark:to-secondary-900/20 border-primary-200 dark:border-primary-700">
-            <Sparkles className="h-3 w-3 mr-1 text-primary-600 dark:text-primary-400" />
+          <Badge 
+            variant="outline" 
+            className="text-xs bg-gradient-to-r from-primary-50 to-secondary-50 dark:from-primary-900/20 dark:to-secondary-900/20 border-primary-200 dark:border-primary-700 persona-animate-in persona-delay-2 hover:scale-105 transition-transform duration-300"
+          >
+            <Sparkles className="h-3 w-3 mr-1 text-primary-600 dark:text-primary-400 animate-pulse" />
             IA Premium
           </Badge>
           
           {overallQuality > 0 && (
-            <Badge variant="secondary" className="text-xs bg-gradient-to-r from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-800/20">
+            <Badge 
+              variant="secondary" 
+              className="text-xs bg-gradient-to-r from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-800/20 persona-animate-in persona-delay-3 hover:scale-105 transition-transform duration-300"
+            >
               <Star className="h-3 w-3 mr-1 text-green-600 dark:text-green-400" />
               {overallQuality}% qualité
             </Badge>
@@ -305,41 +320,41 @@ export function PersonaCard({
         )}
       </CardHeader>
 
-      <CardContent className="space-y-6">
+      <CardContent className="space-y-6 persona-animate-in persona-delay-4">
         {/* Contenu avec onglets pour les personas enrichis en vue détaillée */}
         {isEnhanced && isDetailed && (showMetrics || showPerformance) ? (
           <Tabs value={activeTab} onValueChange={setActiveTab as any} className="w-full">
-            <TabsList className="grid w-full grid-cols-1 sm:grid-cols-3 mb-4 bg-gray-100 dark:bg-gray-800">
-              <TabsTrigger value="overview" className="flex items-center gap-2 data-[state=active]:bg-primary-50 dark:data-[state=active]:bg-primary-900/30 data-[state=active]:text-primary-700 dark:data-[state=active]:text-primary-300">
-                <Users className="h-4 w-4" />
-                Aperçu
+            <TabsList className="grid w-full grid-cols-1 sm:grid-cols-3 mb-4 bg-gray-100 dark:bg-gray-800 rounded-lg overflow-hidden shadow-sm">
+              <TabsTrigger value="overview" className="flex items-center gap-2 data-[state=active]:bg-primary-50 dark:data-[state=active]:bg-primary-900/30 data-[state=active]:text-primary-700 dark:data-[state=active]:text-primary-300 transition-all duration-300 hover:bg-gray-50 dark:hover:bg-gray-700">
+                <Users className="h-4 w-4 transition-transform duration-300 group-hover:scale-110" />
+                <span className="group-hover:translate-x-0.5 transition-transform duration-300">Aperçu</span>
               </TabsTrigger>
               {showMetrics && (
-                <TabsTrigger value="metrics" className="flex items-center gap-2 data-[state=active]:bg-green-50 dark:data-[state=active]:bg-green-900/30 data-[state=active]:text-green-700 dark:data-[state=active]:text-green-300">
-                  <BarChart3 className="h-4 w-4" />
-                  Métriques
+                <TabsTrigger value="metrics" className="flex items-center gap-2 data-[state=active]:bg-green-50 dark:data-[state=active]:bg-green-900/30 data-[state=active]:text-green-700 dark:data-[state=active]:text-green-300 transition-all duration-300 hover:bg-gray-50 dark:hover:bg-gray-700 group">
+                  <BarChart3 className="h-4 w-4 transition-transform duration-300 group-hover:scale-110" />
+                  <span className="group-hover:translate-x-0.5 transition-transform duration-300">Métriques</span>
                 </TabsTrigger>
               )}
               {showPerformance && (
-                <TabsTrigger value="performance" className="flex items-center gap-2 data-[state=active]:bg-blue-50 dark:data-[state=active]:bg-blue-900/30 data-[state=active]:text-blue-700 dark:data-[state=active]:text-blue-300">
-                  <Activity className="h-4 w-4" />
-                  Performance
+                <TabsTrigger value="performance" className="flex items-center gap-2 data-[state=active]:bg-blue-50 dark:data-[state=active]:bg-blue-900/30 data-[state=active]:text-blue-700 dark:data-[state=active]:text-blue-300 transition-all duration-300 hover:bg-gray-50 dark:hover:bg-gray-700 group">
+                  <Activity className="h-4 w-4 transition-transform duration-300 group-hover:scale-110" />
+                  <span className="group-hover:translate-x-0.5 transition-transform duration-300">Performance</span>
                 </TabsTrigger>
               )}
             </TabsList>
 
-            <TabsContent value="overview" className="space-y-4">
+            <TabsContent value="overview" className="space-y-4 persona-fade-in">
               <PersonaOverview persona={persona} isCompact={isCompact} isDetailed={isDetailed} />
             </TabsContent>
 
             {showMetrics && (
-              <TabsContent value="metrics" className="space-y-4">
+              <TabsContent value="metrics" className="space-y-4 persona-fade-in">
                 <PersonaMetrics persona={persona as EnhancedPersona} onValidate={onValidate} />
               </TabsContent>
             )}
 
             {showPerformance && (
-              <TabsContent value="performance" className="space-y-4">
+              <TabsContent value="performance" className="space-y-4 persona-fade-in">
                 <PersonaPerformance persona={persona as EnhancedPersona} performanceScore={performanceScore} />
               </TabsContent>
             )}
@@ -348,33 +363,48 @@ export function PersonaCard({
           <PersonaOverview persona={persona} isCompact={isCompact} isDetailed={isDetailed} />
         )}
 
-        {/* Actions principales */}
-        <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between pt-4 border-t border-gray-200 dark:border-gray-700 gap-2 sm:gap-0">
+        {/* Actions principales avec animations avancées */}
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between pt-4 border-t border-gray-200 dark:border-gray-700 gap-2 sm:gap-0 persona-animate-in persona-delay-5">
           <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
             {onView && (
-              <Button variant="outline" size="sm" onClick={onView} className="hover-lift bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm w-full sm:w-auto">
-                <Eye className="h-4 w-4 mr-2" />
-                Détails
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={onView} 
+                className="hover-lift bg-gradient-to-r from-white/90 to-white/70 dark:from-gray-800/90 dark:to-gray-800/70 backdrop-blur-sm w-full sm:w-auto persona-animate-in persona-delay-1 group transition-all duration-300 shadow-sm hover:shadow-md border-primary-100 dark:border-primary-800"
+              >
+                <Eye className="h-4 w-4 mr-2 group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors group-hover:scale-110 transition-transform duration-300" />
+                <span className="group-hover:translate-x-0.5 transition-transform duration-300 font-medium">Détails</span>
               </Button>
             )}
             {onExport && (
-              <Button variant="outline" size="sm" onClick={onExport} className="hover-lift bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm w-full sm:w-auto">
-                <Download className="h-4 w-4 mr-2" />
-                Export
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={onExport} 
+                className="hover-lift bg-gradient-to-r from-white/90 to-white/70 dark:from-gray-800/90 dark:to-gray-800/70 backdrop-blur-sm w-full sm:w-auto persona-animate-in persona-delay-2 group transition-all duration-300 shadow-sm hover:shadow-md border-secondary-100 dark:border-secondary-800"
+              >
+                <Download className="h-4 w-4 mr-2 group-hover:text-secondary-600 dark:group-hover:text-secondary-400 transition-colors group-hover:scale-110 transition-transform duration-300" />
+                <span className="group-hover:translate-x-0.5 transition-transform duration-300 font-medium">Export</span>
               </Button>
             )}
             {onRegenerate && (
-              <Button variant="outline" size="sm" onClick={onRegenerate} className="hover-lift bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm w-full sm:w-auto">
-                <Zap className="h-4 w-4 mr-2" />
-                Régénérer
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={onRegenerate} 
+                className="hover-lift bg-gradient-to-r from-white/90 to-white/70 dark:from-gray-800/90 dark:to-gray-800/70 backdrop-blur-sm w-full sm:w-auto persona-animate-in persona-delay-3 group transition-all duration-300 shadow-sm hover:shadow-md border-yellow-100 dark:border-yellow-800"
+              >
+                <Zap className="h-4 w-4 mr-2 group-hover:text-yellow-600 dark:group-hover:text-yellow-400 transition-colors group-hover:scale-110 transition-transform duration-300" />
+                <span className="group-hover:translate-x-0.5 transition-transform duration-300 font-medium">Régénérer</span>
               </Button>
             )}
           </div>
           
           {showMetadata && (
-            <div className="flex flex-col sm:flex-row items-center gap-1 text-xs text-gray-500 dark:text-gray-400 mt-2 sm:mt-0 break-all">
-              <Layers className="h-3 w-3" />
-              <span className="truncate w-full sm:w-auto">Sources: {formatList(persona.sources, 2, "+")} APIs</span>
+            <div className="flex flex-col sm:flex-row items-center gap-1 text-xs text-gray-500 dark:text-gray-400 mt-2 sm:mt-0 break-all persona-animate-in persona-delay-4 bg-white/50 dark:bg-gray-800/50 px-2 py-1 rounded-full backdrop-blur-sm">
+              <Layers className="h-3 w-3 animate-pulse text-primary-500 dark:text-primary-400" />
+              <span className="truncate w-full sm:w-auto font-medium">Sources: {formatList(persona.sources, 2, "+")} APIs</span>
             </div>
           )}
         </div>

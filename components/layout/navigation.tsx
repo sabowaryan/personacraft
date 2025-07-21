@@ -32,6 +32,15 @@ const navigationItems = [
     icon: Wand2
   },
   {
+    name: 'Personas',
+    href: '/personas',
+    icon: BarChart3,
+    submenu: [
+      { name: 'Liste des personas', href: '/personas' },
+      { name: 'Résultats détaillés', href: '/personas/example-id/result' }
+    ]
+  },
+  {
     name: 'Analytics',
     href: '/analytics',
     icon: BarChart3

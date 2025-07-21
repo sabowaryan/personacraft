@@ -1,12 +1,14 @@
 'use client';
 
 import { useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { MetricCard } from '@/components/ui/metric-card';
+import { ModernStatCard, AnimatedProgress, ModernBadge, CircularScore } from '@/components/ui/modern-elements';
 
 import { 
   ArrowLeft, 
@@ -42,7 +44,9 @@ import {
   Copy,
   CheckCircle,
   AlertCircle,
-  Info
+  Info,
+  Brain,
+  ArrowRight
 } from 'lucide-react';
 import { Persona } from '@/lib/types/persona';
 import { PersonaExport } from './persona-export';

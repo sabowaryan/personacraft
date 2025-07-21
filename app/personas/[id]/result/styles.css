@@ -1,0 +1,88 @@
+/* Styles spécifiques à la page de résultats de persona */
+
+/* Animation d'entrée */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in-up {
+  animation: fadeInUp 0.5s ease-out forwards;
+}
+
+/* Animation de progression */
+@keyframes progressFill {
+  from { width: 0; }
+  to { width: var(--progress-value); }
+}
+
+.animate-progress-fill {
+  animation: progressFill 1s ease-out forwards;
+}
+
+/* Effet de survol pour les cartes */
+.card-hover-effect {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.card-hover-effect:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
+/* Effet de dégradé pour les titres */
+.gradient-heading {
+  background: linear-gradient(to right, var(--primary), var(--secondary));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  color: transparent;
+}
+
+/* Effet de pulsation pour les badges */
+@keyframes pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(var(--primary-rgb), 0.4);
+  }
+  70% {
+    box-shadow: 0 0 0 10px rgba(var(--primary-rgb), 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(var(--primary-rgb), 0);
+  }
+}
+
+.pulse-badge {
+  animation: pulse 2s infinite;
+}
+
+/* Styles pour les citations */
+.quote-card {
+  position: relative;
+  overflow: hidden;
+}
+
+.quote-card::before,
+.quote-card::after {
+  content: '"';
+  position: absolute;
+  font-size: 5rem;
+  opacity: 0.1;
+  font-family: serif;
+}
+
+.quote-card::before {
+  top: -1rem;
+  left: 0.5rem;
+}
+
+.quote-card::after {
+  bottom: -3rem;
+  right: 0.5rem;
+}
