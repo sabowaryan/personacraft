@@ -1,19 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { GeminiClient } from '@/lib/api/gemini';
-import { QlooClient } from '@/lib/api/qloo';
+import { QlooIntegrationService } from '@/lib/api/qloo-integration';
 
 // Configuration pour l'export statique
 export const dynamic = 'force-dynamic';
 import { BriefFormData, Persona } from '@/lib/types/persona';
 import { 
   GeminiPersonaRequest, 
-  GeminiPersonaResponse,
-  GeminiError 
+  GeminiPersonaResponse
 } from '@/lib/types/gemini';
 import { 
-  QlooRequest, 
-  QlooResponse, 
-  QlooError 
+  QlooResponse
 } from '@/lib/types/qloo';
 
 // Interface pour la réponse API enrichie
@@ -54,20 +51,7 @@ interface GeneratePersonaAPIResponse {
   errors?: string[];
 }
 
-// Fonction utilitaire pour générer un âge dans la tranche
-function generateAgeFromRange(ageRange: string): number {
-  const ranges: Record<string, [number, number]> = {
-    '18-25': [18, 25],
-    '25-35': [25, 35],
-    '35-45': [35, 45],
-    '45-55': [45, 55],
-    '55-65': [55, 65],
-    '65+': [65, 80]
-  };
-  
-  const [min, max] = ranges[ageRange] || [25, 35];
-  return Math.floor(Math.random() * (max - min + 1)) + min;
-}
+
 
 // Orchestration complète avec types avancés
 async function generatePersonaComplete(
@@ -79,25 +63,95 @@ async function generatePersonaComplete(
   let geminiResponseTime = 0;
 
   try {
-    // 1. Appel à l'API Qloo pour obtenir des recommandations culturelles
+    // 1. Utilisation du nouveau service d'intégration Qloo conforme
     const qlooStartTime = Date.now();
-    const qlooClient = new QlooClient(process.env.QLOO_API_KEY);
+    const qlooIntegration = new QlooIntegrationService(process.env.QLOO_API_KEY);
     
-    const qlooRequest: QlooRequest = {
-      interests: request.interests,
-      demographics: {
-        age: generateAgeFromRange(request.ageRange),
-        location: request.location || 'France'
-      },
-      categories: ['music', 'brands', 'movies', 'food', 'books', 'lifestyle']
-    };
-
-    const qlooData: QlooResponse = await qlooClient.getRecommendations(qlooRequest);
+    // Enrichir le persona avec les données culturelles Qloo
+    const enrichedData = await qlooIntegration.enrichPersona(request);
     qlooResponseTime = Date.now() - qlooStartTime;
 
-    if (qlooData.status.warnings) {
-      warnings.push(...qlooData.status.warnings);
+    // Ajouter les warnings et erreurs du service d'intégration
+    if (enrichedData.metadata.warnings.length > 0) {
+      warnings.push(...enrichedData.metadata.warnings);
     }
+
+    // Convertir les données enrichies au format attendu par Gemini (backward compatibility)
+    const qlooData: QlooResponse = {
+      recommendations: [
+        ...enrichedData.culturalInsights.music.map(entity => ({
+          id: entity.id,
+          type: 'music' as const,
+          name: entity.name,
+          confidence: entity.confidence || 0.7,
+          attributes: {
+            popularity: 0.7,
+            cultural_relevance: 0.8,
+            trending_score: 0.6,
+            demographic_fit: 0.8,
+            price_range: 'medium' as const,
+            tags: entity.tags || []
+          }
+        })),
+        ...enrichedData.culturalInsights.brands.map(entity => ({
+          id: entity.id,
+          type: 'brands' as const,
+          name: entity.name,
+          confidence: entity.confidence || 0.7,
+          attributes: {
+            popularity: 0.7,
+            cultural_relevance: 0.8,
+            trending_score: 0.6,
+            demographic_fit: 0.8,
+            price_range: 'medium' as const,
+            tags: entity.tags || []
+          }
+        })),
+        ...enrichedData.culturalInsights.movies.map(entity => ({
+          id: entity.id,
+          type: 'movies' as const,
+          name: entity.name,
+          confidence: entity.confidence || 0.7,
+          attributes: {
+            popularity: 0.7,
+            cultural_relevance: 0.8,
+            trending_score: 0.6,
+            demographic_fit: 0.8,
+            price_range: 'medium' as const,
+            tags: entity.tags || []
+          }
+        })),
+        ...enrichedData.culturalInsights.books.map(entity => ({
+          id: entity.id,
+          type: 'books' as const,
+          name: entity.name,
+          confidence: entity.confidence || 0.7,
+          attributes: {
+            popularity: 0.7,
+            cultural_relevance: 0.8,
+            trending_score: 0.6,
+            demographic_fit: 0.8,
+            price_range: 'medium' as const,
+            tags: entity.tags || []
+          }
+        }))
+      ],
+      metadata: {
+        total_results: Object.values(enrichedData.culturalInsights).flat().length,
+        confidence_threshold: enrichedData.confidence,
+        processing_time: enrichedData.metadata.processingTime,
+        request_id: enrichedData.metadata.requestId,
+        api_version: 'qloo-integration-v2',
+        cached: enrichedData.sources.cached,
+        filters_applied: enrichedData.metadata.dataFlow
+      },
+      status: {
+        code: 200,
+        message: enrichedData.sources.qloo ? 'Success with Qloo data' : 'Success with fallback data',
+        success: true,
+        warnings: enrichedData.metadata.warnings
+      }
+    };
 
     // 2. Construction du prompt pour Gemini avec types avancés
     const geminiStartTime = Date.now();
@@ -144,11 +198,23 @@ async function generatePersonaComplete(
       values: geminiResponse.persona_data.values,
       quote: geminiResponse.persona_data.quote,
       interests: {
-        music: geminiResponse.persona_data.interests.music || [],
-        brands: geminiResponse.persona_data.interests.brands || [],
-        movies: geminiResponse.persona_data.interests.movies || [],
+        music: [
+          ...geminiResponse.persona_data.interests.music || [],
+          ...enrichedData.culturalInsights.music.map(entity => entity.name)
+        ].slice(0, 10), // Limiter pour éviter la surcharge
+        brands: [
+          ...geminiResponse.persona_data.interests.brands || [],
+          ...enrichedData.culturalInsights.brands.map(entity => entity.name)
+        ].slice(0, 10),
+        movies: [
+          ...geminiResponse.persona_data.interests.movies || [],
+          ...enrichedData.culturalInsights.movies.map(entity => entity.name)
+        ].slice(0, 10),
         food: geminiResponse.persona_data.interests.food || [],
-        books: geminiResponse.persona_data.interests.books || [],
+        books: [
+          ...geminiResponse.persona_data.interests.books || [],
+          ...enrichedData.culturalInsights.books.map(entity => entity.name)
+        ].slice(0, 10),
         lifestyle: geminiResponse.persona_data.interests.lifestyle || []
       },
       communication: {

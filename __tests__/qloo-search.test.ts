@@ -1,47 +1,10 @@
 // Tests unitaires pour le service de recherche Qloo
 // Couvre les opérations de recherche et la validation des types d'entités
 
+import { describe, it, expect, beforeEach, afterEach, jest } from '@jest/globals';
 import { QlooSearchService, type BatchSearchQuery } from '@/lib/api/qloo-search';
 import { QlooErrorType, type EntityUrn } from '@/lib/types/qloo-compliant';
-import { it } from 'date-fns/locale';
-import { it } from 'date-fns/locale';
-import { beforeEach } from 'node:test';
-import { describe } from 'node:test';
-import { it } from 'date-fns/locale';
-import { it } from 'date-fns/locale';
-import { it } from 'date-fns/locale';
-import { it } from 'date-fns/locale';
-import { afterEach } from 'node:test';
-import { beforeEach } from 'node:test';
-import { describe } from 'node:test';
-import { it } from 'date-fns/locale';
-import { describe } from 'node:test';
-import { it } from 'date-fns/locale';
-import { it } from 'date-fns/locale';
-import { it } from 'date-fns/locale';
-import { it } from 'date-fns/locale';
-import { beforeEach } from 'node:test';
-import { describe } from 'node:test';
-import { it } from 'date-fns/locale';
-import { it } from 'date-fns/locale';
-import { it } from 'date-fns/locale';
-import { it } from 'date-fns/locale';
-import { it } from 'date-fns/locale';
-import { it } from 'date-fns/locale';
-import { beforeEach } from 'node:test';
-import { describe } from 'node:test';
-import { it } from 'date-fns/locale';
-import { it } from 'date-fns/locale';
-import { it } from 'date-fns/locale';
-import { describe } from 'node:test';
-import { it } from 'date-fns/locale';
-import { it } from 'date-fns/locale';
-import { describe } from 'node:test';
-import { beforeEach } from 'node:test';
-import { describe } from 'node:test';
-
-// Import QlooApiClient only for integration tests
-const { QlooApiClient } = require('@/lib/api/qloo');
+import { QlooApiClient } from '@/lib/api/qloo';
 
 // Mock fetch pour les tests
 global.fetch = jest.fn();

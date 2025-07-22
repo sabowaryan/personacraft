@@ -393,6 +393,19 @@ export interface QlooCompliantError {
     value?: any;
     constraint?: string;
     suggestion?: string;
+    // Rate limit specific fields
+    limit?: number;
+    remaining?: number;
+    resetTime?: string;
+    // Network error specific fields
+    timeout?: number;
+    connectionType?: string;
+    // Server error specific fields
+    database?: string;
+    connectionPool?: string;
+    retryAfter?: number;
+    // Allow additional properties for extensibility
+    [key: string]: any;
   };
   /** Identifiant de la requête */
   request_id?: string;

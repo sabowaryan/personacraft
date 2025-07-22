@@ -3,8 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Persona } from '@/lib/types/persona';
-import { PersonaResult } from '@/components/persona-result/persona-result';
-import { MobilePersonaResult } from '@/components/persona-result/responsive/mobile-persona-result';
+import { PersonaResult } from '@/components/persona-result';
 import { useBreakpoints } from '@/hooks/use-media-query';
 import { ModernLoading, ModernNotification } from '@/components/ui/modern-elements';
 import { Button } from '@/components/ui/button';
@@ -149,21 +148,12 @@ export default function PersonaResultPage({ params }: { params: Promise<{ id: st
   return (
     <main className="flex flex-col min-h-screen">
       {persona && (
-        <>
-          {isMobileOrTablet ? (
-            <MobilePersonaResult
-              persona={persona}
-              onBack={handleBack}
-            />
-          ) : (
-            <div className="py-6">
-              <PersonaResult
-                persona={persona}
-                onBack={handleBack}
-              />
-            </div>
-          )}
-        </>
+        <div className="py-6">
+          <PersonaResult
+            persona={persona}
+            onBack={handleBack}
+          />
+        </div>
       )}
     </main>
   );

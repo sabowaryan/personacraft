@@ -3,15 +3,15 @@
 import { useState, useCallback, useEffect } from 'react';
 import { Persona, BriefFormData, EnhancedPersona } from '@/lib/types/persona';
 import { 
-  GeminiPersonaResponse,
-  GeminiValidationResults,
-  GeminiMetrics 
+  GeminiValidationResults
 } from '@/lib/types/gemini';
 import { 
   QlooResponse,
   QlooInsights 
 } from '@/lib/types/qloo';
+import type { EnrichedPersonaData } from '@/lib/api/qloo-integration';
 import { usePersonasStorage, useUsageStats, useBriefHistory } from './use-local-storage';
+import { getQlooMigrationService, migrateLocalStoragePersonas } from '@/lib/utils/qloo-migration';
 
 export interface EnhancedGenerationState {
   isGenerating: boolean;
@@ -117,11 +117,45 @@ export function usePersonaGeneration(): UsePersonaGenerationReturn {
   const { incrementPersonasGenerated, updateFavoriteAgeRange, addFavoriteInterest } = useUsageStats();
   const { addBrief } = useBriefHistory();
 
-  // Charger les personas depuis le localStorage au montage
+  // Initialisation avec migration des données existantes
   useEffect(() => {
-    if (storedPersonas && storedPersonas.length > 0) {
-      setPersonas(storedPersonas);
-    }
+    const initializeWithMigration = async () => {
+      try {
+        // 1. Migrer les données localStorage des personas
+        migrateLocalStoragePersonas();
+        
+        // 2. Migrer le cache Qloo existant
+        const migrationService = getQlooMigrationService();
+        const migrationResult = await migrationService.migrateExistingCache();
+        
+        if (migrationResult.migrated > 0) {
+          console.log(`Migrated ${migrationResult.migrated} Qloo cache entries`);
+          updateGenerationState(prev => ({
+            ...prev,
+            warnings: [...prev.warnings, `Migrated ${migrationResult.migrated} cached entries to new format`]
+          }));
+        }
+        
+        if (migrationResult.errors.length > 0) {
+          console.warn('Migration errors:', migrationResult.errors);
+        }
+        
+        // 3. Charger les personas migrés
+        if (storedPersonas && storedPersonas.length > 0) {
+          const migratedPersonas = migratePersonasData(storedPersonas);
+          setPersonas(migratedPersonas);
+        }
+        
+      } catch (error) {
+        console.error('Error during initialization migration:', error);
+        updateGenerationState(prev => ({
+          ...prev,
+          warnings: [...prev.warnings, 'Some data migration issues occurred - functionality may be limited']
+        }));
+      }
+    };
+
+    initializeWithMigration();
   }, [storedPersonas]);
 
   // Synchroniser avec sessionStorage pour la persistance entre onglets
@@ -551,6 +585,36 @@ export function usePersonaGeneration(): UsePersonaGenerationReturn {
     }
 
     return recommendations;
+  };
+
+  // Migration des données existantes pour assurer la compatibilité avec la nouvelle intégration Qloo
+  const migratePersonasData = (personas: (Persona | EnhancedPersona)[]): (Persona | EnhancedPersona)[] => {
+    return personas.map(persona => {
+      // Si le persona est déjà enrichi, pas besoin de migration
+      if ('validation_metrics' in persona && 'generation_metadata' in persona) {
+        return persona;
+      }
+
+      // Migration d'un persona basique vers un persona enrichi
+      const migratedPersona: EnhancedPersona = {
+        ...persona,
+        validation_metrics: {
+          completeness_score: 0.8, // Score par défaut pour les anciens personas
+          consistency_score: 0.8,
+          realism_score: 0.8,
+          quality_indicators: ['Migrated from legacy format']
+        },
+        generation_metadata: {
+          gemini_response_time: 0,
+          qloo_response_time: 0,
+          total_processing_time: 0,
+          confidence_level: 'medium',
+          data_sources: ['Legacy PersonaCraft', 'Migrated Data']
+        }
+      };
+
+      return migratedPersona;
+    });
   };
 
   return {

@@ -589,7 +589,12 @@ export function PersonaList({
               <PersonaCard 
                 persona={persona}
                 variant={viewMode === 'enhanced' ? 'detailed' : 'default'}
-                onView={() => router.push(`/personas/${persona.id}`)}
+                onView={() => {
+                  // Route to enhanced view if persona has enhanced data, otherwise regular view
+                  const isEnhanced = 'validation_metrics' in persona;
+                  const route = isEnhanced ? `/personas/${persona.id}/enhanced` : `/personas/${persona.id}`;
+                  router.push(route);
+                }}
                 onRegenerate={() => console.log('Regenerate:', persona.id)}
                 onValidate={() => {
                   if (isEnhanced && 'validation_metrics' in persona && 'generation_metadata' in persona) {

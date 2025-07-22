@@ -4,7 +4,6 @@ import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { Header } from '@/components/layout/header';
 import { Footer } from '@/components/layout/footer';
-import { PersonaDetail } from '@/components/personas/persona-detail';
 import { PersonaResult } from '@/components/persona-result';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -12,7 +11,7 @@ import { ArrowLeft, AlertCircle, RefreshCw } from 'lucide-react';
 import { Persona } from '@/lib/types/persona';
 import { usePersonaGeneration } from '@/hooks/use-persona-generation';
 
-export default function PersonaPage() {
+export default function EnhancedPersonaPage() {
   const params = useParams();
   const router = useRouter();
   const { personas } = usePersonaGeneration();
@@ -23,7 +22,7 @@ export default function PersonaPage() {
 
   const personaId = params.id as string;
 
-  // Fonction pour récupérer les personas depuis localStorage
+  // Function to get personas from storage
   const getPersonasFromStorage = () => {
     try {
       if (typeof window === 'undefined') return [];
@@ -37,23 +36,23 @@ export default function PersonaPage() {
         generatedAt: new Date(p.generatedAt)
       }));
     } catch (error) {
-      console.error('Erreur lors de la lecture du localStorage:', error);
+      console.error('Error reading from localStorage:', error);
       return [];
     }
   };
 
-  // Fonction pour rechercher le persona
+  // Function to find persona
   const findPersona = (personaId: string) => {
-    // 1. Chercher dans le state local (personas du hook)
+    // 1. Search in local state (personas from hook)
     const foundInState = personas.find(p => p.id === personaId);
     if (foundInState) return foundInState;
 
-    // 2. Chercher dans localStorage
+    // 2. Search in localStorage
     const storedPersonas = getPersonasFromStorage();
     const foundInStorage = storedPersonas.find((p: any) => p.id === personaId);
     if (foundInStorage) return foundInStorage;
 
-    // 3. Chercher dans sessionStorage (pour les personas récemment générés)
+    // 3. Search in sessionStorage (for recently generated personas)
     try {
       const sessionPersonas = sessionStorage.getItem('personacraft-session-personas');
       if (sessionPersonas) {
@@ -62,7 +61,7 @@ export default function PersonaPage() {
         if (foundInSession) return foundInSession;
       }
     } catch (error) {
-      console.error('Erreur lors de la lecture du sessionStorage:', error);
+      console.error('Error reading from sessionStorage:', error);
     }
 
     return null;
@@ -70,7 +69,7 @@ export default function PersonaPage() {
 
   useEffect(() => {
     if (!personaId) {
-      setError('ID du persona manquant');
+      setError('Missing persona ID');
       setLoading(false);
       return;
     }
@@ -78,21 +77,21 @@ export default function PersonaPage() {
     setLoading(true);
     setError(null);
 
-    // Recherche immédiate
+    // Immediate search
     const foundPersona = findPersona(personaId);
     
     if (foundPersona) {
       setPersona(foundPersona);
       setLoading(false);
     } else {
-      // Si pas trouvé immédiatement, attendre un peu et réessayer
+      // If not found immediately, wait a bit and retry
       const timer = setTimeout(() => {
         const retryPersona = findPersona(personaId);
         if (retryPersona) {
           setPersona(retryPersona);
           setLoading(false);
         } else {
-          setError('Persona non trouvé');
+          setError('Persona not found');
           setLoading(false);
         }
       }, 1000);
@@ -101,7 +100,7 @@ export default function PersonaPage() {
     }
   }, [personaId, personas, retryCount]);
 
-  // Fonction pour forcer le rechargement
+  // Function to force reload
   const handleRetry = () => {
     setRetryCount(prev => prev + 1);
     setLoading(true);
@@ -109,16 +108,16 @@ export default function PersonaPage() {
   };
 
   const handleBack = () => {
-    // Vérifier s'il y a des personas en mémoire (dans le hook ou localStorage)
+    // Check if there are personas in memory (in hook or localStorage)
     const currentPersonas = personas.length > 0 ? personas : getPersonasFromStorage();
     
     if (currentPersonas.length > 0) {
-      // Définir un flag pour indiquer qu'on vient d'une page de détail
+      // Set a flag to indicate we're coming from a detail page
       sessionStorage.setItem('personacraft-from-detail', 'true');
-      // S'il y a des personas, rediriger vers Generator pour les afficher
+      // If there are personas, redirect to Generator to display them
       router.push('/generator');
     } else {
-      // Sinon, utiliser router.back() comme fallback
+      // Otherwise, use router.back() as fallback
       router.back();
     }
   };
@@ -132,7 +131,7 @@ export default function PersonaPage() {
             <Card className="border-0 shadow-2xl bg-white/95 dark:bg-gray-800/95 backdrop-blur-sm overflow-hidden">
               <CardContent className="p-8 sm:p-12 lg:p-16">
                 <div className="text-center space-y-6">
-                  {/* Animation de chargement moderne */}
+                  {/* Modern loading animation */}
                   <div className="relative">
                     <div className="w-20 h-20 sm:w-24 sm:h-24 mx-auto bg-gradient-to-br from-primary-100 to-primary-200 dark:from-primary-900/30 dark:to-primary-800/30 rounded-full flex items-center justify-center">
                       <div className="animate-spin rounded-full h-12 w-12 sm:h-14 sm:w-14 border-4 border-primary-200 dark:border-primary-700 border-t-primary-600 dark:border-t-primary-400"></div>
@@ -140,37 +139,20 @@ export default function PersonaPage() {
                     <div className="absolute inset-0 w-20 h-20 sm:w-24 sm:h-24 mx-auto bg-primary-500/10 dark:bg-primary-400/10 rounded-full animate-ping" />
                   </div>
                   
-                  {/* Titre et description */}
+                  {/* Title and description */}
                   <div className="space-y-3">
                     <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 dark:text-white">
-                      Chargement du persona
+                      Loading Enhanced Persona
                     </h2>
                     <p className="text-base sm:text-lg text-gray-600 dark:text-gray-300 max-w-md mx-auto leading-relaxed">
-                      Récupération des données de votre persona depuis la collection...
+                      Retrieving your persona data from the collection...
                     </p>
                   </div>
                   
-                  {/* Barre de progression animée */}
+                  {/* Animated progress bar */}
                   <div className="w-full max-w-xs mx-auto">
                     <div className="h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
                       <div className="h-full bg-gradient-to-r from-primary-500 to-secondary-500 rounded-full animate-pulse"></div>
-                    </div>
-                  </div>
-                  
-                  {/* Informations de débogage avec design amélioré */}
-                  <div className="mt-8 p-4 sm:p-6 bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-800/50 dark:to-gray-700/50 rounded-xl border border-gray-200 dark:border-gray-700">
-                    <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">Informations de recherche</h4>
-                    <div className="space-y-2 text-xs text-gray-500 dark:text-gray-400">
-                      <div className="flex justify-between items-center">
-                        <span>ID recherché:</span>
-                        <code className="px-2 py-1 bg-gray-200 dark:bg-gray-700 rounded font-mono text-gray-800 dark:text-gray-200">
-                          {personaId}
-                        </code>
-                      </div>
-                      <div className="flex justify-between items-center">
-                        <span>Tentative:</span>
-                        <span className="font-medium text-gray-700 dark:text-gray-300">{retryCount + 1}</span>
-                      </div>
                     </div>
                   </div>
                 </div>
@@ -192,7 +174,7 @@ export default function PersonaPage() {
             <Card className="border-0 shadow-2xl bg-white/95 dark:bg-gray-800/95 backdrop-blur-sm overflow-hidden">
               <CardContent className="p-8 sm:p-12 lg:p-16">
                 <div className="text-center space-y-6">
-                  {/* Icône d'erreur avec animation */}
+                  {/* Error icon with animation */}
                   <div className="relative">
                     <div className="w-20 h-20 sm:w-24 sm:h-24 mx-auto bg-gradient-to-br from-red-100 to-red-200 dark:from-red-900/30 dark:to-red-800/30 rounded-full flex items-center justify-center animate-pulse">
                       <AlertCircle className="h-10 w-10 sm:h-12 sm:w-12 text-red-500 dark:text-red-400" />
@@ -200,51 +182,34 @@ export default function PersonaPage() {
                     <div className="absolute inset-0 w-20 h-20 sm:w-24 sm:h-24 mx-auto bg-red-500/10 dark:bg-red-400/10 rounded-full animate-ping" />
                   </div>
                   
-                  {/* Titre principal */}
+                  {/* Main title */}
                   <div className="space-y-3">
                     <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 dark:text-white">
-                      {error || 'Persona non trouvé'}
+                      {error || 'Persona not found'}
                     </h2>
                     <p className="text-base sm:text-lg text-gray-600 dark:text-gray-300 max-w-md mx-auto leading-relaxed">
-                      Le persona demandé n'existe pas ou n'est plus disponible dans votre collection.
+                      The requested persona does not exist or is no longer available in your collection.
                     </p>
                   </div>
                   
-                  {/* Boutons d'action avec design moderne */}
+                  {/* Action buttons with modern design */}
                   <div className="flex flex-col sm:flex-row items-center gap-3 sm:gap-4 justify-center pt-4">
                     <Button 
                       onClick={handleRetry} 
                       variant="outline"
-                      className="w-full sm:w-auto flex items-center gap-2 hover-lift transition-all duration-300 bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm border-gray-200 dark:border-gray-700 hover:border-primary-300 dark:hover:border-primary-600 text-gray-700 dark:text-gray-200 hover:text-primary-700 dark:hover:text-primary-300"
+                      className="w-full sm:w-auto flex items-center gap-2 hover-lift transition-all duration-300"
                     >
                       <RefreshCw className="h-4 w-4" />
-                      <span className="font-medium">Réessayer</span>
+                      <span className="font-medium">Retry</span>
                     </Button>
                     <Button 
                       onClick={handleBack} 
                       variant="outline"
-                      className="w-full sm:w-auto flex items-center gap-2 hover-lift transition-all duration-300 bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm border-gray-200 dark:border-gray-700 hover:border-secondary-300 dark:hover:border-secondary-600 text-gray-700 dark:text-gray-200 hover:text-secondary-700 dark:hover:text-secondary-300"
+                      className="w-full sm:w-auto flex items-center gap-2 hover-lift transition-all duration-300"
                     >
                       <ArrowLeft className="h-4 w-4" />
-                      <span className="font-medium">Retour à la liste</span>
+                      <span className="font-medium">Back to List</span>
                     </Button>
-                  </div>
-                  
-                  {/* Informations de débogage avec design amélioré */}
-                  <div className="mt-8 p-4 sm:p-6 bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-800/50 dark:to-gray-700/50 rounded-xl border border-gray-200 dark:border-gray-700">
-                    <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">Informations de diagnostic</h4>
-                    <div className="space-y-2 text-xs text-gray-500 dark:text-gray-400">
-                      <div className="flex justify-between items-center">
-                        <span>ID recherché:</span>
-                        <code className="px-2 py-1 bg-gray-200 dark:bg-gray-700 rounded font-mono text-gray-800 dark:text-gray-200">
-                          {personaId}
-                        </code>
-                      </div>
-                      <div className="flex justify-between items-center">
-                        <span>Personas disponibles:</span>
-                        <span className="font-medium text-gray-700 dark:text-gray-300">{personas.length}</span>
-                      </div>
-                    </div>
                   </div>
                 </div>
               </CardContent>
@@ -261,7 +226,11 @@ export default function PersonaPage() {
       <Header />
       <main className="w-full pt-20 sm:pt-24 lg:pt-28 pb-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <PersonaResult persona={persona} onBack={handleBack} />
+          <PersonaResult 
+            persona={persona} 
+            onBack={handleBack}
+            isLoading={false}
+          />
         </div>
       </main>
       <Footer />

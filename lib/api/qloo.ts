@@ -15,6 +15,7 @@ import { QlooSearchService, type BatchSearchQuery, type BatchSearchResult } from
 import { QlooTagsService, type TagsByCategoryParams, type TagValidationResult } from './qloo-tags';
 import { QlooAudiencesService, type AudienceFilters, type AudienceValidationResult } from './qloo-audiences';
 import { QlooInsightsService, type InsightsParamsValidationResult } from './qloo-insights';
+import { QlooErrorHandler, QlooLogger } from './qloo-error-handler';
 
 /**
  * Configuration par défaut pour le client API Qloo
@@ -41,6 +42,8 @@ export class QlooApiClient {
   private tagsService: QlooTagsService;
   private audiencesService: QlooAudiencesService;
   private insightsService: QlooInsightsService;
+  private errorHandler: QlooErrorHandler;
+  private logger: QlooLogger;
 
   constructor(apiKey?: string, config?: Partial<QlooCompliantConfig>) {
     const providedApiKey = apiKey || process.env.QLOO_API_KEY || '';
@@ -85,6 +88,17 @@ export class QlooApiClient {
       this.config.apiKey,
       this.config.baseUrl,
       this.config.timeout
+    );
+
+    // Initialize error handling system
+    this.logger = new QlooLogger();
+    this.errorHandler = new QlooErrorHandler(
+      {
+        maxAttempts: this.config.retryAttempts,
+        baseDelay: this.config.retryBaseDelay,
+        maxDelay: this.config.retryMaxDelay
+      },
+      this.logger
     );
   }
 

@@ -1,44 +1,10 @@
 // Tests unitaires pour le service de gestion des tags Qloo
 // Couvre toutes les méthodes et scénarios d'erreur
 
-import { QlooTagsService, type TagsByCategoryParams, type TagValidationResult } from '@/lib/api/qloo-tags';
-import type { TagSearchParams, TagSearchResult, QlooTag, QlooCompliantError } from '@/lib/types/qloo-compliant';
+import { describe, it, expect, beforeEach, afterEach, jest } from '@jest/globals';
+import { QlooTagsService, type TagsByCategoryParams } from '@/lib/api/qloo-tags';
+import type { TagSearchParams } from '@/lib/types/qloo-compliant';
 import { QlooErrorType } from '@/lib/types/qloo-compliant';
-import { it } from 'date-fns/locale';
-import { it } from 'date-fns/locale';
-import { describe } from 'node:test';
-import { it } from 'date-fns/locale';
-import { it } from 'date-fns/locale';
-import { it } from 'date-fns/locale';
-import { it } from 'date-fns/locale';
-import { it } from 'date-fns/locale';
-import { describe } from 'node:test';
-import { it } from 'date-fns/locale';
-import { it } from 'date-fns/locale';
-import { describe } from 'node:test';
-import { it } from 'date-fns/locale';
-import { describe } from 'node:test';
-import { it } from 'date-fns/locale';
-import { it } from 'date-fns/locale';
-import { it } from 'date-fns/locale';
-import { it } from 'date-fns/locale';
-import { it } from 'date-fns/locale';
-import { describe } from 'node:test';
-import { it } from 'date-fns/locale';
-import { it } from 'date-fns/locale';
-import { it } from 'date-fns/locale';
-import { describe } from 'node:test';
-import { it } from 'date-fns/locale';
-import { it } from 'date-fns/locale';
-import { it } from 'date-fns/locale';
-import { it } from 'date-fns/locale';
-import { it } from 'date-fns/locale';
-import { it } from 'date-fns/locale';
-import { it } from 'date-fns/locale';
-import { describe } from 'node:test';
-import { afterEach } from 'node:test';
-import { beforeEach } from 'node:test';
-import { describe } from 'node:test';
 
 // Mock fetch globally
 global.fetch = jest.fn();
