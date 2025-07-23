@@ -12,6 +12,7 @@ interface NetworkInfo {
 }
 
 interface DeviceCapabilities {
+  interactionMode: string;
   hasHover: boolean;
   hasPointer: boolean;
   screenDensity: number;
@@ -71,6 +72,7 @@ export function useResponsiveOptimization(): {
 
   // Device capabilities state
   const [deviceCapabilities, setDeviceCapabilities] = useState<DeviceCapabilities>({
+    interactionMode: 'mouse',
     hasHover: false,
     hasPointer: false,
     screenDensity: 1,
@@ -135,7 +137,11 @@ export function useResponsiveOptimization(): {
       const supportsWebP = canvas.toDataURL('image/webp').indexOf('data:image/webp') === 0;
       const supportsAvif = 'createImageBitmap' in window;
 
+      // Determine interaction mode based on device capabilities
+      const interactionMode = hasPointer && hasHover ? 'mouse' : 'touch';
+
       setDeviceCapabilities({
+        interactionMode,
         hasHover,
         hasPointer,
         screenDensity,
@@ -299,8 +305,8 @@ export function useAdaptiveContentLoading(threshold: number = 0.1) {
     // For data saver mode, be conservative
     if (networkInfo.saveData && priority === 'low') return isVisible(id);
     
-    // Default: load if visible or high priority
-    return isVisible(id) || priority === 'high';
+    // Default: load if visible
+    return isVisible(id);
   }, [networkInfo, isVisible]);
 
   return {

@@ -14,17 +14,17 @@ interface UseOptimizedAnimationsReturn {
   // Animation controls
   animate: (element: HTMLElement, keyframes: Keyframe[], options?: AnimationOptions) => Promise<void>;
   cancelAnimation: (element: HTMLElement) => void;
-  
+
   // Performance utilities
   requestAnimationFrame: (callback: FrameRequestCallback) => number;
   cancelAnimationFrame: (id: number) => void;
-  
+
   // Intersection observer for performance
   observeElement: (element: HTMLElement, callback: (isVisible: boolean) => void) => () => void;
-  
+
   // Optimized event handlers
   createOptimizedHandler: <T extends Event>(handler: (event: T) => void, delay?: number) => (event: T) => void;
-  
+
   // Animation state
   isAnimating: boolean;
   performanceMode: boolean;
@@ -153,7 +153,7 @@ export function useOptimizedAnimations(): UseOptimizedAnimationsReturn {
     delay: number = 16 // ~60fps
   ) => {
     let timeoutId: NodeJS.Timeout;
-    
+
     return (event: T) => {
       clearTimeout(timeoutId);
       timeoutId = setTimeout(() => handler(event), delay);

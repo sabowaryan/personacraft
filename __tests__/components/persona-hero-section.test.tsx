@@ -15,8 +15,8 @@ expect.extend(toHaveNoViolations);
 // Mock child components
 jest.mock('@/components/persona-result/hero/persona-avatar', () => ({
   PersonaAvatar: ({ persona, size, showStatus, animated }: any) => (
-    <div 
-      data-testid="persona-avatar" 
+    <div
+      data-testid="persona-avatar"
       data-size={size}
       data-show-status={showStatus}
       data-animated={animated}
@@ -38,7 +38,7 @@ jest.mock('@/components/persona-result/hero/persona-quick-actions', () => ({
 
 jest.mock('@/components/persona-result/ui/animated-card', () => ({
   AnimatedCard: ({ children, variant, size, animation, className }: any) => (
-    <div 
+    <div
       data-testid="animated-card"
       data-variant={variant}
       data-size={size}
@@ -64,25 +64,24 @@ const mockBasicPersona: Persona = {
   quote: 'L\'innovation naît de la curiosité et de la persévérance.',
   values: ['Innovation', 'Durabilité', 'Authenticité', 'Collaboration', 'Excellence'],
   interests: {
-    technology: ['Intelligence artificielle', 'Applications mobiles'],
-    lifestyle: ['Yoga', 'Cuisine bio'],
-    entertainment: ['Documentaires', 'Podcasts business'],
-    sports: ['Course à pied'],
-    culture: ['Musées', 'Théâtre']
+    music: ['Jazz', 'Électronique'],
+    brands: ['Apple', 'Tesla'],
+    movies: ['Documentaires', 'Science-fiction'],
+    food: ['Cuisine bio', 'Restaurants végétariens'],
+    books: ['Business', 'Développement personnel'],
+    lifestyle: ['Yoga', 'Course à pied']
   },
   communication: {
     preferredChannels: ['Email', 'LinkedIn', 'WhatsApp'],
     tone: 'Professionnel mais chaleureux',
-    frequency: 'Régulière',
-    bestTimes: ['9h-11h', '14h-16h']
+    contentTypes: ['Articles', 'Infographies', 'Vidéos'],
+    frequency: 'Régulière'
   },
   marketing: {
     painPoints: ['Manque de temps', 'Information overload'],
     motivations: ['Efficacité', 'Innovation'],
     influences: ['Experts secteur', 'Collègues'],
-    buyingBehavior: 'Recherche approfondie avant achat',
-    budget: 'Moyen-élevé',
-    decisionFactors: ['Qualité', 'ROI']
+    buyingBehavior: 'Recherche approfondie avant achat'
   },
   generatedAt: new Date().toISOString(),
   sources: ['Brief marketing']
@@ -101,10 +100,8 @@ const mockEnhancedPersona: EnhancedPersona = {
     total_processing_time: 2500,
     gemini_response_time: 1200,
     qloo_response_time: 800,
-    validation_time: 500,
-    model_version: 'gemini-1.5-pro',
-    qloo_api_version: 'v2.1',
-    processing_steps: []
+    confidence_level: 'high' as const,
+    data_sources: ['Gemini API', 'Qloo API']
   },
   cultural_data: {
     music_preferences: [],
@@ -254,8 +251,8 @@ describe('PersonaHeroSection', () => {
       const onBack = jest.fn();
 
       render(
-        <PersonaHeroSection 
-          persona={mockBasicPersona} 
+        <PersonaHeroSection
+          persona={mockBasicPersona}
           onExport={onExport}
           onShare={onShare}
           onBack={onBack}
@@ -413,13 +410,13 @@ describe('PersonaHeroSection', () => {
       render(<PersonaHeroSection persona={mockBasicPersona} compact={false} />);
 
       const animatedCards = screen.getAllByTestId('animated-card');
-      
+
       // Main card should have glow animation
       expect(animatedCards[0]).toHaveAttribute('data-animation', 'glow');
-      
+
       // Quote card should have no animation
       expect(animatedCards[1]).toHaveAttribute('data-animation', 'none');
-      
+
       // Floating cards should have hover animation
       const floatingCards = animatedCards.slice(2);
       floatingCards.forEach(card => {
@@ -456,15 +453,25 @@ describe('PersonaHeroSection', () => {
     });
 
     it('should handle missing interests gracefully', () => {
-      const personaWithoutInterests = { ...mockBasicPersona, interests: {} };
+      const personaWithoutInterests = {
+        ...mockBasicPersona,
+        interests: {
+          music: [],
+          brands: [],
+          movies: [],
+          food: [],
+          books: [],
+          lifestyle: []
+        }
+      };
       render(<PersonaHeroSection persona={personaWithoutInterests} compact={false} />);
 
       expect(screen.getByText('0')).toBeInTheDocument(); // Should show 0 interests
     });
 
     it('should handle missing communication channels', () => {
-      const personaWithoutChannels = { 
-        ...mockBasicPersona, 
+      const personaWithoutChannels = {
+        ...mockBasicPersona,
         communication: { ...mockBasicPersona.communication, preferredChannels: [] }
       };
       render(<PersonaHeroSection persona={personaWithoutChannels} compact={false} />);

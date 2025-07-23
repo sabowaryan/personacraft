@@ -610,6 +610,11 @@ export function usePersonaGeneration(): UsePersonaGenerationReturn {
           total_processing_time: 0,
           confidence_level: 'medium',
           data_sources: ['Legacy PersonaCraft', 'Migrated Data']
+        },
+        cultural_data: {
+          music_preferences: [],
+          brand_affinities: [],
+          lifestyle_indicators: []
         }
       };
 

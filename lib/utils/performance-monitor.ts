@@ -10,17 +10,17 @@ export interface PerformanceMetrics {
   cls?: number; // Cumulative Layout Shift
   fcp?: number; // First Contentful Paint
   ttfb?: number; // Time to First Byte
-  
+
   // Custom metrics
   personaRenderTime?: number;
   componentLoadTime?: number;
   dataFetchTime?: number;
-  
+
   // Navigation timing
   navigationStart?: number;
   domContentLoaded?: number;
   loadComplete?: number;
-  
+
   // Memory usage
   usedJSHeapSize?: number;
   totalJSHeapSize?: number;
@@ -49,7 +49,7 @@ export class PerformanceMonitor {
     personaRenderTime: 1000,
     componentLoadTime: 500
   };
-  
+
   private observers: PerformanceObserver[] = [];
   private isMonitoring = false;
 
@@ -74,13 +74,13 @@ export class PerformanceMonitor {
       this.observeCLS();
       this.observeFCP();
       this.observeTTFB();
-      
+
       // Monitor navigation timing
       this.observeNavigationTiming();
-      
+
       // Monitor memory usage
       this.observeMemoryUsage();
-      
+
       this.isMonitoring = true;
     } catch (error) {
       console.warn('Performance monitoring initialization failed:', error);
@@ -94,11 +94,11 @@ export class PerformanceMonitor {
       const observer = new PerformanceObserver((list) => {
         const entries = list.getEntries();
         const lastEntry = entries[entries.length - 1] as PerformanceEntry & { renderTime?: number; loadTime?: number };
-        
+
         this.metrics.lcp = lastEntry.renderTime || lastEntry.loadTime || 0;
         this.checkBudget('lcp', this.metrics.lcp);
       });
-      
+
       observer.observe({ entryTypes: ['largest-contentful-paint'] });
       this.observers.push(observer);
     } catch (error) {
@@ -117,7 +117,7 @@ export class PerformanceMonitor {
           this.checkBudget('fid', this.metrics.fid);
         });
       });
-      
+
       observer.observe({ entryTypes: ['first-input'] });
       this.observers.push(observer);
     } catch (error) {
@@ -137,11 +137,11 @@ export class PerformanceMonitor {
             clsValue += entry.value;
           }
         });
-        
+
         this.metrics.cls = clsValue;
         this.checkBudget('cls', this.metrics.cls);
       });
-      
+
       observer.observe({ entryTypes: ['layout-shift'] });
       this.observers.push(observer);
     } catch (error) {
@@ -162,7 +162,7 @@ export class PerformanceMonitor {
           }
         });
       });
-      
+
       observer.observe({ entryTypes: ['paint'] });
       this.observers.push(observer);
     } catch (error) {
@@ -183,7 +183,7 @@ export class PerformanceMonitor {
           }
         });
       });
-      
+
       observer.observe({ entryTypes: ['navigation'] });
       this.observers.push(observer);
     } catch (error) {
@@ -220,19 +220,19 @@ export class PerformanceMonitor {
     const startTime = performance.now();
     const result = fn();
     const endTime = performance.now();
-    
+
     const renderTime = endTime - startTime;
     this.metrics.personaRenderTime = renderTime;
-    
+
     this.checkBudget('personaRenderTime', renderTime);
-    
+
     // Log performance data for monitoring
     this.logPerformanceData('persona-render', {
       personaId,
       renderTime,
       timestamp: Date.now()
     });
-    
+
     return result;
   }
 
@@ -240,19 +240,19 @@ export class PerformanceMonitor {
     const startTime = performance.now();
     const result = fn();
     const endTime = performance.now();
-    
+
     const loadTime = endTime - startTime;
     this.metrics.componentLoadTime = loadTime;
-    
+
     this.checkBudget('componentLoadTime', loadTime);
-    
+
     // Log component performance
     this.logPerformanceData('component-load', {
       componentName,
       loadTime,
       timestamp: Date.now()
     });
-    
+
     return result;
   }
 
@@ -260,17 +260,17 @@ export class PerformanceMonitor {
     const startTime = performance.now();
     const result = await fetchFn();
     const endTime = performance.now();
-    
+
     const fetchTime = endTime - startTime;
     this.metrics.dataFetchTime = fetchTime;
-    
+
     // Log data fetch performance
     this.logPerformanceData('data-fetch', {
       operation,
       fetchTime,
       timestamp: Date.now()
     });
-    
+
     return result;
   }
 
@@ -278,7 +278,7 @@ export class PerformanceMonitor {
     const budgetValue = this.budget[metric];
     if (value > budgetValue) {
       console.warn(`Performance budget exceeded for ${metric}: ${value}ms > ${budgetValue}ms`);
-      
+
       // Send alert to monitoring service in production
       if (process.env.NODE_ENV === 'production') {
         this.sendPerformanceAlert(metric, value, budgetValue);
@@ -291,7 +291,7 @@ export class PerformanceMonitor {
     if (process.env.NODE_ENV === 'development') {
       console.log(`[Performance] ${type}:`, data);
     }
-    
+
     // In production, send to analytics service
     if (process.env.NODE_ENV === 'production') {
       this.sendToAnalytics(type, data);
@@ -314,8 +314,8 @@ export class PerformanceMonitor {
   private sendToAnalytics(type: string, data: any): void {
     // Implementation for sending performance data to analytics
     // This could be Google Analytics, Mixpanel, or custom analytics
-    if (typeof gtag !== 'undefined') {
-      gtag('event', 'performance_metric', {
+    if (typeof window !== 'undefined' && 'gtag' in window) {
+      (window as any).gtag('event', 'performance_metric', {
         event_category: 'Performance',
         event_label: type,
         value: Math.round(data.renderTime || data.loadTime || data.fetchTime || 0),
@@ -330,57 +330,57 @@ export class PerformanceMonitor {
 
   public getBudgetStatus(): Record<keyof PerformanceBudget, { value: number; budget: number; status: 'good' | 'warning' | 'poor' }> {
     const status: any = {};
-    
+
     Object.keys(this.budget).forEach((key) => {
       const metric = key as keyof PerformanceBudget;
       const value = this.metrics[metric] || 0;
       const budget = this.budget[metric];
-      
+
       let statusValue: 'good' | 'warning' | 'poor' = 'good';
       if (value > budget) {
         statusValue = 'poor';
       } else if (value > budget * 0.8) {
         statusValue = 'warning';
       }
-      
+
       status[metric] = { value, budget, status: statusValue };
     });
-    
+
     return status;
   }
 
   public generatePerformanceReport(): string {
     const metrics = this.getMetrics();
     const budgetStatus = this.getBudgetStatus();
-    
+
     let report = '# PersonaCraft Performance Report\n\n';
     report += `Generated: ${new Date().toISOString()}\n\n`;
-    
+
     report += '## Core Web Vitals\n';
     report += `- LCP: ${metrics.lcp?.toFixed(2) || 'N/A'}ms (Budget: ${this.budget.lcp}ms)\n`;
     report += `- FID: ${metrics.fid?.toFixed(2) || 'N/A'}ms (Budget: ${this.budget.fid}ms)\n`;
     report += `- CLS: ${metrics.cls?.toFixed(3) || 'N/A'} (Budget: ${this.budget.cls})\n`;
     report += `- FCP: ${metrics.fcp?.toFixed(2) || 'N/A'}ms (Budget: ${this.budget.fcp}ms)\n`;
     report += `- TTFB: ${metrics.ttfb?.toFixed(2) || 'N/A'}ms (Budget: ${this.budget.ttfb}ms)\n\n`;
-    
+
     report += '## Custom Metrics\n';
     report += `- Persona Render Time: ${metrics.personaRenderTime?.toFixed(2) || 'N/A'}ms\n`;
     report += `- Component Load Time: ${metrics.componentLoadTime?.toFixed(2) || 'N/A'}ms\n`;
     report += `- Data Fetch Time: ${metrics.dataFetchTime?.toFixed(2) || 'N/A'}ms\n\n`;
-    
+
     if (metrics.usedJSHeapSize) {
       report += '## Memory Usage\n';
       report += `- Used JS Heap: ${(metrics.usedJSHeapSize / 1024 / 1024).toFixed(2)} MB\n`;
       report += `- Total JS Heap: ${(metrics.totalJSHeapSize! / 1024 / 1024).toFixed(2)} MB\n`;
       report += `- JS Heap Limit: ${(metrics.jsHeapSizeLimit! / 1024 / 1024).toFixed(2)} MB\n\n`;
     }
-    
+
     report += '## Budget Status\n';
     Object.entries(budgetStatus).forEach(([key, status]) => {
       const emoji = status.status === 'good' ? '✅' : status.status === 'warning' ? '⚠️' : '❌';
       report += `${emoji} ${key}: ${status.value.toFixed(2)} / ${status.budget} (${status.status})\n`;
     });
-    
+
     return report;
   }
 
@@ -397,7 +397,7 @@ export const performanceMonitor = PerformanceMonitor.getInstance();
 // React hook for performance monitoring
 export function usePerformanceMonitor() {
   const monitor = PerformanceMonitor.getInstance();
-  
+
   return {
     measureRender: monitor.measurePersonaRender.bind(monitor),
     measureComponent: monitor.measureComponentLoad.bind(monitor),

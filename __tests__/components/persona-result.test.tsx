@@ -116,25 +116,24 @@ const mockPersona: Persona = {
   quote: 'L\'innovation naît de la curiosité et de la persévérance.',
   values: ['Innovation', 'Durabilité', 'Authenticité', 'Collaboration'],
   interests: {
-    technology: ['Intelligence artificielle', 'Applications mobiles'],
-    lifestyle: ['Yoga', 'Cuisine bio'],
-    entertainment: ['Documentaires', 'Podcasts business'],
-    sports: ['Course à pied'],
-    culture: ['Musées', 'Théâtre']
+    music: ['Électronique', 'Jazz'],
+    brands: ['Apple', 'Tesla', 'Patagonia'],
+    movies: ['Documentaires', 'Science-fiction'],
+    food: ['Cuisine bio', 'Restaurants végétariens'],
+    books: ['Business', 'Développement personnel'],
+    lifestyle: ['Yoga', 'Course à pied', 'Musées', 'Théâtre']
   },
   communication: {
     preferredChannels: ['Email', 'LinkedIn', 'WhatsApp'],
     tone: 'Professionnel mais chaleureux',
-    frequency: 'Régulière',
-    bestTimes: ['9h-11h', '14h-16h']
+    contentTypes: ['Articles', 'Infographies', 'Vidéos courtes'],
+    frequency: 'Régulière'
   },
   marketing: {
     painPoints: ['Manque de temps', 'Information overload'],
     motivations: ['Efficacité', 'Innovation'],
     influences: ['Experts secteur', 'Collègues'],
-    buyingBehavior: 'Recherche approfondie avant achat',
-    budget: 'Moyen-élevé',
-    decisionFactors: ['Qualité', 'ROI']
+    buyingBehavior: 'Recherche approfondie avant achat'
   },
   generatedAt: new Date().toISOString(),
   sources: ['Brief marketing', 'Données démographiques']
@@ -193,9 +192,9 @@ describe('PersonaResult', () => {
   describe('loading states', () => {
     it('should show loading skeleton when isLoading is true', () => {
       render(
-        <PersonaResult 
-          persona={mockPersona} 
-          isLoading={true} 
+        <PersonaResult
+          persona={mockPersona}
+          isLoading={true}
           loadingStage="Chargement des données..."
         />
       );
@@ -443,7 +442,7 @@ describe('PersonaResult', () => {
 
       // Only active tab content should be rendered initially
       expect(screen.getByTestId('profile-tab')).toBeInTheDocument();
-      
+
       // Other tabs should not be rendered until activated
       const interestsTab = screen.queryByTestId('interests-tab');
       expect(interestsTab).not.toBeInTheDocument();

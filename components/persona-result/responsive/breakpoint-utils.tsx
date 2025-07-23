@@ -19,7 +19,7 @@ export function Breakpoint({ mobile, tablet, desktop, fallback }: BreakpointProp
   if (isTablet && tablet) return <>{tablet}</>;
   if (isDesktop && desktop) return <>{desktop}</>;
   if (fallback) return <>{fallback}</>;
-  
+
   return null;
 }
 
@@ -105,7 +105,7 @@ export function useDynamicStyles() {
   const { cssVars, touchTargetSize, fontScale, shouldAnimate } = useDeviceOptimizations();
   const { isMobile, isTablet, isTouchDevice } = useBreakpoints();
 
-  const dynamicStyles: CSSProperties = {
+  const dynamicStyles: CSSProperties & Record<string, string | number> = {
     ...cssVars,
     '--min-touch-target': `${touchTargetSize}px`,
     '--font-scale': fontScale,
@@ -203,7 +203,7 @@ export function useTouchInteractions() {
 
   const getTouchClasses = (interactive: boolean = true) => {
     if (!interactive) return '';
-    
+
     return cn(
       // Minimum touch target size
       `min-h-[${touchTargetSize}px]`,

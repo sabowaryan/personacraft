@@ -71,6 +71,11 @@ const enhancedPersona: EnhancedPersona = {
     confidence_level: 'high',
     data_sources: ['Gemini Pro', 'Qloo Taste API'],
   },
+  cultural_data: {
+    music_preferences: ['Pop française', 'Jazz', 'Musique électronique'],
+    brand_affinities: ['Apple', 'Patagonia', 'Sephora', 'Netflix'],
+    lifestyle_indicators: ['Yoga', 'Voyages éco-responsables', 'Photographie', 'Jardinage urbain'],
+  },
 };
 
 interface MetricsDemoProps {
@@ -155,8 +160,8 @@ export function MetricsDemo({ className }: MetricsDemoProps) {
             </div>
             <div className="text-center p-4 bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-900/20 dark:to-purple-800/20 rounded-lg">
               <Badge variant={metrics.engagementLevel === 'high' ? 'default' : 'secondary'}>
-                {metrics.engagementLevel === 'high' ? 'Élevé' : 
-                 metrics.engagementLevel === 'medium' ? 'Moyen' : 'Faible'}
+                {metrics.engagementLevel === 'high' ? 'Élevé' :
+                  metrics.engagementLevel === 'medium' ? 'Moyen' : 'Faible'}
               </Badge>
               <div className="text-sm text-purple-700 dark:text-purple-300 mt-1">Engagement</div>
             </div>

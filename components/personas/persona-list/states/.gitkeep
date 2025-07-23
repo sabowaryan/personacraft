@@ -1,0 +1,5 @@
+# States components directory
+# This directory will contain:
+# - LoadingSkeletons component
+# - EmptyState component
+# - ErrorState component

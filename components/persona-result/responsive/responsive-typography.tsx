@@ -1,8 +1,9 @@
 'use client';
 
-import { ReactNode, HTMLAttributes } from 'react';
+import React, { ReactNode, HTMLAttributes } from 'react';
 import { cn } from '@/lib/utils';
 import { useBreakpoints } from '@/hooks/use-media-query';
+import { JSX } from 'react/jsx-runtime';
 
 interface ResponsiveTextProps extends HTMLAttributes<HTMLElement> {
   children: ReactNode;
@@ -70,16 +71,16 @@ export function ResponsiveText({
   ...props
 }: ResponsiveTextProps) {
   const { isMobile, isTablet } = useBreakpoints();
-  
+
   // Determine the component to render
-  const Component = as || (variant.startsWith('h') ? variant : 'p') as keyof JSX.IntrinsicElements;
-  
+  const Component = (as || (variant.startsWith('h') ? variant : 'p')) as React.ElementType;
+
   // Get responsive classes
   const getResponsiveClasses = () => {
     if (!responsive) {
       return typographyScale[variant].desktop;
     }
-    
+
     const scale = typographyScale[variant];
     return cn(
       scale.mobile,
@@ -146,7 +147,7 @@ export function ResponsiveSpacing({
   className
 }: ResponsiveSpacingProps) {
   const scale = spacingScale[spacing];
-  
+
   const directionClasses = {
     vertical: 'flex flex-col',
     horizontal: 'flex flex-row',
@@ -270,7 +271,7 @@ export function TouchCard({
   padding = 'md'
 }: TouchCardProps) {
   const { isTouchDevice } = useBreakpoints();
-  
+
   const paddingClasses = {
     sm: 'p-3 md:p-4',
     md: 'p-4 md:p-6',

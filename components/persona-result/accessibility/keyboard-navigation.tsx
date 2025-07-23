@@ -1,8 +1,12 @@
 'use client';
 
 import { useEffect, useCallback, useState } from 'react';
-import { useAccessibility } from '@/hooks/use-accessibility';
-import { KeyboardShortcut, SkipLinkConfig } from '@/hooks/use-keyboard-navigation';
+import { KeyboardShortcut, useKeyboardNavigation, useAriaLiveRegion } from '@/hooks/use-keyboard-navigation';
+
+interface SkipLinkConfig {
+  targetId: string;
+  label: string;
+}
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -12,13 +16,9 @@ import {
   ArrowDown,
   ArrowLeft,
   ArrowRight,
-  Enter,
-  Escape,
-  Tab,
-  Command,
   Download,
   Share2,
-  RotateCcw
+  X
 } from 'lucide-react';
 
 interface PersonaKeyboardNavigationProps {
@@ -124,24 +124,29 @@ export function PersonaKeyboardNavigation({
     }
   ];
 
+  // Use the keyboard navigation hook
   const {
     containerRef,
-    announceChange,
-    announceStatus,
     focusFirst,
     focusNext,
     focusPrevious,
     focusByGroup,
-    reducedMotion
-  } = useAccessibility(shortcuts, skipLinks, {
-    enableKeyboardNavigation: true,
-    enableScreenReaderSupport: true,
+    createSkipLink
+  } = useKeyboardNavigation(shortcuts, {
+    enableShortcuts: true,
     enableFocusManagement: true,
     enableSkipLinks: true,
     trapFocus: false,
-    restoreFocus: true,
-    announceChanges: true
+    restoreFocus: true
   });
+
+  // Use the aria live region hook for announcements
+  const { announce } = useAriaLiveRegion();
+
+  // Helper function for announcements
+  const announceChange = (message: string, priority: 'polite' | 'assertive' = 'polite') => {
+    announce(message, priority);
+  };
 
   // Announce tab changes
   useEffect(() => {
@@ -183,7 +188,7 @@ export function PersonaKeyboardNavigation({
   }, [showShortcuts, announceChange]);
 
   return (
-    <div ref={containerRef} className="relative">
+    <div ref={containerRef as React.RefObject<HTMLDivElement>} className="relative">
       {/* Screen reader instructions */}
       <div className="sr-only" aria-live="polite" id="keyboard-instructions">
         Use Tab to navigate between elements. Press Shift+? to view keyboard shortcuts.
@@ -222,7 +227,7 @@ export function PersonaKeyboardNavigation({
                   onClick={handleShortcutsToggle}
                   aria-label="Close keyboard shortcuts"
                 >
-                  <Escape className="h-4 w-4" />
+                  <X className="h-4 w-4" />
                 </Button>
               </div>
             </CardHeader>
@@ -236,22 +241,22 @@ export function PersonaKeyboardNavigation({
                   <ShortcutItem
                     keys={[{ key: 'Tab' }]}
                     description="Navigate between interactive elements"
-                    icon={<Tab className="h-4 w-4" />}
+                    icon={<span className="text-xs font-mono">⇥</span>}
                   />
                   <ShortcutItem
                     keys={[{ key: 'Shift', modifier: true }, { key: 'Tab' }]}
                     description="Navigate backwards"
-                    icon={<Tab className="h-4 w-4 rotate-180" />}
+                    icon={<span className="text-xs font-mono">⇤</span>}
                   />
                   <ShortcutItem
                     keys={[{ key: 'Enter' }]}
                     description="Activate focused element"
-                    icon={<Enter className="h-4 w-4" />}
+                    icon={<span className="text-xs font-mono">↵</span>}
                   />
                   <ShortcutItem
                     keys={[{ key: 'Escape' }]}
                     description="Go back or close dialogs"
-                    icon={<Escape className="h-4 w-4" />}
+                    icon={<span className="text-xs font-mono">Esc</span>}
                   />
                 </div>
               </div>

@@ -1,21 +1,22 @@
 'use client';
 
-import { useEffect, useCallback, useState, useRef } from 'react';
+import React, { useEffect, useCallback, useState, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { 
-  Eye, 
-  EyeOff, 
-  Contrast, 
-  Type, 
-  Volume2, 
+import {
+  Eye,
+  EyeOff,
+  Contrast,
+  Type,
+  Volume2,
   VolumeX,
   Settings,
   Check,
   AlertTriangle
 } from 'lucide-react';
+import { JSX } from 'react/jsx-runtime';
 
 // Color contrast utilities
 export function getContrastRatio(color1: string, color2: string): number {
@@ -40,15 +41,15 @@ export function getContrastRatio(color1: string, color2: string): number {
 
   const rgb1 = hexToRgb(color1);
   const rgb2 = hexToRgb(color2);
-  
+
   if (!rgb1 || !rgb2) return 0;
 
   const lum1 = getLuminance(rgb1.r, rgb1.g, rgb1.b);
   const lum2 = getLuminance(rgb2.r, rgb2.g, rgb2.b);
-  
+
   const brightest = Math.max(lum1, lum2);
   const darkest = Math.min(lum1, lum2);
-  
+
   return (brightest + 0.05) / (darkest + 0.05);
 }
 
@@ -61,7 +62,7 @@ export function checkColorContrast(foreground: string, background: string): {
   const ratio = getContrastRatio(foreground, background);
   const passesAA = ratio >= 4.5;
   const passesAAA = ratio >= 7;
-  
+
   return {
     ratio,
     passesAA,
@@ -83,7 +84,7 @@ export function useWCAGCompliance() {
     const checkPreferences = () => {
       const highContrastQuery = window.matchMedia('(prefers-contrast: high)');
       const reducedMotionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
-      
+
       setHighContrast(highContrastQuery.matches);
       setReducedMotion(reducedMotionQuery.matches);
 
@@ -97,7 +98,7 @@ export function useWCAGCompliance() {
   // Apply accessibility preferences
   useEffect(() => {
     const root = document.documentElement;
-    
+
     // Apply high contrast
     if (highContrast) {
       root.classList.add('high-contrast');
@@ -132,9 +133,9 @@ export function useWCAGCompliance() {
     // Check for missing form labels
     const inputs = document.querySelectorAll('input, select, textarea');
     inputs.forEach((input, index) => {
-      const hasLabel = input.getAttribute('aria-label') || 
-                      input.getAttribute('aria-labelledby') ||
-                      document.querySelector(`label[for="${input.id}"]`);
+      const hasLabel = input.getAttribute('aria-label') ||
+        input.getAttribute('aria-labelledby') ||
+        document.querySelector(`label[for="${input.id}"]`);
       if (!hasLabel) {
         issues.push(`Form field ${index + 1} is missing a label`);
       }
@@ -160,8 +161,8 @@ export function useWCAGCompliance() {
     // Check for interactive elements without proper roles
     const clickableElements = document.querySelectorAll('[onclick], .cursor-pointer');
     clickableElements.forEach((element, index) => {
-      if (!element.getAttribute('role') && 
-          !['button', 'a', 'input', 'select', 'textarea'].includes(element.tagName.toLowerCase())) {
+      if (!element.getAttribute('role') &&
+        !['button', 'a', 'input', 'select', 'textarea'].includes(element.tagName.toLowerCase())) {
         issues.push(`Interactive element ${index + 1} missing proper role`);
       }
     });
@@ -185,14 +186,14 @@ export function useWCAGCompliance() {
 }
 
 // Semantic HTML wrapper component
-export function SemanticSection({ 
+export function SemanticSection({
   as: Component = 'section',
   children,
   ariaLabel,
   ariaLabelledBy,
   role,
   className = '',
-  ...props 
+  ...props
 }: {
   as?: keyof JSX.IntrinsicElements;
   children: React.ReactNode;
@@ -302,29 +303,29 @@ export function AccessibleFormField({
 
   return (
     <div className={`space-y-2 ${className}`}>
-      <label 
+      <label
         htmlFor={id}
         className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
       >
         {label}
         {required && <span className="text-destructive ml-1" aria-label="required">*</span>}
       </label>
-      
+
       {description && (
         <p id={descriptionId} className="text-sm text-muted-foreground">
           {description}
         </p>
       )}
-      
+
       <div className="relative">
-        {React.cloneElement(children as React.ReactElement, {
+        {React.cloneElement(children as React.ReactElement<any>, {
           id,
           'aria-describedby': ariaDescribedBy || undefined,
           'aria-invalid': error ? 'true' : undefined,
           'aria-required': required
         })}
       </div>
-      
+
       {error && (
         <p id={errorId} className="text-sm text-destructive" role="alert">
           {error}
@@ -374,7 +375,7 @@ export function AccessibilitySettings() {
 
       {/* Settings panel */}
       {showSettings && (
-        <div 
+        <div
           className="fixed bottom-20 right-4 z-50 w-80"
           role="dialog"
           aria-modal="true"
@@ -485,7 +486,7 @@ export function AccessibilitySettings() {
 
       {/* Audit results */}
       {showAudit && (
-        <div 
+        <div
           className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4"
           role="dialog"
           aria-modal="true"
@@ -502,7 +503,7 @@ export function AccessibilitySettings() {
                 Accessibility Audit Results
               </CardTitle>
               <CardDescription>
-                {complianceIssues.length === 0 
+                {complianceIssues.length === 0
                   ? 'No accessibility issues found!'
                   : `Found ${complianceIssues.length} potential accessibility issue${complianceIssues.length === 1 ? '' : 's'}`
                 }
@@ -526,7 +527,7 @@ export function AccessibilitySettings() {
                   ))}
                 </div>
               )}
-              
+
               <Button
                 onClick={() => setShowAudit(false)}
                 className="w-full"

@@ -419,6 +419,7 @@ IMPORTANT :
           .replace(/\\n/g, ' ')    // Remplacer les \n échappés par des espaces
           .replace(/\\t/g, ' ')    // Remplacer les \t échappés par des espaces
           .replace(/\\r/g, ' ')    // Remplacer les \r échappés par des espaces
+          .replace(/"/g, '\\"')    // Échapper les guillemets internes
           .trim();                 // Supprimer les espaces en début/fin
         
         return `"${cleanContent}"`;
@@ -427,6 +428,12 @@ IMPORTANT :
     
     // Appliquer le nettoyage des chaînes
     cleaned = fixStringValues(cleaned);
+    
+    // Nettoyer les caractères de contrôle problématiques
+    cleaned = cleaned
+      .replace(/[\u0000-\u001F\u007F-\u009F]/g, ' ') // Supprimer les caractères de contrôle
+      .replace(/,(\s*[}\]])/g, '$1') // Supprimer les virgules avant les fermetures
+      .replace(/([}\]])(\s*)([{\[])/g, '$1,$2$3'); // Ajouter des virgules manquantes entre objets/arrays
     
     // Deuxième étape : nettoyer la structure JSON générale
     cleaned = cleaned

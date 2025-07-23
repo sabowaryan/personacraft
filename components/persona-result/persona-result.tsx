@@ -218,8 +218,6 @@ const PersonaResultInternal = memo(function PersonaResultInternal({ persona, onB
                         variant="success"
                         size="lg"
                         pulse
-                        role="status"
-                        aria-label="Persona generation status: Generated"
                       >
                         <Star className="h-3.5 w-3.5 mr-1" aria-hidden="true" />
                         Généré

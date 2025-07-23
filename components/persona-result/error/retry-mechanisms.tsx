@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useCallback, useEffect, useMemo } from 'react';
-import { RefreshCw, Wifi, WifiOff, AlertCircle, Clock } from 'lucide-react';
+import { RefreshCw, WifiOff, AlertCircle, Clock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
@@ -29,7 +29,6 @@ interface UseRetryMechanismProps {
     onMaxAttemptsReached?: (error: Error) => void;
 }
 
-// Custom hook for retry logic
 export const useRetryMechanism = ({
     config = {},
     onRetry,
@@ -42,7 +41,6 @@ export const useRetryMechanism = ({
             maxDelay: 10000,
             backoffMultiplier: 2,
             retryCondition: (error) => {
-                // Retry on network errors, timeouts, and 5xx server errors
                 return (
                     error.name === 'NetworkError' ||
                     error.name === 'TimeoutError' ||
@@ -61,112 +59,107 @@ export const useRetryMechanism = ({
         nextRetryIn: 0,
     });
 
-    const calculateDelay = useCallback((attemptCount: number): number => {
-        const delay = Math.min(
-            finalConfig.baseDelay * Math.pow(finalConfig.backoffMultiplier, attemptCount),
-            finalConfig.maxDelay
-        );
-        // Add jitter to prevent thundering herd
-        return delay + Math.random() * 1000;
-    }, [finalConfig]);
+    const calculateDelay = useCallback(
+        (attemptCount: number): number => {
+            const delay = Math.min(
+                finalConfig.baseDelay * Math.pow(finalConfig.backoffMultiplier, attemptCount),
+                finalConfig.maxDelay
+            );
+            return delay + Math.random() * 1000;
+        },
+        [finalConfig]
+    );
 
-    const executeWithRetry = useCallback(async <T>(
-        operation: () => Promise<T>
-    ): Promise<T> => {
-    let lastError: Error;
+    const executeWithRetry = useCallback(
+        async <T,>(operation: () => Promise<T>): Promise<T> => {
+            let lastError: Error = new Error("Unknown error");
 
-    for (let attempt = 0; attempt < finalConfig.maxAttempts; attempt++) {
-        try {
-            setRetryState(prev => ({
-                ...prev,
-                isRetrying: attempt > 0,
-                attemptCount: attempt,
-                nextRetryIn: 0,
-            }));
+            for (let attempt = 0; attempt < finalConfig.maxAttempts; attempt++) {
+                try {
+                    setRetryState((prev) => ({
+                        ...prev,
+                        isRetrying: attempt > 0,
+                        attemptCount: attempt,
+                        nextRetryIn: 0,
+                    }));
 
-            const result = await operation();
+                    const result = await operation();
 
-            // Reset state on success
+                    setRetryState({
+                        isRetrying: false,
+                        attemptCount: 0,
+                        lastError: null,
+                        nextRetryIn: 0,
+                    });
+
+                    return result;
+                } catch (error) {
+                    lastError = error as Error;
+
+                    setRetryState((prev) => ({
+                        ...prev,
+                        lastError,
+                        attemptCount: attempt + 1,
+                    }));
+
+                    if (!finalConfig.retryCondition?.(lastError)) {
+                        throw lastError;
+                    }
+
+                    if (attempt === finalConfig.maxAttempts - 1) {
+                        break;
+                    }
+
+                    const delay = calculateDelay(attempt);
+                    onRetry?.(attempt + 1);
+
+                    const startTime = Date.now();
+                    const interval = setInterval(() => {
+                        const elapsed = Date.now() - startTime;
+                        const remaining = Math.max(0, delay - elapsed);
+
+                        setRetryState((prev) => ({
+                            ...prev,
+                            nextRetryIn: Math.ceil(remaining / 1000),
+                        }));
+
+                        if (remaining <= 0) clearInterval(interval);
+                    }, 100);
+
+                    await new Promise((resolve) => setTimeout(resolve, delay));
+                    clearInterval(interval);
+                }
+            }
+
             setRetryState({
                 isRetrying: false,
-                attemptCount: 0,
-                lastError: null,
+                attemptCount: finalConfig.maxAttempts,
+                lastError,
                 nextRetryIn: 0,
             });
 
-            return result;
-        } catch (error) {
-            lastError = error as Error;
+            onMaxAttemptsReached?.(lastError);
+            throw lastError;
+        },
+        [finalConfig, calculateDelay, onRetry, onMaxAttemptsReached]
+    );
 
-            setRetryState(prev => ({
-                ...prev,
-                lastError,
-                attemptCount: attempt + 1,
-            }));
+    const reset = useCallback(() => {
+        setRetryState({
+            isRetrying: false,
+            attemptCount: 0,
+            lastError: null,
+            nextRetryIn: 0,
+        });
+    }, []);
 
-            // Check if we should retry this error
-            if (!finalConfig.retryCondition?.(lastError)) {
-                throw lastError;
-            }
-
-            // If this was the last attempt, don't wait
-            if (attempt === finalConfig.maxAttempts - 1) {
-                break;
-            }
-
-            // Calculate delay and wait
-            const delay = calculateDelay(attempt);
-            onRetry?.(attempt + 1);
-
-            // Countdown timer
-            const startTime = Date.now();
-            const countdownInterval = setInterval(() => {
-                const elapsed = Date.now() - startTime;
-                const remaining = Math.max(0, delay - elapsed);
-
-                setRetryState(prev => ({
-                    ...prev,
-                    nextRetryIn: Math.ceil(remaining / 1000),
-                }));
-
-                if (remaining <= 0) {
-                    clearInterval(countdownInterval);
-                }
-            }, 100);
-
-            await new Promise(resolve => setTimeout(resolve, delay));
-            clearInterval(countdownInterval);
-        }
-    }
-
-    // Max attempts reached
-    setRetryState(prev => ({
-        ...prev,
-        isRetrying: false,
-        nextRetryIn: 0,
-    }));
-
-    onMaxAttemptsReached?.(lastError!);
-    throw lastError!;
-}, [finalConfig, calculateDelay, onRetry, onMaxAttemptsReached]);
-
-const reset = useCallback(() => {
-    setRetryState({
-        isRetrying: false,
-        attemptCount: 0,
-        lastError: null,
-        nextRetryIn: 0,
-    });
-}, []);
-
-return {
-    executeWithRetry,
-    retryState,
-    reset,
-};
+    return {
+        executeWithRetry,
+        retryState,
+        reset,
+    };
 };
 
-// Retry UI component
 interface RetryUIProps {
     error: Error;
     onRetry: () => void;
@@ -205,8 +198,7 @@ export const RetryUI: React.FC<RetryUIProps> = ({
                 <CardDescription>
                     {isNetworkError
                         ? 'Impossible de se connecter au serveur'
-                        : 'Une erreur est survenue lors du chargement des données'
-                    }
+                        : 'Une erreur est survenue lors du chargement des données'}
                 </CardDescription>
             </CardHeader>
 
@@ -268,8 +260,7 @@ export const RetryUI: React.FC<RetryUIProps> = ({
                     <Alert>
                         <AlertCircle className="h-4 w-4" />
                         <AlertDescription>
-                            Le nombre maximum de tentatives a été atteint.
-                            Veuillez vérifier votre connexion internet et rafraîchir la page.
+                            Le nombre maximum de tentatives a été atteint. Veuillez vérifier votre connexion internet et rafraîchir la page.
                         </AlertDescription>
                     </Alert>
                 )}
@@ -278,7 +269,6 @@ export const RetryUI: React.FC<RetryUIProps> = ({
     );
 };
 
-// Network status detector
 export const useNetworkStatus = () => {
     const [isOnline, setIsOnline] = useState(
         typeof navigator !== 'undefined' ? navigator.onLine : true
@@ -300,7 +290,6 @@ export const useNetworkStatus = () => {
     return isOnline;
 };
 
-// Offline indicator component
 export const OfflineIndicator: React.FC = () => {
     const isOnline = useNetworkStatus();
 
@@ -319,12 +308,12 @@ export const OfflineIndicator: React.FC = () => {
     );
 };
 
-// Smart retry wrapper component
 interface SmartRetryWrapperProps {
     children: React.ReactNode;
     fallback?: React.ComponentType<RetryUIProps>;
     retryConfig?: Partial<RetryConfig>;
     onError?: (error: Error) => void;
+    operation?: () => Promise<any>;
 }
 
 export const SmartRetryWrapper: React.FC<SmartRetryWrapperProps> = ({
@@ -332,23 +321,37 @@ export const SmartRetryWrapper: React.FC<SmartRetryWrapperProps> = ({
     fallback: FallbackComponent = RetryUI,
     retryConfig,
     onError,
+    operation,
 }) => {
     const [error, setError] = useState<Error | null>(null);
+    const [loading, setLoading] = useState(true);
     const { executeWithRetry, retryState, reset } = useRetryMechanism({
         config: retryConfig,
-        onMaxAttemptsReached: onError,
+        onMaxAttemptsReached: (err) => {
+            onError?.(err);
+            setError(err);
+        },
     });
 
-    const handleRetry = useCallback(() => {
+    const load = useCallback(() => {
+        if (!operation) return;
+        setLoading(true);
         setError(null);
         reset();
-    }, [reset]);
+        executeWithRetry(operation)
+            .catch(setError)
+            .finally(() => setLoading(false));
+    }, [executeWithRetry, operation, reset]);
+
+    useEffect(() => {
+        if (operation) load();
+    }, [operation, load]);
 
     if (error) {
         return (
             <FallbackComponent
                 error={error}
-                onRetry={handleRetry}
+                onRetry={load}
                 isRetrying={retryState.isRetrying}
                 attemptCount={retryState.attemptCount}
                 maxAttempts={retryConfig?.maxAttempts || 3}
@@ -357,7 +360,5 @@ export const SmartRetryWrapper: React.FC<SmartRetryWrapperProps> = ({
         );
     }
 
-    return <>{children}</>;
+    return <>{loading ? <p>Chargement...</p> : children}</>;
 };
-
-

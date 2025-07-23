@@ -67,4 +67,9 @@ export interface EnhancedPersona extends Persona {
     confidence_level: 'low' | 'medium' | 'high';
     data_sources: string[];
   };
+  cultural_data: {
+    music_preferences: string[];
+    brand_affinities: string[];
+    lifestyle_indicators: string[];
+  };
 }

@@ -137,7 +137,7 @@ export function useDeviceCapabilities() {
     isMobile,
     isTablet,
     isTouchDevice,
-    interactionMode: hasHover && hasPointer ? 'mouse' : 'touch',
+    interactionMode: deviceInfo.hasHover && deviceInfo.hasPointer ? 'mouse' : 'touch',
   };
 }
 

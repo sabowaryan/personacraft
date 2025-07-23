@@ -167,6 +167,11 @@ export class QlooIntegrationService {
 
     // Rechercher des entités pour chaque intérêt
     for (const interest of brief.interests) {
+      // Skip empty or very short interests
+      if (!interest || interest.trim().length < 2) {
+        continue;
+      }
+
       for (const entityType of entityTypes) {
         try {
           const searchResult = await this.client.searchEntities(interest, entityType, {
@@ -179,8 +184,15 @@ export class QlooIntegrationService {
           }
         } catch (error) {
           console.warn(`Search failed for ${interest} (${entityType}):`, error);
+          // Continue with other searches instead of failing completely
         }
       }
+    }
+
+    // If no entities found, return empty array instead of failing
+    if (allEntities.length === 0) {
+      console.warn('No entities found from Qloo API, will use fallback data');
+      return [];
     }
 
     // Dédupliquer et limiter les résultats

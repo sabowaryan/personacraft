@@ -78,7 +78,7 @@ export class QlooAudiencesService {
 
     try {
       const url = new URL('/v2/audiences', this.baseUrl);
-      
+
       // Ajouter les paramètres de filtrage
       this.addFiltersToUrl(url, filters);
 
@@ -106,7 +106,7 @@ export class QlooAudiencesService {
 
     try {
       const url = new URL('/v2/audiences', this.baseUrl);
-      
+
       // Ajouter les paramètres de recherche
       if (params.demographics) {
         this.addDemographicsToUrl(url, params.demographics);
@@ -381,7 +381,7 @@ export class QlooAudiencesService {
 
     } catch (error) {
       clearTimeout(timeoutId);
-      
+
       if (error instanceof Error && error.name === 'AbortError') {
         throw this.createCompliantError(
           QlooErrorType.NETWORK_ERROR,
@@ -389,7 +389,7 @@ export class QlooAudiencesService {
           `Request timeout after ${this.timeout}ms`
         );
       }
-      
+
       throw error;
     }
   }
@@ -628,9 +628,9 @@ export class QlooAudiencesService {
 
     // Validation de la distribution par genre
     if (demographics.gender_distribution) {
-      const total = (demographics.gender_distribution.male || 0) + 
-                   (demographics.gender_distribution.female || 0) + 
-                   (demographics.gender_distribution.other || 0);
+      const total = (demographics.gender_distribution.male || 0) +
+        (demographics.gender_distribution.female || 0) +
+        (demographics.gender_distribution.other || 0);
       if (total > 1.1) { // Tolérance de 10% pour les erreurs d'arrondi
         warnings.push('Gender distribution percentages sum to more than 100%');
       }

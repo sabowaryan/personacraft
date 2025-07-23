@@ -1,6 +1,6 @@
 // Orchestrateur principal pour la génération de personas
 
-import { qlooClient, QlooRequest } from './qloo';
+import { qlooClientLegacy } from './qloo';
 import { geminiClient, GeminiClient } from './gemini';
 import { Persona, BriefFormData } from '../types/persona';
 
@@ -16,11 +16,11 @@ export interface GenerationResult {
 }
 
 export class PersonaGenerator {
-  private qlooClient: typeof qlooClient;
+  private qlooClient: typeof qlooClientLegacy;
   private geminiClient: GeminiClient;
 
   constructor() {
-    this.qlooClient = qlooClient;
+    this.qlooClient = qlooClientLegacy;
     this.geminiClient = geminiClient;
   }
 
@@ -39,7 +39,7 @@ export class PersonaGenerator {
         try {
           const persona = await this.generateSinglePersona(brief, culturalData, i);
           personas.push(persona);
-          
+
           // Délai entre les générations pour éviter la surcharge
           if (i < personaCount - 1) {
             await new Promise(resolve => setTimeout(resolve, 500));
@@ -72,7 +72,7 @@ export class PersonaGenerator {
 
   private async getCulturalRecommendations(brief: BriefFormData) {
     try {
-      const qlooRequest: QlooRequest = {
+      const qlooRequest = {
         interests: brief.interests,
         demographics: {
           age: this.parseAgeRange(brief.ageRange),
@@ -81,7 +81,7 @@ export class PersonaGenerator {
         categories: ['music', 'brands', 'movies', 'food', 'books', 'lifestyle']
       };
 
-      return await this.qlooClient.getRecommendations(qlooRequest);
+      return await this.qlooClient.instance.getRecommendations(qlooRequest);
     } catch (error) {
       console.warn('Impossible d\'obtenir les recommandations Qloo, utilisation de données par défaut:', error);
       return null;
@@ -179,7 +179,7 @@ export class PersonaGenerator {
       '55-65': [55, 65],
       '65+': [65, 80]
     };
-    
+
     const [min, max] = ranges[ageRange] || [25, 35];
     return Math.floor(Math.random() * (max - min + 1)) + min;
   }
