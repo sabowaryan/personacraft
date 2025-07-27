@@ -1,0 +1,40 @@
+En tant qu'expert en marketing et personas, génère exactement {{personaCount}} personas détaillés basés sur ce brief marketing :
+
+"{{brief}}"
+
+Pour chaque persona, fournis les informations suivantes au format JSON strict :
+- name: nom complet français
+- age: âge entre {{minAge}}-{{maxAge}} ans
+- occupation: métier spécifique et réaliste
+- location: ville française
+- bio: biographie courte et engageante (2-3 phrases) qui résume qui est cette personne
+- quote: citation authentique et personnelle qui reflète sa personnalité et ses valeurs (1 phrase entre guillemets)
+- demographics: { 
+    income: "tranche de revenus précise", 
+    education: "niveau d'études détaillé", 
+    familyStatus: "situation familiale" 
+  }
+- psychographics: {
+    personality: [{{personalityTraitCount}} traits de personnalité],
+    values: [{{valuesCount}} valeurs importantes],
+    interests: [{{interestsCount}} centres d'intérêt],
+    lifestyle: "description détaillée du style de vie"
+  }
+- painPoints: [{{painPointsCount}} points de douleur spécifiques et concrets]
+- goals: [{{goalsCount}} objectifs principaux mesurables]
+- marketingInsights: {
+    preferredChannels: [{{channelsCount}} canaux de communication préférés],
+    messagingTone: "ton de communication adapté",
+    buyingBehavior: "comportement d'achat détaillé"
+  }
+- qualityScore: nombre entre {{minQualityScore}} et {{maxQualityScore}}
+
+CONTRAINTES IMPORTANTES:
+- Réponds UNIQUEMENT avec un tableau JSON valide
+- AUCUN texte supplémentaire avant ou après
+- AUCUNE balise de formatage
+- Assure-toi que le JSON est parfaitement formaté
+- Chaque persona doit être unique et cohérent
+
+Format exact attendu:
+[{"name": "...", "age": 30, "occupation": "...", "location": "...", "bio": "...", "quote": "...", ...}, {"name": "...", "age": 35, "occupation": "...", "location": "...", "bio": "...", "quote": "...", ...}]

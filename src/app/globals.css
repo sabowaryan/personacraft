@@ -1,0 +1,108 @@
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@...&display=swap");
+@import "tailwindcss";
+
+@theme {
+  --color-persona-violet: #7C3AED;
+  --color-secondary: #3B82F6;
+  --color-accent: #F97316;
+  --color-success: #10B981;
+  --color-error: #EF4444;
+  --color-background: #FAFAFA;
+  --color-text: #1F2937;
+  --font-sans: "Inter", "Poppins", ui-sans-serif, sans-serif;
+}
+
+@layer base {
+  :root {
+    font-family: var(--font-sans);
+    background-color: var(--color-background);
+    color: var(--color-text);
+  }
+
+  a {
+    color: var(--color-persona-violet);
+    text-decoration: none;
+  }
+}
+
+@layer components {
+  .btn-primary {
+    @apply bg-persona-violet text-white px-4 py-2 rounded-lg font-medium transition duration-200 hover:bg-persona-violet/90 focus:outline-none focus:ring-2 focus:ring-persona-violet/50;
+  }
+
+  .btn-secondary {
+    @apply bg-secondary text-white px-4 py-2 rounded-lg font-medium transition duration-200 hover:bg-secondary/90 focus:outline-none focus:ring-2 focus:ring-secondary/50;
+  }
+
+  .btn-accent {
+    @apply bg-accent text-white px-4 py-2 rounded-lg font-medium transition duration-200 hover:bg-accent/90 focus:outline-none focus:ring-2 focus:ring-accent/50;
+  }
+
+  .btn-outline {
+    @apply border-2 border-persona-violet text-persona-violet bg-transparent px-4 py-2 rounded-lg font-medium transition duration-200 hover:bg-persona-violet hover:text-white focus:outline-none focus:ring-2 focus:ring-persona-violet/50;
+  }
+
+  /* Animation pour les éléments qui apparaissent */
+  @keyframes slide-in-from-top {
+    from {
+      opacity: 0;
+      transform: translateY(-10px);
+    }
+
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .animate-in {
+    animation-fill-mode: both;
+  }
+
+  .slide-in-from-top-2 {
+    animation: slide-in-from-top 0.3s ease-out;
+  }
+
+  /* Styles pour les cartes avec hover effects */
+  .card-hover {
+    @apply transition-all duration-200 hover:shadow-lg hover:shadow-slate-200/50 hover:-translate-y-1;
+  }
+
+  /* Styles pour les badges de score */
+  .score-badge-high {
+    @apply bg-green-100 text-green-800 border border-green-200;
+  }
+
+  .score-badge-medium {
+    @apply bg-yellow-100 text-yellow-800 border border-yellow-200;
+  }
+
+  .score-badge-low {
+    @apply bg-red-100 text-red-800 border border-red-200;
+  }
+
+  /* Styles pour les sections colorées */
+  .section-demographics {
+    @apply bg-blue-50/50 border border-blue-100;
+  }
+
+  .section-psychographics {
+    @apply bg-purple-50/50 border border-purple-100;
+  }
+
+  .section-pain-points {
+    @apply bg-red-50/50 border border-red-100;
+  }
+
+  .section-goals {
+    @apply bg-green-50/50 border border-green-100;
+  }
+
+  .section-insights {
+    @apply bg-gradient-to-r from-orange-50/50 to-yellow-50/50 border border-orange-100;
+  }
+}
+
+@utility text-shadow {
+  text-shadow: 2px 2px rgba(0, 0, 0, 0.15);
+}

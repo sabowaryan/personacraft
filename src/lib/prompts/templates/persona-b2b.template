@@ -1,0 +1,26 @@
+Génère {{personaCount}} personas B2B professionnels pour ce contexte business :
+
+"{{brief}}"
+
+Focus sur les aspects professionnels :
+- Rôle et responsabilités dans l'entreprise
+- Processus de décision d'achat
+- Contraintes budgétaires et organisationnelles
+- Objectifs business et KPIs
+- Écosystème professionnel et influenceurs
+
+Format JSON strict (réponse directe):
+[{
+  "name": "Prénom Nom",
+  "age": nombre,
+  "occupation": "Titre professionnel précis",
+  "location": "Ville, France",
+  "bio": "biographie professionnelle concise",
+  "quote": "citation révélatrice de sa vision business",
+  "demographics": {"income": "salaire professionnel", "education": "formation", "familyStatus": "situation"},
+  "psychographics": {"personality": ["traits pro"], "values": ["valeurs business"], "interests": ["intérêts pro"], "lifestyle": "style de vie professionnel"},
+  "painPoints": ["défis business spécifiques"],
+  "goals": ["objectifs professionnels mesurables"],
+  "marketingInsights": {"preferredChannels": ["canaux B2B"], "messagingTone": "ton professionnel", "buyingBehavior": "processus d'achat B2B"},
+  "qualityScore": nombre
+}]

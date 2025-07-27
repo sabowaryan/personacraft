@@ -1,0 +1,19 @@
+Crée {{personaCount}} personas marketing pour: "{{brief}}"
+
+Format JSON requis (réponse directe):
+[{
+  "name": "Prénom Nom",
+  "age": nombre,
+  "occupation": "métier",
+  "location": "ville, France",
+  "bio": "biographie courte",
+  "quote": "citation personnelle",
+  "demographics": {"income": "revenus", "education": "études", "familyStatus": "famille"},
+  "psychographics": {"personality": ["trait1", "trait2"], "values": ["valeur1", "valeur2"], "interests": ["intérêt1", "intérêt2"], "lifestyle": "style de vie"},
+  "painPoints": ["problème1", "problème2", "problème3"],
+  "goals": ["objectif1", "objectif2", "objectif3"],
+  "marketingInsights": {"preferredChannels": ["canal1", "canal2"], "messagingTone": "ton", "buyingBehavior": "comportement"},
+  "qualityScore": nombre
+}]
+
+Réponds SEULEMENT avec le JSON.
