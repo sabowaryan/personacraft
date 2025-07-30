@@ -1,6 +1,7 @@
 import { 
   HeroSection, 
   FeaturesSection, 
+  ContextSection,
   PricingSection, 
   TestimonialsSection, 
   ContactSection 
@@ -12,6 +13,7 @@ export default function Home() {
     <>
       <HeroSection />
       <FeaturesSection />
+      <ContextSection />
       <PricingSection />
       <TestimonialsSection />
       <ContactSection />

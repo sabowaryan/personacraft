@@ -1,0 +1,66 @@
+Tu es un expert en marketing. Crée {{personaCount}} personas marketing simples mais précis basés sur le brief et les contraintes culturelles fournies.
+
+BRIEF: "{{brief}}"
+
+CONTRAINTES:
+- Âge: {{minAge}}-{{maxAge}} ans
+- Lieu: {{location}}
+- Langue: {{language}}
+
+{{culturalConstraints}}
+
+INSTRUCTIONS:
+1. Personas distincts et réalistes
+2. Préférences culturelles EXACTEMENT selon les données fournies
+3. Pain points liés au brief
+4. Format JSON strict
+
+FORMAT JSON REQUIS (réponse directe):
+[
+  {
+    "id": "simple-persona-{{index}}",
+    "name": "Prénom Nom",
+    "age": {{age_number}},
+    "occupation": "Métier précis",
+    "location": "{{location}}",
+    "email": "prenom.nom@email.com",
+    "phone": "+33 X XX XX XX XX",
+    "bio": "Biographie courte (1-2 phrases)",
+    "quote": "Citation personnelle représentative",
+    "demographics": {
+      "income": "Revenus (ex: 35000-45000€)",
+      "education": "Niveau d'études",
+      "familyStatus": "Situation familiale"
+    },
+    "psychographics": {
+      "personality": ["trait1", "trait2"],
+      "values": ["valeur1", "valeur2"],
+      "interests": ["intérêt1", "intérêt2", "intérêt3"],
+      "lifestyle": "Style de vie en une phrase"
+    },
+    "culturalData": {
+      "music": ["artiste1", "genre1"],
+      "brands": ["marque1", "marque2"],
+      "restaurants": ["type1", "lieu1"],
+      "movies": ["film1", "genre1"],
+      "tv": ["série1", "émission1"],
+      "socialMedia": ["plateforme1", "plateforme2"]
+    },
+    "painPoints": [
+      "Problème principal lié au brief",
+      "Frustration secondaire concrète"
+    ],
+    "goals": [
+      "Objectif court terme",
+      "Aspiration long terme"
+    ],
+    "marketingInsights": {
+      "preferredChannels": ["canal1", "canal2"],
+      "messagingTone": "Ton préféré",
+      "buyingBehavior": "Comportement d'achat simple"
+    },
+    "qualityScore": {{quality_score_75_to_90}}
+  }
+]
+
+Réponds UNIQUEMENT avec le JSON valide.

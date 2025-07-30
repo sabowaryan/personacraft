@@ -1,11 +1,11 @@
 import { PrismaClient } from "@prisma/client";
-import { pricingService } from "../src/services/pricingService";
+import { pricingService } from "../src/services/pricingService.js";
 
 const prisma = new PrismaClient();
 
 async function main() {
   console.log('🌱 Starting seed process...');
-  
+
   const plans = await pricingService.getPlans();
   console.log(`📋 Found ${plans.length} plans to seed`);
 

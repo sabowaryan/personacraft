@@ -8,12 +8,29 @@ const DemographicsSchema = z.object({
     familyStatus: z.string().min(1, "Family status is required")
 });
 
+// Schéma de validation plus permissif pour les demographics (legacy)
+const DemographicsSchemaLegacy = z.object({
+    income: z.string().min(1, "Income is required"),
+    education: z.string().min(1, "Education is required"),
+    familyStatus: z.string().optional(),
+    experience: z.union([z.string(), z.number()]).optional()
+});
+
 // Schéma de validation pour les psychographics
 const PsychographicsSchema = z.object({
     personality: z.array(z.string()).min(1, "At least one personality trait required"),
     values: z.array(z.string()).min(1, "At least one value required"),
     interests: z.array(z.string()).min(1, "At least one interest required"),
     lifestyle: z.string().min(1, "Lifestyle description is required")
+});
+
+// Schéma de validation plus permissif pour les psychographics (legacy)
+const PsychographicsSchemaLegacy = z.object({
+    personality: z.array(z.string()).min(1, "At least one personality trait required"),
+    values: z.array(z.string()).min(1, "At least one value required"),
+    interests: z.array(z.string()).min(1, "At least one interest required"),
+    lifestyle: z.string().optional(),
+    workStyle: z.string().optional()
 });
 
 // Schéma de validation pour les marketing insights
@@ -26,16 +43,19 @@ const MarketingInsightsSchema = z.object({
 // Schéma de validation pour les données culturelles (optionnel)
 const CulturalDataSchema = z.object({
     music: z.array(z.string()).default([]),
-    movies: z.array(z.string()).default([]),
+    movie: z.array(z.string()).default([]),
     tv: z.array(z.string()).default([]),
-    books: z.array(z.string()).default([]),
-    brands: z.array(z.string()).default([]),
-    restaurants: z.array(z.string()).default([]),
+    book: z.array(z.string()).default([]),
+    brand: z.array(z.string()).default([]),
+    restaurant: z.array(z.string()).default([]),
     travel: z.array(z.string()).default([]),
     fashion: z.array(z.string()).default([]),
     beauty: z.array(z.string()).default([]),
     food: z.array(z.string()).default([]),
-    socialMedia: z.array(z.string()).default([])
+    socialMedia: z.array(z.string()).default([]),
+    podcasts: z.array(z.string()).default([]).optional(),
+    videoGames: z.array(z.string()).default([]).optional(),
+    influencers: z.array(z.string()).default([]).optional()
 }).optional();
 
 // Schéma principal pour un persona
@@ -52,6 +72,55 @@ const PersonaSchema = z.object({
     painPoints: z.array(z.string()).min(1, "At least one pain point required"),
     goals: z.array(z.string()).min(1, "At least one goal required"),
     marketingInsights: MarketingInsightsSchema,
+    qualityScore: z.number().min(0).max(100, "Quality score must be between 0 and 100"),
+    culturalData: CulturalDataSchema,
+    createdAt: z.string().optional(),
+    brief: z.string().optional()
+});
+
+// Schéma plus permissif pour le legacy flow
+const PersonaSchemaLegacy = z.object({
+    id: z.string().optional(),
+    name: z.string().min(1, "Name is required"),
+    age: z.number().min(18, "Age must be at least 18").max(100, "Age must be less than 100"),
+    occupation: z.string().min(1, "Occupation is required"),
+    jobTitle: z.string().optional(),
+    industry: z.string().optional(),
+    seniority: z.string().optional(),
+    location: z.string().min(1, "Location is required"),
+    email: z.string().optional(),
+    phone: z.string().optional(),
+    company: z.object({
+        name: z.string().optional(),
+        size: z.string().optional(),
+        industry: z.string().optional(),
+        location: z.string().optional(),
+        role: z.string().optional()
+    }).optional(),
+    bio: z.string().min(10, "Bio must be at least 10 characters long"),
+    quote: z.string().min(5, "Quote must be at least 5 characters long"),
+    demographics: DemographicsSchemaLegacy,
+    psychographics: PsychographicsSchemaLegacy,
+    professionalProfile: z.object({
+        experience: z.union([z.string(), z.number()]).optional(),
+        skills: z.array(z.string()).optional(),
+        responsibilities: z.array(z.string()).optional(),
+        decisionMakingAuthority: z.string().optional(),
+        kpiMetrics: z.array(z.string()).optional()
+    }).optional(),
+    businessPainPoints: z.array(z.string()).optional(),
+    businessGoals: z.array(z.string()).optional(),
+    decisionMaking: z.object({
+        process: z.string().optional(),
+        timeline: z.string().optional(),
+        budget: z.string().optional(),
+        stakeholders: z.array(z.string()).optional(),
+        criteria: z.array(z.string()).optional()
+    }).optional(),
+    buyingBehavior: z.string().optional(),
+    painPoints: z.array(z.string()).min(1, "At least one pain point required"),
+    goals: z.array(z.string()).min(1, "At least one goal required"),
+    marketingInsights: MarketingInsightsSchema.partial(),
     qualityScore: z.number().min(0).max(100, "Quality score must be between 0 and 100"),
     culturalData: CulturalDataSchema,
     createdAt: z.string().optional(),
@@ -83,6 +152,30 @@ export class PersonaValidator {
             console.error('Erreur lors du parsing Gemini:', error);
             console.log('Raw response:', rawResponse);
             throw new PersonaValidationError(`Échec du parsing: ${error instanceof Error ? error.message : 'Erreur inconnue'}`);
+        }
+    }
+
+    /**
+     * Parse et valide une réponse JSON de Gemini avec validation legacy (plus permissive)
+     */
+    static parseGeminiResponseLegacy(rawResponse: string, brief: string): Partial<Persona>[] {
+        try {
+            // Étape 1: Nettoyer la réponse
+            const cleanedResponse = this.cleanJsonResponse(rawResponse);
+
+            // Étape 2: Parser le JSON
+            const parsedData = this.parseJson(cleanedResponse);
+
+            // Étape 3: Valider avec le schéma legacy plus permissif
+            const validatedPersonas = this.validatePersonasLegacy(parsedData);
+
+            // Étape 4: Enrichir avec les métadonnées
+            return this.enrichPersonas(validatedPersonas, brief);
+
+        } catch (error) {
+            console.error('Erreur lors du parsing Gemini (legacy):', error);
+            console.log('Raw response:', rawResponse);
+            throw new PersonaValidationError(`Échec du parsing legacy: ${error instanceof Error ? error.message : 'Erreur inconnue'}`);
         }
     }
 
@@ -212,9 +305,49 @@ export class PersonaValidator {
     }
 
     /**
+     * Valide les personas avec le schéma legacy plus permissif
+     */
+    private static validatePersonasLegacy(data: unknown): any[] {
+        // Vérifier que c'est un tableau
+        if (!Array.isArray(data)) {
+            throw new Error('La réponse doit être un tableau de personas');
+        }
+
+        // Valider chaque persona individuellement pour des erreurs plus précises
+        const validatedPersonas: any[] = [];
+        const errors: string[] = [];
+
+        data.forEach((persona, index) => {
+            try {
+                const validated = PersonaSchemaLegacy.parse(persona);
+                validatedPersonas.push(validated);
+            } catch (error) {
+                if (error instanceof z.ZodError) {
+                    const errorMessages = error.issues.map(err =>
+                        `${err.path.join('.')}: ${err.message}`
+                    ).join(', ');
+                    errors.push(`Persona ${index + 1}: ${errorMessages}`);
+                } else {
+                    errors.push(`Persona ${index + 1}: Erreur de validation inconnue`);
+                }
+            }
+        });
+
+        if (validatedPersonas.length === 0) {
+            throw new Error(`Aucun persona valide trouvé. Erreurs: ${errors.join('; ')}`);
+        }
+
+        if (errors.length > 0) {
+            console.warn('Certains personas ont été ignorés (legacy):', errors);
+        }
+
+        return validatedPersonas;
+    }
+
+    /**
      * Enrichit les personas avec les métadonnées
      */
-    private static enrichPersonas(personas: z.infer<typeof PersonaSchema>[], brief: string): Partial<Persona>[] {
+    private static enrichPersonas(personas: any[], brief: string): Partial<Persona>[] {
         const timestamp = Date.now();
 
         return personas.map((persona, index) => ({
@@ -224,11 +357,11 @@ export class PersonaValidator {
             brief: persona.brief || brief,
             culturalData: persona.culturalData || {
                 music: [],
-                movies: [],
+                movie: [],
                 tv: [],
-                books: [],
-                brands: [],
-                restaurants: [],
+                book: [],
+                brand: [],
+                restaurant: [],
                 travel: [],
                 fashion: [],
                 beauty: [],

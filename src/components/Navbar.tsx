@@ -39,6 +39,15 @@ const sectionThemes: Record<string, SectionTheme> = {
         buttonStyle: 'text-blue-700 hover:text-blue-900 hover:bg-blue-100',
         buttonHoverStyle: 'bg-blue-600 hover:bg-blue-700 text-white'
     },
+    context: {
+        background: 'bg-slate-50/80 backdrop-blur-sm',
+        text: 'text-slate-900',
+        textHover: 'hover:text-slate-700',
+        border: 'border-slate-200',
+        logoVariant: 'primary',
+        buttonStyle: 'text-slate-700 hover:text-slate-900 hover:bg-slate-100',
+        buttonHoverStyle: 'bg-slate-600 hover:bg-slate-700 text-white'
+    },
     pricing: {
         background: 'bg-purple-50/80 backdrop-blur-sm',
         text: 'text-purple-900',
@@ -65,6 +74,15 @@ const sectionThemes: Record<string, SectionTheme> = {
         logoVariant: 'white',
         buttonStyle: 'text-gray-300 hover:text-white hover:bg-gray-800',
         buttonHoverStyle: 'bg-white text-gray-900 hover:bg-gray-100'
+    },
+    demo: {
+        background: 'bg-white/80 backdrop-blur-md',
+        text: 'text-slate-900',
+        textHover: 'hover:text-blue-700',
+        border: 'border-blue-200/60',
+        logoVariant: 'primary',
+        buttonStyle: 'text-slate-700 hover:text-blue-700 hover:bg-blue-50',
+        buttonHoverStyle: 'bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 hover:from-blue-700 hover:via-indigo-700 hover:to-purple-700 text-white'
     },
     default: {
         background: 'bg-white/95 backdrop-blur-sm',
@@ -103,13 +121,15 @@ export default function Navbar() {
                 activeSection = 'features';
             } else if (pathname === '/contact') {
                 activeSection = 'contact';
+            } else if (pathname === '/demo') {
+                activeSection = 'demo';
             } else if (pathname.startsWith('/dashboard')) {
                 activeSection = 'default';
             } else if (pathname === '/404' || pathname === '/403' || pathname === '/maintenance' || pathname.startsWith('/error')) {
                 activeSection = 'default';
             } else if (pathname === '/') {
                 // Page d'accueil - détecter les sections par scroll
-                const sections = ['hero', 'features', 'pricing', 'testimonials', 'contact'];
+                const sections = ['hero', 'features', 'context', 'pricing', 'testimonials', 'contact'];
 
                 // Si on est tout en haut de la page (moins de 100px), forcer le thème hero
                 if (scrollY < 100) {

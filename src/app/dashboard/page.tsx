@@ -126,7 +126,7 @@ export default function Dashboard() {
               {isLoading ? '...' : stats.activeSessions}
             </div>
             <div className="text-sm font-medium text-slate-700 mb-1">Sessions Actives</div>
-            <div className="text-xs text-slate-500">Stack Auth</div>
+            
           </div>
 
           <div className="bg-gradient-to-br from-blue-50 to-blue-100/50 rounded-2xl p-6 text-center border border-blue-200">

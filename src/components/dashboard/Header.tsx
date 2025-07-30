@@ -18,7 +18,7 @@ interface PageConfig {
   breadcrumb?: { label: string; href?: string }[];
 }
 
-const getPageConfig = (pathname: string, personasCount: number): PageConfig => {
+const getPageConfig = (pathname: string, personasCount: number = 0): PageConfig => {
   if (pathname === '/dashboard') {
     return {
       title: 'Dashboard',
@@ -36,7 +36,7 @@ const getPageConfig = (pathname: string, personasCount: number): PageConfig => {
   if (pathname === '/dashboard/personas') {
     return {
       title: 'Mes Personas',
-      subtitle: `${personasCount} personas créés • Gérez et analysez vos audiences`,
+      subtitle: `${personasCount || 0} personas créés • Gérez et analysez vos audiences`,
       icon: (
         <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
@@ -125,7 +125,7 @@ export default function Header() {
   const { stats, currentSession, isLoading } = useStackSessions();
   const user = useUser();
   
-  const pageConfig = getPageConfig(pathname, personas.length);
+  const pageConfig = getPageConfig(pathname, personas?.length || 0);
 
   // Mise à jour de l'heure en temps réel
   useEffect(() => {
@@ -207,10 +207,10 @@ export default function Header() {
               <div className="min-w-0 flex-1">
                 <h1 className="text-lg sm:text-xl font-bold text-neutral-900 flex items-center space-x-2 sm:space-x-3 truncate">
                   <span className="truncate">{pageConfig.title}</span>
-                  {pathname === '/dashboard/personas' && personas.length > 0 && (
+                  {pathname === '/dashboard/personas' && (personas?.length || 0) > 0 && (
                     <span className="inline-flex items-center px-1.5 py-0.5 sm:px-2 sm:py-1 rounded-full text-xs font-semibold bg-gradient-to-r from-persona-violet/10 to-purple-100 text-persona-violet border border-persona-violet/20 flex-shrink-0">
                       <span className="w-1 h-1 sm:w-1.5 sm:h-1.5 bg-persona-violet rounded-full mr-1 animate-pulse"></span>
-                      {personas.length}
+                      {personas?.length || 0}
                     </span>
                   )}
                 </h1>
@@ -269,7 +269,7 @@ export default function Header() {
               {/* Actions contextuelles */}
               <div className="flex items-center space-x-1 sm:space-x-2">
                 {/* Bouton d'export global */}
-                {personas.length > 0 && (
+                {(personas?.length || 0) > 0 && (
                   <button
                     onClick={handleExportAll}
                     disabled={isExporting}

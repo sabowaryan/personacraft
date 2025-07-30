@@ -3,10 +3,13 @@ En tant qu'expert en marketing et personas, génère exactement {{personaCount}}
 "{{brief}}"
 
 Pour chaque persona, fournis les informations suivantes au format JSON strict :
+- id: identifiant unique (ex: "persona-1")
 - name: nom complet français
 - age: âge entre {{minAge}}-{{maxAge}} ans
 - occupation: métier spécifique et réaliste
 - location: ville française
+- email: adresse email réaliste
+- phone: numéro de téléphone français
 - bio: biographie courte et engageante (2-3 phrases) qui résume qui est cette personne
 - quote: citation authentique et personnelle qui reflète sa personnalité et ses valeurs (1 phrase entre guillemets)
 - demographics: { 
@@ -37,4 +40,4 @@ CONTRAINTES IMPORTANTES:
 - Chaque persona doit être unique et cohérent
 
 Format exact attendu:
-[{"name": "...", "age": 30, "occupation": "...", "location": "...", "bio": "...", "quote": "...", ...}, {"name": "...", "age": 35, "occupation": "...", "location": "...", "bio": "...", "quote": "...", ...}]
+[{"id": "persona-1", "name": "...", "age": 30, "occupation": "...", "location": "...", "email": "...", "phone": "...", "bio": "...", "quote": "...", ...}, {"id": "persona-2", "name": "...", "age": 35, "occupation": "...", "location": "...", "email": "...", "phone": "...", "bio": "...", "quote": "...", ...}]

@@ -1,17 +1,16 @@
-import { useState, useCallback, useEffect } from 'react'
+import { useState, useCallback, useMemo } from 'react'
 import { Persona, PersonaFilters, SortOptions } from '@/types'
-import { PersonaManager } from '@/lib/session'
-import { validateAndCleanPersona } from '@/lib/persona-utils'
-import { useUser } from '@stackframe/stack'
-import { handleApiResponse, isAuthTimeoutError, getErrorMessage } from '@/lib/client-error-utils'
+import { usePersonaContext } from '@/contexts/PersonaContext'
 
 interface UsePersonaReturn {
     personas: Persona[]
     selectedPersona: Persona | null
     isLoading: boolean
+    loading: boolean
     error: string | null
     // Actions
-    loadPersonas: () => void
+    loadPersonas: () => Promise<void>
+    refreshPersonas: () => Promise<void>
     addPersona: (persona: Persona) => Promise<void>
     updatePersona: (id: string, updates: Partial<Persona>) => Promise<void>
     deletePersona: (id: string) => Promise<void>
@@ -33,184 +32,47 @@ interface UsePersonaReturn {
 }
 
 export function usePersona(): UsePersonaReturn {
-    const user = useUser()
-    const [personas, setPersonas] = useState<Persona[]>([])
+    // Utiliser le contexte pour les données de base
+    const { personas, loading, error, refreshPersonas, addPersona: contextAddPersona, updatePersona: contextUpdatePersona, deletePersona: contextDeletePersona } = usePersonaContext()
+    
+    // État local pour les fonctionnalités de filtrage et sélection
     const [selectedPersona, setSelectedPersona] = useState<Persona | null>(null)
-    const [isLoading, setIsLoading] = useState(false)
-    const [error, setError] = useState<string | null>(null)
     const [filters, setFilters] = useState<PersonaFilters>({})
     const [sortOptions, setSortOptions] = useState<SortOptions>({
         field: 'createdAt',
         direction: 'desc'
     })
-    const [useDatabase, setUseDatabase] = useState(true)
-
-    // Charger les personas au montage
-    useEffect(() => {
-        loadPersonas()
-    }, [])
-
-    const loadPersonas = useCallback(async () => {
-        setIsLoading(true)
-        setError(null)
-
-        try {
-            if (useDatabase && user) {
-                // Charger depuis la base de données
-                const response = await fetch('/api/personas')
-                const loadedPersonas = await handleApiResponse<Persona[]>(response)
-                setPersonas(loadedPersonas)
-            } else {
-                // Fallback vers localStorage
-                const loadedPersonas = PersonaManager.getPersonas()
-                setPersonas(loadedPersonas)
-            }
-        } catch (err) {
-            if (isAuthTimeoutError(err)) {
-                setError('La connexion a pris trop de temps. Veuillez réessayer.')
-            } else {
-                setError(getErrorMessage(err))
-            }
-            
-            // En cas d'erreur avec la DB, essayer localStorage
-            if (useDatabase) {
-                try {
-                    const loadedPersonas = PersonaManager.getPersonas()
-                    setPersonas(loadedPersonas)
-                    setUseDatabase(false) // Basculer vers localStorage
-                } catch (localErr) {
-                    console.error('Erreur localStorage aussi:', localErr)
-                }
-            }
-        } finally {
-            setIsLoading(false)
-        }
-    }, [useDatabase, user])
-
-    const addPersona = useCallback(async (persona: Persona) => {
-        setIsLoading(true)
-        setError(null)
-
-        try {
-            const cleanedPersona = validateAndCleanPersona(persona)
-            
-            if (useDatabase && user) {
-                // Sauvegarder en base de données
-                const response = await fetch('/api/personas', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(cleanedPersona)
-                })
-
-                if (!response.ok) {
-                    throw new Error('Erreur lors de la création du persona')
-                }
-
-                const newPersona = await response.json()
-                setPersonas(prev => [newPersona, ...prev])
-            } else {
-                // Fallback vers localStorage
-                PersonaManager.addPersona(cleanedPersona)
-                setPersonas(prev => [...prev, cleanedPersona])
-            }
-        } catch (err) {
-            setError(err instanceof Error ? err.message : 'Erreur lors de l\'ajout')
-            throw err
-        } finally {
-            setIsLoading(false)
-        }
-    }, [useDatabase, user])
-
-    const updatePersona = useCallback(async (id: string, updates: Partial<Persona>) => {
-        setIsLoading(true)
-        setError(null)
-
-        try {
-            if (useDatabase && user) {
-                // Mettre à jour en base de données
-                const response = await fetch(`/api/personas/${id}`, {
-                    method: 'PUT',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(updates)
-                })
-
-                if (!response.ok) {
-                    throw new Error('Erreur lors de la mise à jour du persona')
-                }
-
-                const updatedPersona = await response.json()
-                setPersonas(prev => prev.map(p =>
-                    p.id === id ? updatedPersona : p
-                ))
-
-                // Mettre à jour le persona sélectionné si c'est celui-ci
-                if (selectedPersona?.id === id) {
-                    setSelectedPersona(updatedPersona)
-                }
-            } else {
-                // Fallback vers localStorage
-                PersonaManager.updatePersona(id, updates)
-                setPersonas(prev => prev.map(p =>
-                    p.id === id ? { ...p, ...updates } : p
-                ))
-
-                // Mettre à jour le persona sélectionné si c'est celui-ci
-                if (selectedPersona?.id === id) {
-                    setSelectedPersona(prev => prev ? { ...prev, ...updates } : null)
-                }
-            }
-        } catch (err) {
-            setError(err instanceof Error ? err.message : 'Erreur lors de la mise à jour')
-            throw err
-        } finally {
-            setIsLoading(false)
-        }
-    }, [useDatabase, user, selectedPersona])
-
-    const deletePersona = useCallback(async (id: string) => {
-        setIsLoading(true)
-        setError(null)
-
-        try {
-            if (useDatabase && user) {
-                // Supprimer de la base de données
-                const response = await fetch(`/api/personas/${id}`, {
-                    method: 'DELETE'
-                })
-
-                if (!response.ok) {
-                    throw new Error('Erreur lors de la suppression du persona')
-                }
-
-                setPersonas(prev => prev.filter(p => p.id !== id))
-            } else {
-                // Fallback vers localStorage
-                PersonaManager.deletePersona(id)
-                setPersonas(prev => prev.filter(p => p.id !== id))
-            }
-
-            // Désélectionner si c'est le persona sélectionné
-            if (selectedPersona?.id === id) {
-                setSelectedPersona(null)
-            }
-        } catch (err) {
-            setError(err instanceof Error ? err.message : 'Erreur lors de la suppression')
-            throw err
-        } finally {
-            setIsLoading(false)
-        }
-    }, [useDatabase, user, selectedPersona])
 
     const selectPersona = useCallback((persona: Persona | null) => {
         setSelectedPersona(persona)
     }, [])
 
+    const addPersona = useCallback(async (persona: Persona) => {
+        await contextAddPersona(persona)
+    }, [contextAddPersona])
+
+    const updatePersona = useCallback(async (id: string, updates: Partial<Persona>) => {
+        await contextUpdatePersona(id, updates)
+        // Mettre à jour le persona sélectionné si c'est celui-ci
+        if (selectedPersona?.id === id) {
+            setSelectedPersona(prev => prev ? { ...prev, ...updates } : null)
+        }
+    }, [contextUpdatePersona, selectedPersona])
+
+    const deletePersona = useCallback(async (id: string) => {
+        await contextDeletePersona(id)
+        // Désélectionner si c'est le persona sélectionné
+        if (selectedPersona?.id === id) {
+            setSelectedPersona(null)
+        }
+    }, [contextDeletePersona, selectedPersona])
+
     // Filtrage et tri des personas
-    const filteredPersonas = useCallback(() => {
+    const filteredPersonas = useMemo(() => {
+        if (!Array.isArray(personas)) {
+            return []
+        }
+
         let filtered = [...personas]
 
         // Appliquer les filtres
@@ -263,7 +125,7 @@ export function usePersona(): UsePersonaReturn {
         })
 
         return filtered
-    }, [personas, filters, sortOptions])()
+    }, [personas, filters, sortOptions])
 
     const searchPersonas = useCallback((query: string): Persona[] => {
         if (!query.trim()) return personas
@@ -316,9 +178,11 @@ export function usePersona(): UsePersonaReturn {
     return {
         personas,
         selectedPersona,
-        isLoading,
+        isLoading: loading, // Alias for compatibility
+        loading,
         error,
-        loadPersonas,
+        loadPersonas: refreshPersonas, // Alias for compatibility
+        refreshPersonas,
         addPersona,
         updatePersona,
         deletePersona,

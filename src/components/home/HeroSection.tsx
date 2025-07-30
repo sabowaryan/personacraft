@@ -64,16 +64,18 @@ export default function HeroSection() {
               </Button>
             </Link>
             
-            <Button 
-              variant="outline" 
-              size="lg"
-              className="group bg-white/10 backdrop-blur-md border border-white/20 text-white text-xl px-10 py-6 rounded-2xl font-bold transition-all duration-500 hover:bg-white/20 hover:shadow-2xl hover:shadow-white/20 hover:-translate-y-1 hover:scale-105 flex items-center justify-center gap-3 min-w-[280px] h-auto"
-            >
-              <svg className="w-6 h-6 transition-transform group-hover:scale-125" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
-              </svg>
-              <span>Voir la démo</span>
-            </Button>
+            <Link href="/demo" className="group relative overflow-hidden">
+              <Button 
+                variant="outline" 
+                size="lg"
+                className="group bg-white/10 backdrop-blur-md border border-white/20 text-white text-xl px-10 py-6 rounded-2xl font-bold transition-all duration-500 hover:bg-white/20 hover:shadow-2xl hover:shadow-white/20 hover:-translate-y-1 hover:scale-105 flex items-center justify-center gap-3 min-w-[280px] h-auto"
+              >
+                <svg className="w-6 h-6 transition-transform group-hover:scale-125" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                </svg>
+                <span>Voir la démo</span>
+              </Button>
+            </Link>
           </div>
 
           {/* Enhanced Features Grid */}

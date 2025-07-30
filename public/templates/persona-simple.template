@@ -2,10 +2,13 @@ Crée {{personaCount}} personas marketing pour: "{{brief}}"
 
 Format JSON requis (réponse directe):
 [{
+  "id": "persona-1",
   "name": "Prénom Nom",
   "age": nombre,
   "occupation": "métier",
   "location": "ville, France",
+  "email": "prenom.nom@email.com",
+  "phone": "+33 X XX XX XX XX",
   "bio": "biographie courte",
   "quote": "citation personnelle",
   "demographics": {"income": "revenus", "education": "études", "familyStatus": "famille"},

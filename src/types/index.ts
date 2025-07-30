@@ -15,11 +15,11 @@ export interface Psychographics {
 
 export interface CulturalData {
   music: string[]
-  movies: string[]
+  movie: string[]
   tv: string[]
-  books: string[]
-  brands: string[]
-  restaurants: string[]
+  book: string[]
+  brand: string[]
+  restaurant: string[]
   travel: string[]
   fashion: string[]
   beauty: string[]
@@ -64,6 +64,8 @@ export interface Persona {
   location: string
   bio: string
   quote: string
+  email?: string
+  phone?: string
   demographics: Demographics
   psychographics: Psychographics
   culturalData: CulturalData

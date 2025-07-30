@@ -11,16 +11,42 @@ Focus sur les aspects professionnels :
 
 Format JSON strict (réponse directe):
 [{
+  "id": "persona-1",
   "name": "Prénom Nom",
   "age": nombre,
   "occupation": "Titre professionnel précis",
+  "jobTitle": "Titre professionnel précis",
   "location": "Ville, France",
+  "email": "prenom.nom@entreprise.com",
+  "phone": "+33 X XX XX XX XX",
+  "industry": "Secteur d'activité",
+  "seniority": "Niveau hiérarchique (junior/senior/manager/director/executive)",
+  "company": {
+    "name": "Nom de l'entreprise",
+    "size": "Taille (startup/small/medium/large/enterprise)",
+    "industry": "Secteur d'activité",
+    "location": "Localisation entreprise"
+  },
   "bio": "biographie professionnelle concise",
   "quote": "citation révélatrice de sa vision business",
   "demographics": {"income": "salaire professionnel", "education": "formation", "familyStatus": "situation"},
   "psychographics": {"personality": ["traits pro"], "values": ["valeurs business"], "interests": ["intérêts pro"], "lifestyle": "style de vie professionnel"},
-  "painPoints": ["défis business spécifiques"],
-  "goals": ["objectifs professionnels mesurables"],
+  "professionalProfile": {
+    "experience": "Années d'expérience ou description",
+    "skills": ["compétence1", "compétence2", "compétence3", "compétence4", "compétence5"],
+    "responsibilities": ["responsabilité1", "responsabilité2", "responsabilité3"],
+    "decisionMakingAuthority": "Niveau d'autorité décisionnelle"
+  },
+  "businessPainPoints": ["défi business 1", "défi business 2", "défi business 3"],
+  "businessGoals": ["objectif business 1", "objectif business 2", "objectif business 3"],
+  "decisionMaking": {
+    "process": "Processus de décision",
+    "influencers": ["influenceur1", "influenceur2"],
+    "timeline": "Durée typique de décision"
+  },
+  "painPoints": ["défi business 1", "défi business 2", "défi business 3"],
+  "goals": ["objectif business 1", "objectif business 2", "objectif business 3"],
+  "buyingBehavior": "processus d'achat B2B détaillé",
   "marketingInsights": {"preferredChannels": ["canaux B2B"], "messagingTone": "ton professionnel", "buyingBehavior": "processus d'achat B2B"},
   "qualityScore": nombre
 }]

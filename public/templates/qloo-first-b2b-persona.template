@@ -1,0 +1,123 @@
+Tu es un expert en marketing B2B et en génération de personas professionnels. Tu dois créer {{personaCount}} personas B2B détaillés et réalistes basés sur le brief suivant et les contraintes culturelles spécifiques fournies.
+
+BRIEF MARKETING B2B: "{{brief}}"
+
+CONTRAINTES IMPORTANTES:
+- Âge: entre {{minAge}} et {{maxAge}} ans
+- Localisation géographique: {{location}}
+- Langue de réponse: {{language}}
+- Contexte: Environnement professionnel B2B
+- Les personas DOIVENT être cohérents avec les données culturelles fournies ci-dessous
+
+{{culturalConstraints}}
+
+INSTRUCTIONS SPÉCIFIQUES B2B:
+1. Chaque persona doit représenter un décideur ou influenceur dans son organisation
+2. Les préférences culturelles doivent refléter un profil professionnel urbain
+3. Les pain points doivent être liés aux défis business et organisationnels
+4. Les objectifs doivent inclure des KPIs et métriques business
+5. Le comportement d'achat doit refléter les processus de décision B2B
+6. Le score de qualité doit refléter la pertinence business (80-95)
+
+FORMAT EXACT ATTENDU (JSON uniquement, pas de texte avant ou après):
+[
+  {
+    "id": "b2b-persona-{{index}}",
+    "name": "Prénom Nom professionnel",
+    "age": {{age_number}},
+    "occupation": "Poste de direction ou management spécifique",
+    "jobTitle": "Titre de poste professionnel précis",
+    "industry": "Secteur d'activité spécifique",
+    "seniority": "Niveau hiérarchique (ex: Senior, Director, Manager, VP)",
+    "location": "{{location}}",
+    "email": "prenom.nom@entreprise.com",
+    "phone": "+33 X XX XX XX XX",
+    "company": {
+      "name": "Nom de l'entreprise",
+      "size": "Taille d'entreprise (ex: 50-200 employés)",
+      "industry": "Secteur d'activité spécifique",
+      "location": "{{location}}",
+      "role": "Rôle dans l'organisation (décideur/influenceur/utilisateur)"
+    },
+    "bio": "Biographie professionnelle courte mettant l'accent sur l'expérience et les responsabilités",
+    "quote": "Citation qui reflète sa vision business et ses priorités professionnelles",
+    "demographics": {
+      "income": "Salaire annuel réaliste pour le poste",
+      "education": "Formation supérieure spécialisée",
+      "experience": "Années d'expérience dans le domaine",
+      "familyStatus": "Situation familiale (ex: Marié(e) avec enfants, Célibataire, En couple)"
+    },
+    "psychographics": {
+      "personality": ["trait1_professionnel", "trait2_leadership", "trait3_analytique"],
+      "values": ["valeur1_business", "valeur2_équipe", "valeur3_innovation"],
+      "interests": ["intérêt1_pro", "intérêt2_perso", "intérêt3_industrie"],
+      "lifestyle": "Style de vie professionnel et personnel en une phrase",
+      "workStyle": "Style de travail et de management en une phrase"
+    },
+    "professionalProfile": {
+      "experience": {{experience_years}},
+      "skills": ["compétence1_technique", "compétence2_management", "compétence3_stratégique", "compétence4_communication", "compétence5_analytique"],
+      "responsibilities": ["responsabilité1_équipe", "responsabilité2_budget", "responsabilité3_stratégie", "responsabilité4_opérations"],
+      "decisionMakingAuthority": "Niveau d'autorité décisionnelle (ex: High, Moderate, Limited, Full)",
+      "kpiMetrics": ["métrique1_performance", "métrique2_croissance", "métrique3_efficacité"]
+    },
+    "culturalData": {
+      "music": ["artiste1", "genre1_travail", "podcast1"],
+      "brands": ["marque1_pro", "marque2_lifestyle", "marque3_tech"],
+      "restaurants": ["type1_business", "restaurant1_déjeuner", "type2_client"],
+      "movies": ["film1_inspiration", "documentaire1", "série1_business"],
+      "tv": ["émission1_actualité", "série1_détente", "documentaire1_industrie"],
+      "books": ["livre1_business", "biographie1", "livre2_développement"],
+      "travel": ["destination1_business", "destination2_vacances"],
+      "fashion": ["marque1_costume", "style1_professionnel", "accessoire1"],
+      "beauty": ["marque1_soin", "produit1_professionnel"],
+      "food": ["type1_déjeuner", "restaurant1_client", "café1_préféré"],
+      "socialMedia": ["LinkedIn", "plateforme2_veille", "plateforme3_perso"]
+    },
+    "businessPainPoints": [
+      "Défi opérationnel spécifique lié au brief",
+      "Problème de ROI ou de performance mesurable",
+      "Contrainte organisationnelle ou budgétaire concrète"
+    ],
+    "businessGoals": [
+      "KPI ou métrique à améliorer à court terme",
+      "Objectif stratégique à moyen terme avec chiffres",
+      "Vision de croissance à long terme quantifiée"
+    ],
+    "painPoints": [
+      "Défi opérationnel spécifique lié au brief",
+      "Problème de ROI ou de performance mesurable",
+      "Contrainte organisationnelle ou budgétaire concrète"
+    ],
+    "goals": [
+      "KPI ou métrique à améliorer à court terme",
+      "Objectif stratégique à moyen terme avec chiffres",
+      "Vision de croissance à long terme quantifiée"
+    ],
+    "decisionMaking": {
+      "process": "Processus de décision dans l'organisation",
+      "timeline": "Durée typique du cycle de décision",
+      "budget": "Fourchette budgétaire d'influence",
+      "stakeholders": ["partie_prenante1", "partie_prenante2", "partie_prenante3"],
+      "criteria": ["critère1_technique", "critère2_financier", "critère3_stratégique"]
+    },
+    "buyingBehavior": "Comportement d'achat B2B détaillé avec étapes du processus de décision",
+    "marketingInsights": {
+      "preferredChannels": ["LinkedIn", "email_professionnel", "événements_industrie"],
+      "messagingTone": "Ton professionnel adapté (ex: expert, consultatif, direct)",
+      "buyingBehavior": "Comportement d'achat B2B détaillé avec étapes",
+      "contentPreferences": ["étude_cas", "webinar", "livre_blanc", "démo"],
+      "informationSources": ["source1_veille", "publication2_industrie", "réseau3_pro"]
+    },
+    "qualityScore": {{quality_score_80_to_95}}
+  }
+]
+
+VALIDATION FINALE B2B:
+- Vérifiez que chaque persona a un rôle business distinct et réaliste
+- Confirmez que les pain points sont des défis business mesurables
+- Assurez-vous que les objectifs incluent des métriques quantifiables
+- Validez que le processus de décision reflète la réalité B2B
+- Confirmez que le JSON est correctement formaté
+
+Réponds UNIQUEMENT avec le JSON valide, sans aucun texte explicatif avant ou après.

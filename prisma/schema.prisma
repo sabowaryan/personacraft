@@ -1,9 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -14,35 +8,53 @@ datasource db {
 }
 
 model Persona {
-  id                String   @id @default(uuid())
-  userId            String
-  user              User     @relation(fields: [userId], references: [id])
-  name              String
-  age               Int
-  occupation        String
-  location          String
-  demographics      Json
-  psychographics    Json
-  culturalData      Json
-  painPoints        String[]
-  goals             String[]
-  marketingInsights Json
-  qualityScore      Float
-  createdAt         DateTime @default(now())
-  updatedAt         DateTime @updatedAt
+  id                   String   @id @default(uuid())
+  name                 String
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+  age                  Int
+  culturalData         Json
+  demographics         Json
+  goals                String[]
+  location             String
+  marketingInsights    Json
+  occupation           String
+  painPoints           String[]
+  psychographics       Json
+  qualityScore         Float
+  userId               String
+  bio                  String?
+  metadata             Json?
+  quote                String?
+  email                String?
+  phone                String?
+  
+  // Enhanced metadata columns
+  generationMetadata   Json?
+  validationMetadata   Json?
+  culturalDataSource   String?  @default("unknown") @db.VarChar(50)
+  templateUsed         String?  @db.VarChar(100)
+  processingTime       Int?
+  
+  user                 User     @relation(fields: [userId], references: [id])
+  
+  // Indexes for efficient filtering and sorting
+  @@index([culturalDataSource], name: "idx_persona_cultural_source")
+  @@index([templateUsed], name: "idx_persona_template_used")
+  @@index([processingTime], name: "idx_persona_processing_time")
 }
 
 model Role {
-  id          String         @id @default(uuid())
-  name        String         @unique
+  id          String           @id @default(uuid())
+  name        String           @unique
   description String?
   permissions RolePermission[]
   users       UserRole[]
 }
 
 model Permission {
-  id          String         @id @default(uuid())
-  name        String         @unique
+  id          String           @id @default(uuid())
+  name        String           @unique
   description String?
   roles       RolePermission[]
 }
@@ -50,10 +62,10 @@ model Permission {
 model UserRole {
   id        String   @id @default(uuid())
   userId    String
-  user      User     @relation(fields: [userId], references: [id])
   roleId    String
-  role      Role     @relation(fields: [roleId], references: [id])
   createdAt DateTime @default(now())
+  role      Role     @relation(fields: [roleId], references: [id])
+  user      User     @relation(fields: [userId], references: [id])
 
   @@unique([userId, roleId])
 }
@@ -62,68 +74,66 @@ model RolePermission {
   id           String     @id @default(uuid())
   roleId       String
   permissionId String
-  role         Role       @relation(fields: [roleId], references: [id])
   permission   Permission @relation(fields: [permissionId], references: [id])
+  role         Role       @relation(fields: [roleId], references: [id])
 
   @@unique([roleId, permissionId])
 }
 
 model Plan {
-  id           String    @id @default(uuid())
-  name         String    @unique
-  monthlyPrice String
-  annualPrice  String
-  period       String
-  description  String
-  features     String[]
-  cta          String
-  ctaLink      String
-  popular      Boolean
-  color        String
-  personasLimit Int?
-  exports      String[]
-  support      String
-  apiAccess    Boolean
+  id               String   @id @default(uuid())
+  name             String   @unique
+  monthlyPrice     String
+  annualPrice      String
+  period           String
+  description      String
+  features         String[]
+  cta              String
+  ctaLink          String
+  popular          Boolean
+  color            String
+  personasLimit    Int?
+  exports          String[]
+  support          String
+  apiAccess        Boolean
   culturalInsights Boolean
-  createdAt    DateTime  @default(now())
-  updatedAt    DateTime  @updatedAt
-  users        User[]
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+  users            User[]
 }
 
 model User {
-  id          String            @id @default(uuid())
-  email       String            @unique
+  id          String           @id @default(uuid())
+  email       String           @unique
   name        String?
-  createdAt   DateTime          @default(now())
-  updatedAt   DateTime          @updatedAt
-  roles       UserRole[]
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
   planId      String?
-  plan        Plan?             @relation(fields: [planId], references: [id])
   personas    Persona[]
-  preferences UserPreferences?
   briefs      SavedBrief[]
+  plan        Plan?            @relation(fields: [planId], references: [id])
+  preferences UserPreferences?
+  roles       UserRole[]
 }
 
 model UserPreferences {
   id               String   @id @default(uuid())
   userId           String   @unique
-  user             User     @relation(fields: [userId], references: [id])
   theme            String   @default("light")
   language         String   @default("fr")
   autoSave         Boolean  @default(true)
-  generationsCount Int      @default(0)
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
+  generationsCount Int      @default(0)
+  user             User     @relation(fields: [userId], references: [id])
 }
 
 model SavedBrief {
   id        String   @id @default(uuid())
   userId    String
-  user      User     @relation(fields: [userId], references: [id])
   title     String
-  content   String   @db.Text
+  content   String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  user      User     @relation(fields: [userId], references: [id])
 }
-
-

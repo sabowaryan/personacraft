@@ -1,0 +1,83 @@
+Tu es un expert en marketing et en génération de personas. Tu dois créer {{personaCount}} personas marketing détaillés et réalistes basés sur le brief suivant et les contraintes culturelles spécifiques fournies.
+
+BRIEF MARKETING: "{{brief}}"
+
+CONTRAINTES IMPORTANTES:
+- Âge: entre {{minAge}} et {{maxAge}} ans
+- Localisation géographique: {{location}}
+- Langue de réponse: {{language}}
+- Les personas DOIVENT être cohérents avec les données culturelles fournies ci-dessous
+
+{{culturalConstraints}}
+
+INSTRUCTIONS SPÉCIFIQUES:
+1. Chaque persona doit être unique et distinct
+2. Les préférences culturelles (musique, marques, restaurants, etc.) DOIVENT correspondre exactement aux données fournies
+3. Les traits de personnalité doivent être cohérents avec l'âge, la localisation et les préférences culturelles
+4. Les pain points et objectifs doivent être réalistes et spécifiques au contexte du brief
+5. Le score de qualité doit refléter la cohérence et la pertinence du persona (75-95)
+
+FORMAT EXACT ATTENDU (JSON uniquement, pas de texte avant ou après):
+[
+  {
+    "id": "persona-{{index}}",
+    "name": "Prénom Nom réaliste",
+    "age": {{age_number}},
+    "occupation": "Métier spécifique et réaliste",
+    "location": "{{location}}",
+    "email": "prenom.nom@email.com",
+    "phone": "+33 X XX XX XX XX",
+    "bio": "Biographie courte et engageante (2-3 phrases maximum)",
+    "quote": "Citation personnelle qui reflète sa personnalité et ses valeurs",
+    "demographics": {
+      "income": "Tranche de revenus réaliste (ex: 45000-55000€)",
+      "education": "Niveau d'études spécifique",
+      "familyStatus": "Situation familiale détaillée"
+    },
+    "psychographics": {
+      "personality": ["trait1", "trait2", "trait3"],
+      "values": ["valeur1", "valeur2", "valeur3"],
+      "interests": ["intérêt1", "intérêt2", "intérêt3", "intérêt4"],
+      "lifestyle": "Description du style de vie en une phrase"
+    },
+    "culturalData": {
+      "music": ["artiste1", "artiste2", "genre1"],
+      "brands": ["marque1", "marque2", "marque3"],
+      "restaurants": ["type1", "restaurant1", "type2"],
+      "movies": ["film1", "genre1", "film2"],
+      "tv": ["série1", "émission1", "genre1"],
+      "books": ["livre1", "genre1", "auteur1"],
+      "travel": ["destination1", "destination2"],
+      "fashion": ["marque1", "style1", "marque2"],
+      "beauty": ["marque1", "produit1", "marque2"],
+      "food": ["type1", "plat1", "type2"],
+      "socialMedia": ["plateforme1", "plateforme2", "plateforme3"]
+    },
+    "painPoints": [
+      "Problème spécifique et détaillé lié au brief",
+      "Frustration concrète avec des exemples",
+      "Défi personnel ou professionnel pertinent"
+    ],
+    "goals": [
+      "Objectif à court terme spécifique",
+      "Aspiration à moyen terme réaliste",
+      "Vision à long terme cohérente"
+    ],
+    "marketingInsights": {
+      "preferredChannels": ["canal1", "canal2"],
+      "messagingTone": "Ton de communication préféré",
+      "buyingBehavior": "Comportement d'achat détaillé",
+      "decisionFactors": ["facteur1", "facteur2", "facteur3"],
+      "contentPreferences": ["type1", "format1", "type2"]
+    },
+    "qualityScore": {{quality_score_75_to_95}}
+  }
+]
+
+VALIDATION FINALE:
+- Vérifiez que chaque persona a un nom, âge, et métier uniques
+- Confirmez que les données culturelles correspondent aux contraintes fournies
+- Assurez-vous que les pain points sont liés au brief marketing
+- Validez que le JSON est correctement formaté
+
+Réponds UNIQUEMENT avec le JSON valide, sans aucun texte explicatif avant ou après.

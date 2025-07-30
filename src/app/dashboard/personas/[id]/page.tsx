@@ -5,7 +5,11 @@ import { useParams } from 'next/navigation';
 import Link from 'next/link';
 import { usePersona } from '@/hooks/use-persona';
 import { Persona } from '@/types';
+import { EnrichedPersona } from '@/types/enhanced-persona';
 import { SocialMediaInsights } from '@/components/insights/SocialMediaInsights';
+import { CulturalDataTab } from '@/components/personas/tabs/CulturalDataTab';
+import { ValidationTab } from '@/components/personas/tabs/ValidationTab';
+import { MetadataTab } from '@/components/personas/tabs/MetadataTab';
 
 
 export default function PersonaDetailPage() {
@@ -86,6 +90,33 @@ export default function PersonaDetailPage() {
             icon: (
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 4V2a1 1 0 011-1h8a1 1 0 011 1v2m-9 0h10m-10 0a2 2 0 00-2 2v14a2 2 0 002 2h10a2 2 0 002-2V6a2 2 0 00-2-2M9 12l2 2 4-4" />
+                </svg>
+            )
+        },
+        {
+            id: 'cultural',
+            label: 'Données Culturelles',
+            icon: (
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+            )
+        },
+        {
+            id: 'validation',
+            label: 'Validation',
+            icon: (
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+            )
+        },
+        {
+            id: 'metadata',
+            label: 'Métadonnées',
+            icon: (
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
                 </svg>
             )
         }
@@ -849,6 +880,21 @@ export default function PersonaDetailPage() {
                                     </div>
                                 )}
                             </div>
+                        )}
+
+                        {/* Cultural Data Tab */}
+                        {activeTab === 'cultural' && (
+                            <CulturalDataTab persona={persona as EnrichedPersona} />
+                        )}
+
+                        {/* Validation Tab */}
+                        {activeTab === 'validation' && (
+                            <ValidationTab persona={persona as EnrichedPersona} />
+                        )}
+
+                        {/* Metadata Tab */}
+                        {activeTab === 'metadata' && (
+                            <MetadataTab persona={persona as EnrichedPersona} />
                         )}
                     </div>
                 </div>
