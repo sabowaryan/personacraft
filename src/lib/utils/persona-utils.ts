@@ -1,4 +1,4 @@
-import { Persona } from '@/types';
+import { METADATA_BADGE_CONFIG } from "./METADATA_BADGE_CONFIG";
 import { EnrichedPersona, GenerationMetadata, ValidationMetadata } from '@/types/enhanced-persona';
 
 /**
@@ -32,13 +32,30 @@ export const normalizePersona = (persona: Partial<EnrichedPersona>): EnrichedPer
     }
   };
 
+  const culturalRichness = calculateCulturalRichness(persona.culturalData);
+
   return {
-    ...persona,
+    id: persona.id || '',
+    name: persona.name || '',
+    age: persona.age || 0,
+    occupation: persona.occupation || '',
+    location: persona.location || ",
+    bio: persona.bio || 
+    quote: persona.quote || 
+    qualityScore: persona.qualityScore || 0,
+    culturalData: persona.culturalData || {},
+    demographics: persona.demographics || {},
+    psychographics: persona.psychographics || {},
+    painPoints: persona.painPoints || [],
+    goals: persona.goals || [],
+    marketingInsights: persona.marketingInsights || {},
+    createdAt: persona.createdAt || new Date().toISOString(),
+    updatedAt: persona.updatedAt || new Date().toISOString(),
     generationMetadata: persona.generationMetadata || defaultMetadata,
     validationMetadata: persona.validationMetadata || defaultValidationData,
     culturalDataSource: persona.culturalDataSource || 'unknown',
+    culturalRichness,
     isLegacy: !persona.generationMetadata || persona.generationMetadata.source === 'legacy-fallback'
-  } as EnrichedPersona;
 };
 
 /**
@@ -99,3 +116,79 @@ export const getValidationStatusDescription = (score: number): string => {
 export const normalizePersonas = (personas: Partial<EnrichedPersona>[]): EnrichedPersona[] => {
   return personas.map(normalizePersona);
 };
+
+/**
+ * Type guard for Qloo-First personas.
+ */
+export const isQlooFirstPersona = (persona: EnrichedPersona): boolean => {
+  return persona.generationMetadata?.source === 'qloo-first';
+};
+
+/**
+ * Type guard for legacy personas.
+ */
+export const isLegacyPersona = (persona: EnrichedPersona): boolean => {
+  return persona.isLegacy === true;
+};
+
+/**
+ * Compares two personas and highlights differences.
+ */
+export const comparePersonas = (persona1: EnrichedPersona, persona2: EnrichedPersona) => {
+  const differences: any = {};
+  const recommendations: string[] = [];
+
+  if (persona1.generationMetadata?.source !== persona2.generationMetadata?.source) {
+    differences.generationMethod = true;
+    recommendations.push('Consider migrating legacy personas to Qloo-First for enhanced data.');
+  }
+
+  // Add more comparison logic as needed
+
+  return {
+    persona1,
+    persona2,
+    differences,
+    recommendations,
+  };
+};
+
+/**
+ * Generates migration suggestions for personas.
+ */
+export const generateMigrationSuggestion = (persona: EnrichedPersona) => {
+  let currentStatus: 'up-to-date' | 'needs-update' | 'critical-update' = 'up-to-date';
+  const suggestedActions: string[] = [];
+  let priority: 'low' | 'medium' | 'high' = 'low';
+
+  if (isLegacyPersona(persona)) {
+    currentStatus = 'needs-update';
+    suggestedActions.push('Migrate this persona to the Qloo-First system to leverage enhanced data and validation.');
+    priority = 'high';
+  }
+
+  if (persona.validationMetadata?.overallStatus === 'failed') {
+    currentStatus = 'critical-update';
+    suggestedActions.push('Review validation details and correct errors to ensure data integrity.');
+    priority = 'high';
+  }
+
+  if (persona.validationMetadata?.validationScore && persona.validationMetadata.validationScore < 75) {
+    if (currentStatus === 'up-to-date') currentStatus = 'needs-update';
+    suggestedActions.push('Improve the quality score by enriching cultural data or refining existing information.');
+    if (priority !== 'high') priority = 'medium';
+  }
+
+  if (!hasEnhancedMetadata(persona)) {
+    if (currentStatus === 'up-to-date') currentStatus = 'needs-update';
+    suggestedActions.push('Add missing generation and validation metadata for better traceability and analysis.');
+    if (priority === 'low') priority = 'medium';
+  }
+
+  return {
+    currentStatus,
+    suggestedActions,
+    priority,
+  };
+};
+

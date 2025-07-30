@@ -76,7 +76,7 @@ describe('Simple Persona Template', () => {
 
     it('should validate required fields rule', async () => {
         const requiredFieldsRule = simplePersonaTemplate.rules.find(
-            rule => rule.id === 'required-fields-basic'
+            rule => rule.id === 'required-fields-simple'
         );
 
         expect(requiredFieldsRule).toBeDefined();
@@ -99,7 +99,7 @@ describe('Simple Persona Template', () => {
 
     it('should fail validation for missing required fields', async () => {
         const requiredFieldsRule = simplePersonaTemplate.rules.find(
-            rule => rule.id === 'required-fields-basic'
+            rule => rule.id === 'required-fields-simple'
         );
 
         expect(requiredFieldsRule).toBeDefined();

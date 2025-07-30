@@ -115,21 +115,18 @@ describe('ValidationTemplateRegistry', () => {
         });
 
         it('should throw error when updating non-existent template', () => {
-            expect(() => registry.update('non-existent', mockTemplate)).toThrow('Template with id non-existent not found');
+            expect(() => registry.update("non-existent", mockTemplate)).toThrow("Template with id non-existent not found");
         });
 
         it('should update the updatedAt timestamp', () => {
             registry.register(mockTemplate);
             const originalUpdatedAt = mockTemplate.metadata.updatedAt;
             
-            // Wait a bit to ensure timestamp difference
-            setTimeout(() => {
-                const updatedTemplate = { ...mockTemplate, name: 'Updated Template' };
-                registry.update(mockTemplate.id, updatedTemplate);
-                
-                const retrieved = registry.get(mockTemplate.id);
-                expect(retrieved?.metadata.updatedAt).toBeGreaterThan(originalUpdatedAt);
-            }, 10);
+            const updatedTemplate = { ...mockTemplate, name: 'Updated Template' };
+            registry.update(mockTemplate.id, updatedTemplate);
+            
+            const retrieved = registry.get(mockTemplate.id);
+            expect(retrieved?.metadata.updatedAt).toBeGreaterThan(originalUpdatedAt);
         });
     });
 

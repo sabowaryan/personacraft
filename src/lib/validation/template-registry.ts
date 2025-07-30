@@ -22,6 +22,7 @@ export interface TemplateRegistry {
     update(id: string, template: ValidationTemplate): void;
     delete(id: string): boolean;
     list(): ValidationTemplate[];
+    exists(id: string): boolean;
 }
 
 interface CacheEntry {
@@ -204,13 +205,6 @@ export class ValidationTemplateRegistry implements TemplateRegistry {
     }
 
     /**
-     * List active templates only
-     */
-    listActive(): ValidationTemplate[] {
-        return this.list().filter(template => template.metadata.isActive);
-    }
-
-    /**
      * Search templates by name or description
      */
     search(query: string): ValidationTemplate[] {
@@ -229,33 +223,6 @@ export class ValidationTemplateRegistry implements TemplateRegistry {
         return this.list().filter(template => 
             template.metadata.tags.includes(tag)
         );
-    }
-
-    /**
-     * Get cache statistics
-     */
-    getCacheStats(): {
-        size: number;
-        maxSize: number;
-        hitRate: number;
-        entries: Array<{ id: string; lastAccessed: number; accessCount: number }>;
-    } {
-        const entries = Array.from(this.cache.entries()).map(([id, entry]) => ({
-            id,
-            lastAccessed: entry.lastAccessed,
-            accessCount: entry.accessCount
-        }));
-
-        const totalAccesses = entries.reduce((sum, entry) => sum + entry.accessCount, 0);
-        const cacheHits = entries.length > 0 ? totalAccesses : 0;
-        const hitRate = totalAccesses > 0 ? (cacheHits / totalAccesses) * 100 : 0;
-
-        return {
-            size: this.cache.size,
-            maxSize: this.cacheConfig.maxSize,
-            hitRate,
-            entries
-        };
     }
 
     /**

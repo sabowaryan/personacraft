@@ -485,7 +485,8 @@ describe('POST /api/generate-personas - Feature Flag Behavior', () => {
             expect(responseData.featureFlags).toEqual({
                 qlooFirstEnabled: true,
                 fallbackEnabled: true,
-                debugMode: false
+                debugMode: false,
+                validationEnabled: true,
             });
         });
 
@@ -831,11 +832,12 @@ describe('POST /api/generate-personas - Feature Flag Behavior', () => {
 
             // All responses should have consistent feature flag states
             responsesData.forEach((responseData, index) => {
-                expect(responseData.featureFlags).toEqual({
-                    qlooFirstEnabled: true,
-                    fallbackEnabled: true,
-                    debugMode: false
-                });
+            expect(responseData.featureFlags).toEqual({
+                qlooFirstEnabled: true,
+                fallbackEnabled: true,
+                debugMode: false,
+                validationEnabled: true,
+            });
                 expect(responseData.generation.method).toBe('qloo-first');
             });
         });

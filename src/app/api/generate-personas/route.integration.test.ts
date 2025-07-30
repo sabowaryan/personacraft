@@ -179,7 +179,8 @@ describe('POST /api/generate-personas - Complete BriefForm to Persona Generation
             expect(featureFlagService.isQlooFirstEnabled).toHaveBeenCalled();
             expect(QlooFirstPersonaGenerator).toHaveBeenCalledWith({
                 enableFallback: true,
-                debugMode: false
+                debugMode: false,
+                enableValidation: true
             });
             expect(mockQlooFirstGeneratorInstance.generatePersonas).toHaveBeenCalledWith(validBriefFormData);
 
@@ -215,7 +216,8 @@ describe('POST /api/generate-personas - Complete BriefForm to Persona Generation
                 featureFlags: {
                     qlooFirstEnabled: true,
                     fallbackEnabled: true,
-                    debugMode: false
+                    debugMode: false,
+                    validationEnabled: true
                 }
             });
         });
@@ -420,7 +422,8 @@ describe('POST /api/generate-personas - Complete BriefForm to Persona Generation
 
             expect(QlooFirstPersonaGenerator).toHaveBeenCalledWith({
                 enableFallback: true,
-                debugMode: true
+                debugMode: true,
+                enableValidation: true
             });
 
             expect(responseData.featureFlags.debugMode).toBe(true);
@@ -439,7 +442,8 @@ describe('POST /api/generate-personas - Complete BriefForm to Persona Generation
 
             expect(QlooFirstPersonaGenerator).toHaveBeenCalledWith({
                 enableFallback: false,
-                debugMode: false
+                debugMode: false,
+                enableValidation: true
             });
 
             expect(responseData.featureFlags.fallbackEnabled).toBe(false);
@@ -461,7 +465,8 @@ describe('POST /api/generate-personas - Complete BriefForm to Persona Generation
             expect(responseData.featureFlags).toEqual({
                 qlooFirstEnabled: true,
                 fallbackEnabled: true,
-                debugMode: false
+                debugMode: false,
+                validationEnabled: true,
             });
         });
     });
