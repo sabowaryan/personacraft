@@ -1,15 +1,15 @@
-import "server-only";
+// Configuration partagée pour Stack Auth
+export const stackConfig = {
+  tokenStore: "nextjs-cookie" as const,
+  urls: {
+    signIn: "/auth/signin",
+    signUp: "/auth/signup",
+    
+  }
+};
 
-export async function getStackServerApp() {
-  const { StackServerApp } = await import('@stackframe/stack');
-  return new StackServerApp({
-    tokenStore: "nextjs-cookie",
-    urls: {
-      signIn: "/auth/signin",
-      signUp: "/auth/signup",
-      emailVerification: "/handler/email-verification",
-      afterSignIn: "/auth/verify-email",
-      afterSignUp: "/auth/verify-email",
-    }
-  });
-}
+
+
+
+
+

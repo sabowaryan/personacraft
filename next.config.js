@@ -9,8 +9,27 @@ const nextConfig = {
   // ✅ Optimisations critiques pour Next.js 15
   experimental: {
     webpackMemoryOptimizations: true, // Nouveau dans Next.js 15
-    optimizePackageImports: ['@stackframe/stack', '@google/generative-ai'], // Optimise Stack Auth et Gemini
+    optimizePackageImports: ['@google/generative-ai','@stackframe/stack'], // Optimise Gemini seulement
   },
+
+  webpack: (config, { isServer }) => {
+    if (isServer) {
+      // Polyfill pour les variables globales du navigateur
+      config.resolve.fallback = {
+        ...config.resolve.fallback,
+        "self": false,
+      };
+      
+      // Définir 'self' globalement pour l'environnement serveur
+      config.plugins.push(
+        new config.webpack.DefinePlugin({
+          'self': 'globalThis',
+        })
+      );
+    }
+    return config;
+  },
+  
   
   // ✅ Configuration Turbopack (stable dans Next.js 15)
   turbopack: {
@@ -46,12 +65,13 @@ const nextConfig = {
       };
     }
     
-    // ✅ Optimisation spécifique pour Stack Auth
-    if (!dev && !isServer) {
-      config.resolve.alias = {
-        ...config.resolve.alias,
-        '@stackframe/stack/client': '@stackframe/stack/dist/client',
-        '@stackframe/stack/server': '@stackframe/stack/dist/server',
+    // ✅ Fix for StackAuth "self is not defined" error
+    if (isServer) {
+      config.resolve.fallback = {
+        ...config.resolve.fallback,
+        crypto: false,
+        stream: false,
+        util: false,
       };
     }
 

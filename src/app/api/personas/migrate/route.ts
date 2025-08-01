@@ -1,14 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getStackServerApp } from '@/stack-server'
 const { prisma } = await import('@/lib/prisma');
 
 import { ensureUserExists, handleForeignKeyError } from '@/lib/user-utils'
+import { getAuthenticatedUser } from '@/lib/auth-utils'
 
 export async function POST(request: NextRequest) {
   try {
-    // Vérifier l'authentification
-    const stackServerApp = await getStackServerApp();
-    const user = await stackServerApp.getUser()
+    // Utiliser la fonction centralisée d'authentification
+    const user = await getAuthenticatedUser();
     if (!user) {
       return NextResponse.json(
         { error: 'Non authentifié' },

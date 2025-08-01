@@ -1,12 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getGeminiClient } from '@/lib/api/gemini';
-import { getStackServerApp } from '@/stack-server';
+import { getAuthenticatedUser } from '@/lib/auth-utils';
 
 export async function POST(request: NextRequest) {
   try {
-    // Vérifier l'authentification
-    const stackServerApp = await getStackServerApp();
-    const user = await stackServerApp.getUser();
+    // Utiliser la fonction centralisée d'authentification
+    const user = await getAuthenticatedUser();
     if (!user) {
       return NextResponse.json(
         { error: 'Non authentifié' },

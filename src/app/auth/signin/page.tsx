@@ -56,7 +56,8 @@ export default function CustomSignInPage() {
               </p>
             </div>
 
-            <SignIn />
+            <SignIn fullPage={true}
+      automaticRedirect={true} />
 
             <div className="mt-6 text-center">
               <p className="text-sm text-gray-600">
@@ -69,35 +70,7 @@ export default function CustomSignInPage() {
           </div>
         </div>
 
-        {/* Quick Access Features */}
-        <div className="mt-8">
-          <div className="bg-white/60 rounded-xl p-6 backdrop-blur-sm border border-white/20">
-            <h3 className="font-semibold text-gray-900 mb-4 text-center flex items-center justify-center space-x-2">
-              <svg className="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-              <span>Accès rapide à vos outils</span>
-            </h3>
-            <div className="space-y-3 text-sm text-gray-700">
-              <div className="flex items-center space-x-3 p-2 rounded-lg hover:bg-white/50 transition-colors">
-                <div className="w-2 h-2 bg-purple-500 rounded-full flex-shrink-0"></div>
-                <span>Dashboard avec vos personas sauvegardées</span>
-              </div>
-              <div className="flex items-center space-x-3 p-2 rounded-lg hover:bg-white/50 transition-colors">
-                <div className="w-2 h-2 bg-green-500 rounded-full flex-shrink-0"></div>
-                <span>Génération rapide avec vos préférences</span>
-              </div>
-              <div className="flex items-center space-x-3 p-2 rounded-lg hover:bg-white/50 transition-colors">
-                <div className="w-2 h-2 bg-blue-500 rounded-full flex-shrink-0"></div>
-                <span>Historique et analytics de vos projets</span>
-              </div>
-              <div className="flex items-center space-x-3 p-2 rounded-lg hover:bg-white/50 transition-colors">
-                <div className="w-2 h-2 bg-orange-500 rounded-full flex-shrink-0"></div>
-                <span>Templates personnalisés</span>
-              </div>
-            </div>
-          </div>
-        </div>
+       
 
         {/* Trust indicators */}
         <div className="mt-6 text-center">

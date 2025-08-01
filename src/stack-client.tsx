@@ -1,15 +1,14 @@
 'use client';
 
 import { StackClientApp } from '@stackframe/stack';
+import { stackConfig } from './stack';
 
 // Create a singleton instance
 export const stackClientApp = new StackClientApp({
-  tokenStore: "nextjs-cookie",
+  ...stackConfig,
   urls: {
-    signIn: '/auth/signin',
-    signUp: '/auth/signup',
+    ...stackConfig.urls,
     emailVerification: '/handler/email-verification',
-    afterSignIn: '/auth/verify-email',
     afterSignUp: '/auth/verify-email',
   }
 });

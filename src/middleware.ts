@@ -1,10 +1,17 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
-import { getStackServerApp } from './stack';
+import { getStackServerApp } from './stack-server';
+import { shouldBypassAuth, isFeatureEnabled } from './lib/feature-flags';
 // import { permissionService } from './services/permissionService'; // Temporairement désactivé
 
 export async function middleware(request: NextRequest) {
   const start = Date.now();
+
+  // Si l'authentification est désactivée, permettre l'accès à toutes les routes
+  if (shouldBypassAuth()) {
+    console.log(`🚫 Auth disabled - allowing access to: ${request.nextUrl.pathname}`);
+    return NextResponse.next();
+  }
 
   // Routes d'API d'authentification qui doivent être accessibles sans authentification
   const publicApiRoutes = ['/api/auth/', '/api/webhooks/'];
@@ -55,15 +62,15 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(new URL('/auth/signin', request.url));
   }
 
-  // Vérification de l'email vérifié pour les routes protégées
-  if (isProtectedRoute && user && !user.primaryEmailVerified) {
+  // Vérification de l'email vérifié pour les routes protégées (si activée)
+  if (isProtectedRoute && user && !user.primaryEmailVerified && isFeatureEnabled('EMAIL_VERIFICATION_REQUIRED')) {
     console.log(`Redirecting user with unverified email from ${request.nextUrl.pathname} to /auth/verify-email`);
     return NextResponse.redirect(new URL('/auth/verify-email', request.url));
   }
 
-  // Vérification de l'onboarding pour les routes protégées (sauf /onboarding)
+  // Vérification de l'onboarding pour les routes protégées (sauf /onboarding) - si activée
   const isOnboardingRoute = request.nextUrl.pathname === '/onboarding';
-  if (isProtectedRoute && !isOnboardingRoute && user && user.primaryEmailVerified) {
+  if (isProtectedRoute && !isOnboardingRoute && user && user.primaryEmailVerified && isFeatureEnabled('ONBOARDING_REQUIRED')) {
     const isOnboarded = user.clientReadOnlyMetadata?.onboardedAt;
     if (!isOnboarded) {
       console.log(`Redirecting user without onboarding from ${request.nextUrl.pathname} to /onboarding`);
@@ -72,7 +79,7 @@ export async function middleware(request: NextRequest) {
   }
 
   // Si l'utilisateur est déjà onboardé et essaie d'accéder à /onboarding, rediriger vers dashboard
-  if (isOnboardingRoute && user && user.primaryEmailVerified) {
+  if (isOnboardingRoute && user && user.primaryEmailVerified && isFeatureEnabled('ONBOARDING_REQUIRED')) {
     const isOnboarded = user.clientReadOnlyMetadata?.onboardedAt;
     if (isOnboarded) {
       console.log(`Redirecting onboarded user from /onboarding to /dashboard`);

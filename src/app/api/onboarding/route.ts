@@ -1,11 +1,20 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getStackServerApp } from '@/stack-server'
+import { getAuthenticatedUser } from '@/lib/auth-utils'
+import { isFeatureEnabled } from '@/lib/feature-flags'
 
 export async function POST(request: NextRequest) {
   try {
-    const stackServerApp = await getStackServerApp();
-    const user = await stackServerApp.getUser();
-    
+    // Si l'onboarding n'est pas requis, retourner succès directement
+    if (!isFeatureEnabled('ONBOARDING_REQUIRED')) {
+      console.log('🚫 Onboarding disabled - skipping');
+      return NextResponse.json({ 
+        success: true,
+        message: 'Onboarding désactivé - accès direct autorisé'
+      });
+    }
+
+    // Utiliser la fonction centralisée d'authentification
+    const user = await getAuthenticatedUser();
     if (!user) {
       return NextResponse.json({ error: 'Non authentifié' }, { status: 401 });
     }

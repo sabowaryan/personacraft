@@ -1,15 +1,16 @@
 // stack-server.ts
 import "server-only";
+import "./lib/polyfills"; // Import des polyfills en premier
+import { stackConfig } from "./stack";
 
 export async function getStackServerApp() {
+  
   const { StackServerApp } = await import("@stackframe/stack");
   return new StackServerApp({
-    tokenStore: "nextjs-cookie",
+    ...stackConfig,
     urls: {
-      signIn: "/auth/signin",
-      signUp: "/auth/signup",
+      ...stackConfig.urls,
       emailVerification: "/handler/email-verification",
-      afterSignIn: "/auth/verify-email",
       afterSignUp: "/auth/verify-email",
     }
   });

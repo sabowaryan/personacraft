@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getStackServerApp } from '@/stack';
+
 
 export async function POST(request: NextRequest) {
     try {

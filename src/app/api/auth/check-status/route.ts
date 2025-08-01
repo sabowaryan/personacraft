@@ -1,17 +1,17 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { getStackServerApp } from '@/stack-server'
+import { NextResponse } from 'next/server';
+import { getAuthenticatedUser } from '@/lib/auth-utils'
 
-export async function GET(request: NextRequest) {
+export async function GET() {
     try {
-        const stackServerApp = await getStackServerApp();
-        const user = await stackServerApp.getUser();
+        // Utiliser la fonction centralisée d'authentification
+        const user = await getAuthenticatedUser();
         
         return NextResponse.json({
             isAuthenticated: !!user,
             user: user ? {
                 id: user.id,
-                email: user.primaryEmail,
-                emailVerified: user.primaryEmailVerified
+                email: user.primaryEmail || user.primaryEmail,
+                emailVerified: user.primaryEmailVerified || true
             } : null
         });
     } catch (error) {
