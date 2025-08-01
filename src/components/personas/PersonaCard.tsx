@@ -90,7 +90,7 @@ export const PersonaCard: React.FC<PersonaCardProps> = ({
   const generationSource = persona.generationMetadata?.source || 'legacy-fallback';
 
   // Conditional classes based on view mode
-  const containerClasses = viewMode === 'list' 
+  const containerClasses = viewMode === 'list'
     ? "group bg-white border border-slate-200/80 rounded-2xl p-3 sm:p-4 hover:shadow-lg hover:shadow-slate-200/30 hover:border-persona-violet/20 transition-all duration-200 relative flex items-center gap-4"
     : "group bg-white border border-slate-200/80 rounded-3xl p-4 sm:p-5 lg:p-6 hover:shadow-xl hover:shadow-slate-200/50 hover:border-persona-violet/20 transition-all duration-300 relative";
 

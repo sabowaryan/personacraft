@@ -1,9 +1,9 @@
 'use client';
 
-import { Persona } from '@/types';
+import { EnrichedPersona } from '@/types/enhanced-persona';
 
 interface PsychographicsTabProps {
-    persona: Persona;
+    persona: EnrichedPersona;
 }
 
 // Composant pour le graphique radar des traits de personnalité

@@ -77,6 +77,7 @@ export interface Persona {
   createdAt: string
   updatedAt?: string
   brief?: string
+  templateUsed?: string
   socialMediaInsights?: {
     insights: SocialMediaInsights
     platforms: string[]

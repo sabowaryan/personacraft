@@ -3,19 +3,19 @@ const { prisma } = await import('@/lib/prisma');
 
 import { getAuthenticatedUser } from '@/lib/auth-utils';
 import { normalizePersona, calculateCulturalRichness } from '@/lib/utils/persona-normalization';
-import { 
-  EnrichedPersona, 
-  PersonaListResponse, 
+import {
+  EnrichedPersona,
+  PersonaListResponse,
   EnhancedPersonaFilters,
-  EnhancedSortOptions 
+  EnhancedSortOptions
 } from '@/types/enhanced-persona';
 
 export async function GET(request: NextRequest) {
   try {
     const user = await getAuthenticatedUser();
-   
+
     if (!user) {
-      
+
       return NextResponse.json({ error: 'Non autorisé' }, { status: 401 })
     }
 
@@ -26,7 +26,7 @@ export async function GET(request: NextRequest) {
 
     // Build where clause with filters
     const whereClause = buildWhereClause(user.id, filters);
-   
+
     // Build order by clause
     const orderByClause = buildOrderByClause(sortOptions);
 
@@ -35,17 +35,17 @@ export async function GET(request: NextRequest) {
       where: whereClause,
       orderBy: orderByClause
     });
-    
-   
+
+
     // Normalize personas to ensure consistent metadata
-    const personas: EnrichedPersona[] = rawPersonas.map(persona => 
+    const personas: EnrichedPersona[] = rawPersonas.map(persona =>
       normalizePersona(persona as any, { validateCulturalData: true })
     );
 
-   
+
     // Calculate aggregated statistics
     const metadata = calculateAggregatedMetadata(personas);
-    
+
     // Calculate available filter options
     const filterOptions = calculateFilterOptions(personas);
 
@@ -55,12 +55,12 @@ export async function GET(request: NextRequest) {
       filters: filterOptions
     };
 
-  
+
 
     return NextResponse.json(response);
   } catch (error) {
     console.error('Erreur lors de la récupération des personas:', error)
-    
+
     // Handle specific error types
     if (error instanceof Error && error.message === 'Auth timeout') {
       return NextResponse.json(
@@ -68,7 +68,7 @@ export async function GET(request: NextRequest) {
         { status: 408 }
       );
     }
-    
+
     return NextResponse.json(
       { error: 'Erreur lors de la récupération des personas' },
       { status: 500 }
@@ -417,6 +417,7 @@ export async function POST(request: NextRequest) {
       painPoints,
       goals,
       marketingInsights,
+      socialMediaInsights,
       qualityScore,
       // Enhanced metadata fields
       generationMetadata,
@@ -431,15 +432,15 @@ export async function POST(request: NextRequest) {
     // Extract generation method from metadata if available
     const generationMethod = metadata?.generationMethod || generationMetadata?.generationMethod || 'unknown';
     const culturalDataSourceFinal = culturalDataSource || metadata?.culturalDataSource || 'unknown';
-    
+
     // Fix: Properly extract templateUsed as string from multiple sources
-    const templateUsedFinal = templateUsed || 
-                             metadata?.templateUsed || 
-                             metadata?.validation?.templateId || 
-                             validationMetadata?.templateId ||
-                             generationMetadata?.templateUsed ||
-                             'standard';
-    
+    const templateUsedFinal = templateUsed ||
+      metadata?.templateUsed ||
+      metadata?.validation?.templateId ||
+      validationMetadata?.templateId ||
+      generationMetadata?.templateUsed ||
+      'standard';
+
     const processingTimeFinal = processingTime || metadata?.processingTime || 0;
 
     // Fix: Create proper validationMetadata JSON object from generation response
@@ -473,6 +474,7 @@ export async function POST(request: NextRequest) {
         painPoints,
         goals,
         marketingInsights,
+        ...(socialMediaInsights && { socialMediaInsights }),
         qualityScore,
         // Enhanced metadata
         generationMetadata: {
@@ -501,7 +503,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(enrichedPersona, { status: 201 })
   } catch (error) {
     console.error('Erreur lors de la création du persona:', error)
-    
+
     // Handle specific error types
     if (error instanceof Error && error.message === 'Auth timeout') {
       return NextResponse.json(
@@ -509,7 +511,7 @@ export async function POST(request: NextRequest) {
         { status: 408 }
       );
     }
-    
+
     return NextResponse.json(
       { error: 'Erreur lors de la création du persona' },
       { status: 500 }

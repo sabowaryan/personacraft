@@ -18,6 +18,7 @@ model Persona {
   goals                String[]
   location             String
   marketingInsights    Json
+  socialMediaInsights  Json?
   occupation           String
   painPoints           String[]
   psychographics       Json

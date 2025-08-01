@@ -15,7 +15,7 @@ import {
 
 export interface TemplateRegistry {
     templates: Map<string, ValidationTemplate>;
-    
+
     register(template: ValidationTemplate): void;
     get(id: string): ValidationTemplate | null;
     getByPersonaType(type: PersonaType): ValidationTemplate[];
@@ -130,9 +130,9 @@ export class ValidationTemplateRegistry implements TemplateRegistry {
         return templates.sort((a, b) => {
             const aVersion = this.parseVersion(a.version);
             const bVersion = this.parseVersion(b.version);
-            return bVersion.major - aVersion.major || 
-                   bVersion.minor - aVersion.minor || 
-                   bVersion.patch - aVersion.patch;
+            return bVersion.major - aVersion.major ||
+                bVersion.minor - aVersion.minor ||
+                bVersion.patch - aVersion.patch;
         });
     }
 
@@ -205,11 +205,18 @@ export class ValidationTemplateRegistry implements TemplateRegistry {
     }
 
     /**
+     * Check if a template exists
+     */
+    exists(id: string): boolean {
+        return this.templates.has(id);
+    }
+
+    /**
      * Search templates by name or description
      */
     search(query: string): ValidationTemplate[] {
         const lowerQuery = query.toLowerCase();
-        return this.list().filter(template => 
+        return this.list().filter(template =>
             template.name.toLowerCase().includes(lowerQuery) ||
             template.metadata.description.toLowerCase().includes(lowerQuery) ||
             template.metadata.tags.some(tag => tag.toLowerCase().includes(lowerQuery))
@@ -220,7 +227,7 @@ export class ValidationTemplateRegistry implements TemplateRegistry {
      * Get templates by tag
      */
     getByTag(tag: string): ValidationTemplate[] {
-        return this.list().filter(template => 
+        return this.list().filter(template =>
             template.metadata.tags.includes(tag)
         );
     }

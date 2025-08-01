@@ -1,15 +1,30 @@
 import {
-    ValidationContext,
-    PersonaData,
-    RepairIssue,
-    RepairSuggestion
+    ValidationContext
 } from '../../types/validation';
+import { Persona } from '../../types';
+
+// Define repair-specific types
+export interface RepairIssue {
+    type: 'missing_field' | 'invalid_type' | 'malformed_json' | 'constraint_violation';
+    field?: string;
+    expected: string;
+    actual: string;
+    severity: 'error' | 'warning' | 'info';
+    autoFixable: boolean;
+}
+
+export interface RepairSuggestion {
+    field: string;
+    suggestedValue: any;
+    confidence: number;
+    reason: string;
+}
 
 export interface SchemaRepairEngine {
   detectIssues(rawData: string): RepairIssue[];
   repairJsonStructure(malformedJson: string): string;
-  fillMissingFields(persona: Partial<PersonaData>, context: ValidationContext): PersonaData;
-  normalizeFieldTypes(persona: any): PersonaData;
+  fillMissingFields(persona: Partial<Persona>, context: ValidationContext): Persona;
+  normalizeFieldTypes(persona: any): Persona;
 }
 
 export class SchemaRepairEngineImpl implements SchemaRepairEngine {
@@ -46,21 +61,56 @@ export class SchemaRepairEngineImpl implements SchemaRepairEngine {
     return repaired;
   }
 
-  fillMissingFields(persona: Partial<PersonaData>, context: ValidationContext): PersonaData {
+  fillMissingFields(persona: Partial<Persona>, context: ValidationContext): Persona {
     // TODO: Implement intelligent field filling based on context
-    const defaultPersona: PersonaData = {
+    const defaultPersona: Persona = {
+      id: persona.id || 'temp-id',
       name: persona.name || 'Unknown',
       age: persona.age || 30,
-      demographics: persona.demographics || {},
-      interests: persona.interests || [],
-      values: persona.values || [],
+      occupation: persona.occupation || 'Unknown',
+      location: persona.location || 'Unknown',
+      bio: persona.bio || '',
+      quote: persona.quote || '',
+      demographics: persona.demographics || {
+        income: '',
+        education: '',
+        familyStatus: ''
+      },
+      psychographics: persona.psychographics || {
+        personality: [],
+        values: [],
+        interests: [],
+        lifestyle: ''
+      },
+      culturalData: persona.culturalData || {
+        music: [],
+        movie: [],
+        tv: [],
+        book: [],
+        brand: [],
+        restaurant: [],
+        travel: [],
+        fashion: [],
+        beauty: [],
+        food: [],
+        socialMedia: []
+      },
+      painPoints: persona.painPoints || [],
+      goals: persona.goals || [],
+      marketingInsights: persona.marketingInsights || {
+        preferredChannels: [],
+        messagingTone: '',
+        buyingBehavior: ''
+      },
+      qualityScore: persona.qualityScore || 0,
+      createdAt: persona.createdAt || new Date().toISOString(),
       // Add other required fields with defaults
     };
     
     return { ...defaultPersona, ...persona };
   }
 
-  normalizeFieldTypes(persona: any): PersonaData {
+  normalizeFieldTypes(persona: any): Persona {
     // TODO: Implement type normalization logic
     const normalized = { ...persona };
     
@@ -70,15 +120,25 @@ export class SchemaRepairEngineImpl implements SchemaRepairEngine {
     }
     
     // Ensure arrays are arrays
-    if (!Array.isArray(normalized.interests)) {
-      normalized.interests = [];
+    if (!Array.isArray(normalized.psychographics?.interests)) {
+      if (!normalized.psychographics) normalized.psychographics = {};
+      normalized.psychographics.interests = [];
     }
     
-    if (!Array.isArray(normalized.values)) {
-      normalized.values = [];
+    if (!Array.isArray(normalized.psychographics?.values)) {
+      if (!normalized.psychographics) normalized.psychographics = {};
+      normalized.psychographics.values = [];
     }
     
-    return normalized as PersonaData;
+    if (!Array.isArray(normalized.painPoints)) {
+      normalized.painPoints = [];
+    }
+    
+    if (!Array.isArray(normalized.goals)) {
+      normalized.goals = [];
+    }
+    
+    return normalized as Persona;
   }
 }
 

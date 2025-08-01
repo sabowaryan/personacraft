@@ -157,7 +157,7 @@ export const CulturalDataTab: React.FC<CulturalDataTabProps> = ({ persona }) => 
     {
       key: 'movies',
       title: 'Films',
-      items: culturalData.movies || [],
+      items: culturalData.movie || culturalData.movie || [],
       icon: (
         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 4V2a1 1 0 011-1h8a1 1 0 011 1v2m-9 0h10m-10 0a2 2 0 00-2 2v14a2 2 0 002 2h10a2 2 0 002-2V6a2 2 0 00-2-2M9 12l2 2 4-4" />
@@ -189,7 +189,7 @@ export const CulturalDataTab: React.FC<CulturalDataTabProps> = ({ persona }) => 
     {
       key: 'books',
       title: 'Livres',
-      items: culturalData.books || [],
+      items: culturalData.book || culturalData.book || [],
       icon: (
         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
@@ -205,7 +205,7 @@ export const CulturalDataTab: React.FC<CulturalDataTabProps> = ({ persona }) => 
     {
       key: 'brands',
       title: 'Marques',
-      items: culturalData.brands || [],
+      items: culturalData.brand || culturalData.brand || [],
       icon: (
         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
@@ -221,7 +221,7 @@ export const CulturalDataTab: React.FC<CulturalDataTabProps> = ({ persona }) => 
     {
       key: 'restaurants',
       title: 'Restaurants',
-      items: culturalData.restaurants || [],
+      items: culturalData.restaurant || culturalData.restaurant || [],
       icon: (
         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4" />
@@ -265,6 +265,70 @@ export const CulturalDataTab: React.FC<CulturalDataTabProps> = ({ persona }) => 
         text: 'text-indigo-900',
         border: 'border border-indigo-200',
         tag: 'bg-white/70 text-indigo-800'
+      }
+    },
+    {
+      key: 'food',
+      title: 'Alimentation',
+      items: culturalData.food || [],
+      icon: (
+        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 13m0 0l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17M17 13v4a2 2 0 01-2 2H9a2 2 0 01-2-2v-4m8 0V9a2 2 0 00-2-2H9a2 2 0 00-2 2v4.01" />
+        </svg>
+      ),
+      colorScheme: {
+        bg: 'bg-gradient-to-br from-orange-50 to-red-50',
+        text: 'text-orange-900',
+        border: 'border border-orange-200',
+        tag: 'bg-white/70 text-orange-800'
+      }
+    },
+    {
+      key: 'fashion',
+      title: 'Mode',
+      items: culturalData.fashion || [],
+      icon: (
+        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zM21 5a2 2 0 00-2-2h-4a2 2 0 00-2 2v12a4 4 0 004 4 4 4 0 004-4V5z" />
+        </svg>
+      ),
+      colorScheme: {
+        bg: 'bg-gradient-to-br from-purple-50 to-pink-50',
+        text: 'text-purple-900',
+        border: 'border border-purple-200',
+        tag: 'bg-white/70 text-purple-800'
+      }
+    },
+    {
+      key: 'beauty',
+      title: 'Beauté',
+      items: culturalData.beauty || [],
+      icon: (
+        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+        </svg>
+      ),
+      colorScheme: {
+        bg: 'bg-gradient-to-br from-pink-50 to-rose-50',
+        text: 'text-pink-900',
+        border: 'border border-pink-200',
+        tag: 'bg-white/70 text-pink-800'
+      }
+    },
+    {
+      key: 'influencers',
+      title: 'Influenceurs',
+      items: culturalData.influencers || [],
+      icon: (
+        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+        </svg>
+      ),
+      colorScheme: {
+        bg: 'bg-gradient-to-br from-cyan-50 to-blue-50',
+        text: 'text-cyan-900',
+        border: 'border border-cyan-200',
+        tag: 'bg-white/70 text-cyan-800'
       }
     }
   ];

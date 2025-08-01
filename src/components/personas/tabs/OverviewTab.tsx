@@ -1,9 +1,9 @@
 'use client';
 
-import { Persona } from '@/types';
+import { EnrichedPersona } from '@/types/enhanced-persona';
 
 interface OverviewTabProps {
-    persona: Persona;
+    persona: EnrichedPersona;
 }
 
 export function OverviewTab({ persona }: OverviewTabProps) {
@@ -100,7 +100,7 @@ export function OverviewTab({ persona }: OverviewTabProps) {
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 <div className="space-y-5">
                                     <div className="group hover:shadow-md transition-all duration-200 p-5 bg-gradient-to-br from-blue-50/50 to-blue-50/30 rounded-2xl border border-blue-100/50">
-                                        <div className="flex items-center justify-between">
+                                        <div className="flex flex-col gap-4">
                                             <div className="flex items-center space-x-4">
                                                 <div className="w-10 h-10 bg-blue-100 rounded-xl flex items-center justify-center group-hover:bg-blue-200 transition-colors">
                                                     <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -109,11 +109,11 @@ export function OverviewTab({ persona }: OverviewTabProps) {
                                                 </div>
                                                 <span className="text-gray-700 font-semibold">Revenus</span>
                                             </div>
-                                            <span className="text-gray-900 font-bold text-lg">{persona.demographics.income}</span>
+                                            <span className="text-gray-900 font-bold text-base sm:text-lg bg-blue-50 px-3 py-2 rounded-lg break-words">{persona.demographics.income}</span>
                                         </div>
                                     </div>
                                     <div className="group hover:shadow-md transition-all duration-200 p-5 bg-gradient-to-br from-green-50/50 to-green-50/30 rounded-2xl border border-green-100/50">
-                                        <div className="flex items-center justify-between">
+                                        <div className="flex flex-col gap-4">
                                             <div className="flex items-center space-x-4">
                                                 <div className="w-10 h-10 bg-green-100 rounded-xl flex items-center justify-center group-hover:bg-green-200 transition-colors">
                                                     <svg className="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -122,13 +122,13 @@ export function OverviewTab({ persona }: OverviewTabProps) {
                                                 </div>
                                                 <span className="text-gray-700 font-semibold">Éducation</span>
                                             </div>
-                                            <span className="text-gray-900 font-bold text-lg">{persona.demographics.education}</span>
+                                            <span className="text-gray-900 font-bold text-base sm:text-lg bg-green-50 px-3 py-2 rounded-lg break-words">{persona.demographics.education}</span>
                                         </div>
                                     </div>
                                 </div>
                                 <div className="space-y-5">
                                     <div className="group hover:shadow-md transition-all duration-200 p-5 bg-gradient-to-br from-purple-50/50 to-purple-50/30 rounded-2xl border border-purple-100/50">
-                                        <div className="flex items-center justify-between">
+                                        <div className="flex flex-col gap-4">
                                             <div className="flex items-center space-x-4">
                                                 <div className="w-10 h-10 bg-purple-100 rounded-xl flex items-center justify-center group-hover:bg-purple-200 transition-colors">
                                                     <svg className="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -137,11 +137,11 @@ export function OverviewTab({ persona }: OverviewTabProps) {
                                                 </div>
                                                 <span className="text-gray-700 font-semibold">Famille</span>
                                             </div>
-                                            <span className="text-gray-900 font-bold text-lg">{persona.demographics.familyStatus}</span>
+                                            <span className="text-gray-900 font-bold text-base sm:text-lg bg-purple-50 px-3 py-2 rounded-lg break-words">{persona.demographics.familyStatus}</span>
                                         </div>
                                     </div>
                                     <div className="group hover:shadow-md transition-all duration-200 p-5 bg-gradient-to-br from-orange-50/50 to-orange-50/30 rounded-2xl border border-orange-100/50">
-                                        <div className="flex items-center justify-between">
+                                        <div className="flex flex-col gap-4">
                                             <div className="flex items-center space-x-4">
                                                 <div className="w-10 h-10 bg-orange-100 rounded-xl flex items-center justify-center group-hover:bg-orange-200 transition-colors">
                                                     <svg className="w-5 h-5 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -151,7 +151,7 @@ export function OverviewTab({ persona }: OverviewTabProps) {
                                                 </div>
                                                 <span className="text-gray-700 font-semibold">Localisation</span>
                                             </div>
-                                            <span className="text-gray-900 font-bold text-lg">{persona.location}</span>
+                                            <span className="text-gray-900 font-bold text-base sm:text-lg bg-orange-50 px-3 py-2 rounded-lg break-words">{persona.location}</span>
                                         </div>
                                     </div>
                                 </div>
@@ -302,6 +302,82 @@ export function OverviewTab({ persona }: OverviewTabProps) {
                                     <span className="text-gray-700 leading-relaxed font-medium">{painPoint}</span>
                                 </div>
                             ))}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {/* Meta Information - Full Width */}
+            <div className="bg-white rounded-3xl border border-neutral-200/50 shadow-lg shadow-indigo-100/20 overflow-hidden">
+                <div className="bg-gradient-to-r from-indigo-50/80 via-purple-50/60 to-indigo-50/80 px-7 py-5 border-b border-neutral-200/50">
+                    <h3 className="text-xl font-bold text-gray-900 flex items-center">
+                        <div className="w-10 h-10 bg-indigo-100 rounded-xl flex items-center justify-center mr-3 shadow-sm">
+                            <svg className="w-5 h-5 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                        </div>
+                        Informations métadonnées
+                    </h3>
+                </div>
+                <div className="p-7">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                        <div className="group hover:shadow-md transition-all duration-200 p-5 bg-gradient-to-br from-indigo-50/50 to-indigo-50/30 rounded-2xl border border-indigo-100/50">
+                            <div className="flex flex-col gap-4">
+                                <div className="flex items-center space-x-4">
+                                    <div className="w-10 h-10 bg-indigo-100 rounded-xl flex items-center justify-center group-hover:bg-indigo-200 transition-colors">
+                                        <svg className="w-5 h-5 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
+                                        </svg>
+                                    </div>
+                                    <span className="text-gray-700 font-semibold">ID</span>
+                                </div>
+                                <span className="text-gray-900 font-bold text-xs sm:text-sm font-mono bg-indigo-50 px-3 py-2 rounded-lg break-all">{persona.id}</span>
+                            </div>
+                        </div>
+                        <div className="group hover:shadow-md transition-all duration-200 p-5 bg-gradient-to-br from-blue-50/50 to-blue-50/30 rounded-2xl border border-blue-100/50">
+                            <div className="flex flex-col gap-4">
+                                <div className="flex items-center space-x-4">
+                                    <div className="w-10 h-10 bg-blue-100 rounded-xl flex items-center justify-center group-hover:bg-blue-200 transition-colors">
+                                        <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                        </svg>
+                                    </div>
+                                    <span className="text-gray-700 font-semibold">Créé le</span>
+                                </div>
+                                <span className="text-gray-900 font-bold text-xs sm:text-sm bg-blue-50 px-3 py-2 rounded-lg break-words">
+                                    {persona.createdAt ? new Date(persona.createdAt).toLocaleDateString('fr-FR') : 'Non disponible'}
+                                </span>
+                            </div>
+                        </div>
+                        <div className="group hover:shadow-md transition-all duration-200 p-5 bg-gradient-to-br from-green-50/50 to-green-50/30 rounded-2xl border border-green-100/50">
+                            <div className="flex flex-col gap-4">
+                                <div className="flex items-center space-x-4">
+                                    <div className="w-10 h-10 bg-green-100 rounded-xl flex items-center justify-center group-hover:bg-green-200 transition-colors">
+                                        <svg className="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                                        </svg>
+                                    </div>
+                                    <span className="text-gray-700 font-semibold">Modifié le</span>
+                                </div>
+                                <span className="text-gray-900 font-bold text-xs sm:text-sm bg-green-50 px-3 py-2 rounded-lg break-words">
+                                    {persona.updatedAt ? new Date(persona.updatedAt).toLocaleDateString('fr-FR') : 'Non disponible'}
+                                </span>
+                            </div>
+                        </div>
+                        <div className="group hover:shadow-md transition-all duration-200 p-5 bg-gradient-to-br from-purple-50/50 to-purple-50/30 rounded-2xl border border-purple-100/50">
+                            <div className="flex flex-col gap-4">
+                                <div className="flex items-center space-x-4">
+                                    <div className="w-10 h-10 bg-purple-100 rounded-xl flex items-center justify-center group-hover:bg-purple-200 transition-colors">
+                                        <svg className="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                        </svg>
+                                    </div>
+                                    <span className="text-gray-700 font-semibold">Template</span>
+                                </div>
+                                <span className="text-gray-900 font-bold text-xs sm:text-sm bg-purple-50 px-3 py-2 rounded-lg break-words">
+                                    {persona.templateUsed || 'Standard'}
+                                </span>
+                            </div>
                         </div>
                     </div>
                 </div>

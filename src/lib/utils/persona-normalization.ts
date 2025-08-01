@@ -448,11 +448,11 @@ function normalizeCulturalData(culturalData: any): CulturalData {
 
     const normalized: CulturalData = {
         music: normalizeStringArray(culturalData.music),
-        movies: normalizeStringArray(culturalData.movies),
+        movie: normalizeStringArray(culturalData.movie),
         tv: normalizeStringArray(culturalData.tv),
-        books: normalizeStringArray(culturalData.books),
-        brands: normalizeStringArray(culturalData.brands),
-        restaurants: normalizeStringArray(culturalData.restaurants),
+        book: normalizeStringArray(culturalData.book),
+        brand: normalizeStringArray(culturalData.brand),
+        restaurant: normalizeStringArray(culturalData.restaurant),
         travel: normalizeStringArray(culturalData.travel),
         fashion: normalizeStringArray(culturalData.fashion),
         beauty: normalizeStringArray(culturalData.beauty),
@@ -469,11 +469,11 @@ function normalizeCulturalData(culturalData: any): CulturalData {
 function getEmptyCulturalData(): CulturalData {
     return {
         music: [],
-        movies: [],
+        movie: [],
         tv: [],
-        books: [],
-        brands: [],
-        restaurants: [],
+        book: [],
+        brand: [],
+        restaurant: [],
         travel: [],
         fashion: [],
         beauty: [],

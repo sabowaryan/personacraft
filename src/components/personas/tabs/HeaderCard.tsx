@@ -1,9 +1,9 @@
 'use client';
 
-import { Persona } from '@/types';
+import { EnrichedPersona } from '@/types/enhanced-persona';
 
 interface HeaderCardProps {
-    persona: Persona;
+    persona: EnrichedPersona;
 }
 
 export function HeaderCard({ persona }: HeaderCardProps) {

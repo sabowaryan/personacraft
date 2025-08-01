@@ -98,14 +98,14 @@ export const MetadataBadge: React.FC<MetadataBadgeProps> = ({
   const badges: Array<{ type: string; config: BadgeConfig; additionalInfo?: string }> = [];
 
   // Add generation source badge with enhanced information
-  const generationSource = metadata?.source || metadata?.generationMethod;
+  const generationSource = metadata?.source;
   if (generationSource) {
     const config = badgeConfigs[generationSource];
     if (config) {
       let additionalInfo = '';
-      if (generationSource === 'qloo-first' && metadata.qlooDataUsed) {
+      if (generationSource === 'qloo-first' && metadata?.qlooDataUsed) {
         additionalInfo = 'Données Qloo utilisées';
-      } else if (generationSource === 'legacy-fallback' && metadata.fallbackReason) {
+      } else if (generationSource === 'legacy-fallback' && metadata?.fallbackReason) {
         additionalInfo = `Fallback: ${metadata.fallbackReason}`;
       }
       badges.push({ type: generationSource, config, additionalInfo });
@@ -131,7 +131,7 @@ export const MetadataBadge: React.FC<MetadataBadgeProps> = ({
       label: 'Template',
       description: `Template utilisé: ${metadata.templateUsed}`
     };
-    badges.push({ type: 'template', config: templateConfig, additionalInfo: metadata.templateUsed });
+    badges.push({ type: 'template', config: templateConfig, additionalInfo: metadata?.templateUsed });
   }
 
   if (badges.length === 0) {

@@ -76,7 +76,7 @@ export default function Dashboard() {
           <h3 className="text-xl font-semibold text-neutral-900 group-hover:text-blue-600 transition-colors mb-2">Templates</h3>
           <p className="text-neutral-600 mb-4">Modèles prêts à utiliser</p>
           <div className="inline-flex items-center px-3 py-1 bg-blue-50 text-blue-700 rounded-full text-sm font-medium">
-            Bientôt disponible
+          Nouveau
           </div>
         </Link>
 
@@ -92,7 +92,7 @@ export default function Dashboard() {
           <h3 className="text-xl font-semibold text-neutral-900 group-hover:text-green-600 transition-colors mb-2">Analytics</h3>
           <p className="text-neutral-600 mb-4">Analysez vos données</p>
           <div className="inline-flex items-center px-3 py-1 bg-green-50 text-green-700 rounded-full text-sm font-medium">
-            Statistiques
+          Bientôt disponible
           </div>
         </Link>
 
