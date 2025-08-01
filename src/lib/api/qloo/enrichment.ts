@@ -4,7 +4,8 @@ import { getFallbackDataForType, getFallbackPersonaEnrichment, getFallbackEnrich
 import { enrichSocialMediaWithQloo } from './social-media';
 import { buildValidatedUrl } from './validation';
 import { RequestHandler } from './request-handler';
-import { PerformanceMonitor } from './performance-monitor';
+import { PerformanceMonitor } from './performance/';
+
 
 export class PersonaEnrichment {
     constructor(

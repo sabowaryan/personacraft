@@ -230,56 +230,35 @@ export class RetryManager {
         context: ValidationContext,
         attempt: number
     ): string {
+        // Try to get the original brief from various possible sources
+        const originalBrief = (context as any).originalRequest?.brief || 
+                             (context as any).templateVariables?.brief || 
+                             '';
+        
+        // Get the most relevant enhancement based on error types
+        const errorTypes = [...new Set(errors.map(e => e.type))];
         const enhancements: string[] = [];
 
-        // Group errors by type for targeted enhancements
-        const errorsByType = errors.reduce((acc, error) => {
-            if (!acc[error.type]) {
-                acc[error.type] = [];
-            }
-            acc[error.type].push(error);
-            return acc;
-        }, {} as Record<ValidationErrorType, ValidationError[]>);
-
-        // Generate specific enhancements for each error type
-        for (const [errorType, errorList] of Object.entries(errorsByType)) {
-            const typeEnhancements = this.promptEnhancements.get(errorType as ValidationErrorType);
-            if (typeEnhancements) {
-                // Sort by priority and take the most relevant enhancement
-                const enhancement = typeEnhancements
-                    .sort((a, b) => b.priority - a.priority)[0];
+        errorTypes.forEach(errorType => {
+            const typeEnhancements = this.promptEnhancements.get(errorType);
+            if (typeEnhancements && typeEnhancements.length > 0) {
+                // Get the highest priority enhancement for this error type
+                const bestEnhancement = typeEnhancements.reduce((best, current) => 
+                    current.priority > best.priority ? current : best
+                );
                 
-                if (enhancement) {
-                    // Customize enhancement with specific error details
-                    const customizedEnhancement = this.customizeEnhancement(
-                        enhancement.enhancement,
-                        errorList,
-                        context
-                    );
-                    enhancements.push(customizedEnhancement);
-                }
+                const customized = this.customizeEnhancement(bestEnhancement.enhancement, errors, context);
+                enhancements.push(customized);
             }
-        }
+        });
 
-        // Add attempt-specific guidance
-        if (attempt >= 2) {
-            enhancements.push(
-                'IMPORTANT: Previous attempts failed validation. Please be extra careful with:'
-            );
-            
-            const failedFields = [...new Set(errors.map(e => e.field))];
-            enhancements.push(`- Field accuracy for: ${failedFields.join(', ')}`);
-            enhancements.push('- JSON structure and format compliance');
-            enhancements.push('- Required field completeness');
-        }
+        // Combine enhancements
+        const enhancementText = enhancements.length > 0 
+            ? `\n\nVALIDATION ENHANCEMENTS (Attempt ${attempt}):\n${enhancements.join('\n')}`
+            : '';
 
-        if (attempt >= 3) {
-            enhancements.push(
-                'CRITICAL: Multiple validation failures detected. Consider simplifying the response structure.'
-            );
-        }
-
-        return enhancements.join('\n');
+        // Return the original brief with enhancements appended, not replacing it
+        return originalBrief + enhancementText;
     }
 
     /**

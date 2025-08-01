@@ -158,62 +158,55 @@ export function validateCulturalDataStructure() {
         const errors: ValidationError[] = [];
         const startTime = Date.now();
 
-        const requiredCategories = [
-            'demographics',
-            'psychographics',
-            'culturalValues',
-            'consumptionPatterns'
-        ];
+        try {
+            const requiredCategories = [
+                'demographics',
+                'psychographics',
+                'culturalValues',
+                'consumptionPatterns'
+            ];
 
-        // Handle array of personas
-        if (Array.isArray(value)) {
-            value.forEach((persona, index) => {
-                if (persona.culturalData) {
-                    requiredCategories.forEach(category => {
-                        if (!persona.culturalData[category]) {
-                            errors.push({
-                                id: `cultural-data-${category}-${index}`,
-                                type: ValidationErrorType.STRUCTURE_INVALID,
-                                field: `[${index}].culturalData.${category}`,
-                                message: `Cultural data category '${category}' is missing in persona ${index}`,
-                                severity: ValidationSeverity.ERROR,
-                                value: persona.culturalData[category],
-                                expectedValue: `Object with ${category} data`,
-                                context: { personaIndex: index, category }
-                            });
-                        }
-                    });
-                }
-            });
-        } else {
-            // Handle single persona
-            if (value.culturalData) {
-                requiredCategories.forEach(category => {
-                    if (!value.culturalData[category]) {
-                        errors.push({
-                            id: `cultural-data-${category}`,
-                            type: ValidationErrorType.STRUCTURE_INVALID,
-                            field: `culturalData.${category}`,
-                            message: `Cultural data category '${category}' is missing`,
-                            severity: ValidationSeverity.ERROR,
-                            value: value.culturalData[category],
-                            expectedValue: `Object with ${category} data`,
-                            context: { category }
-                        });
-                    }
-                });
-            } else {
+            // La valeur reçue est directement l'objet culturalData (pas l'objet parent)
+            if (!value || typeof value !== 'object') {
                 errors.push({
                     id: 'cultural-data-missing',
                     type: ValidationErrorType.REQUIRED_FIELD_MISSING,
                     field: 'culturalData',
                     message: 'Cultural data is required but missing',
                     severity: ValidationSeverity.ERROR,
-                    value: undefined,
+                    value: value,
                     expectedValue: 'Object with cultural data categories',
                     context: {}
                 });
+            } else {
+                // Validation des catégories requises - optimisée pour éviter les timeouts
+                for (const category of requiredCategories) {
+                    if (!value[category] || typeof value[category] !== 'object') {
+                        errors.push({
+                            id: `cultural-data-${category}`,
+                            type: ValidationErrorType.STRUCTURE_INVALID,
+                            field: `culturalData.${category}`,
+                            message: `Cultural data category '${category}' is missing or invalid`,
+                            severity: ValidationSeverity.ERROR,
+                            value: value[category],
+                            expectedValue: `Object with ${category} data`,
+                            context: { category }
+                        });
+                    }
+                }
             }
+
+        } catch (error) {
+            errors.push({
+                id: 'cultural-data-validation-error',
+                type: ValidationErrorType.VALIDATION_TIMEOUT,
+                field: 'culturalData',
+                message: `Validation error: ${error instanceof Error ? error.message : 'Unknown error'}`,
+                severity: ValidationSeverity.ERROR,
+                value: value,
+                expectedValue: 'Valid cultural data structure',
+                context: { error: error instanceof Error ? error.message : 'Unknown error' }
+            });
         }
 
         const validationTime = Date.now() - startTime;
@@ -572,13 +565,16 @@ function hasNestedProperty(obj: any, path: string): boolean {
     let current = obj;
 
     for (const key of keys) {
-        if (current === null || current === undefined || !(key in current)) {
+        if (current === null || current === undefined || typeof current !== 'object') {
+            return false;
+        }
+        if (!(key in current)) {
             return false;
         }
         current = current[key];
     }
 
-    return true;
+    return current !== undefined && current !== null;
 }
 
 /**
@@ -596,7 +592,10 @@ function getNestedProperty(obj: any, path: string): any {
     let current = obj;
 
     for (const key of keys) {
-        if (current === null || current === undefined || !(key in current)) {
+        if (current === null || current === undefined || typeof current !== 'object') {
+            return undefined;
+        }
+        if (!(key in current)) {
             return undefined;
         }
         current = current[key];

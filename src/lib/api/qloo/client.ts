@@ -5,6 +5,11 @@ import { QlooApi } from './api';
 import { PersonaEnrichment } from './enrichment';
 import { RequestHandler } from './request-handler';
 import { getFallbackDataForType } from './fallback';
+import {
+    integratedRequestSystem,
+    initializePerformanceSystem,
+    getPerformanceStats
+} from './performance';
 
 export class QlooClient {
     private config: QlooConfig;
@@ -15,6 +20,23 @@ export class QlooClient {
     constructor() {
         this.config = createConfig();
         this.api = new QlooApi(this.config.apiKey, this.config.baseUrl);
+
+        // Initialize advanced performance system
+        initializePerformanceSystem({
+            cache: {
+                maxSize: 2000,
+                defaultTTL: this.config.cacheTimeout,
+                enableErrorRecovery: true
+            },
+            optimization: {
+                maxConcurrentRequests: this.config.maxConcurrentRequests,
+                requestTimeout: 8000,
+                cacheStrategy: 'balanced',
+                batchingEnabled: true,
+                priorityEnabled: true
+            }
+        });
+
         this.requestHandler = new RequestHandler(
             this.config.maxConcurrentRequests,
             this.config.rateLimitDelay,
@@ -70,7 +92,19 @@ export class QlooClient {
     }
 
     getCacheStats() {
-        return this.requestHandler.getCacheStats();
+        // Return both legacy and advanced stats for compatibility
+        const legacyStats = this.requestHandler.getCacheStats();
+        const advancedStats = getPerformanceStats();
+
+        return {
+            ...legacyStats,
+            advanced: advancedStats
+        };
+    }
+
+    // New method to get comprehensive performance stats
+    getPerformanceStats() {
+        return getPerformanceStats();
     }
 
     // Fallback method for backward compatibility

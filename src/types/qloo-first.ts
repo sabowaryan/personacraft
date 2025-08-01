@@ -24,11 +24,11 @@ export interface QlooSignals {
  */
 export interface CulturalConstraints {
     music: string[];
-    brands: string[];
-    restaurants: string[];
-    movies: string[];
+    brand: string[];
+    restaurant: string[];
+    movie: string[];
     tv: string[];
-    books: string[];
+    book: string[];
     travel: string[];
     fashion: string[];
     beauty: string[];
@@ -185,11 +185,11 @@ export interface QlooApiRequest {
 export interface EnrichedPersona extends Partial<Persona> {
     culturalData: {
         music: string[];
-        brands: string[];
-        restaurants: string[];
-        movies: string[];
+        brand: string[];
+        restaurant: string[];
+        movie: string[];
         tv: string[];
-        books: string[];
+        book: string[];
         travel: string[];
         fashion: string[];
         beauty: string[];

@@ -1,5 +1,5 @@
-import { optimizedCache } from './optimized-cache';
-import { requestBatcher, prioritizer } from './request-batcher';
+import { optimizedCache } from '../cache/optimized-cache';
+import { requestBatcher, prioritizer } from '../requests/request-batcher';
 
 interface PerformanceMetrics {
   totalRequests: number;
@@ -349,9 +349,14 @@ export class AdvancedPerformanceOptimizer {
     const totalTime = this.metrics.averageResponseTime * (this.metrics.totalRequests - 1) + responseTime;
     this.metrics.averageResponseTime = totalTime / this.metrics.totalRequests;
 
-    // Update cache hit rate
-    const cacheStats = optimizedCache.getStats();
-    this.metrics.cacheHitRate = cacheStats.hitRate;
+    // Update cache hit rate from actual cache stats
+    try {
+      const cacheStats = optimizedCache.getStats();
+      this.metrics.cacheHitRate = cacheStats.hitRate;
+    } catch (error) {
+      console.warn('Could not update cache hit rate:', error);
+      // Keep previous value if cache stats unavailable
+    }
 
     // Update error rate
     if (error) {

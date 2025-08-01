@@ -409,6 +409,8 @@ export async function POST(request: NextRequest) {
       location,
       bio,
       quote,
+      email,
+      phone,
       demographics,
       psychographics,
       culturalData,
@@ -421,8 +423,38 @@ export async function POST(request: NextRequest) {
       validationMetadata,
       culturalDataSource,
       templateUsed,
-      processingTime
+      processingTime,
+      // Additional metadata from generation
+      metadata
     } = body
+
+    // Extract generation method from metadata if available
+    const generationMethod = metadata?.generationMethod || generationMetadata?.generationMethod || 'unknown';
+    const culturalDataSourceFinal = culturalDataSource || metadata?.culturalDataSource || 'unknown';
+    
+    // Fix: Properly extract templateUsed as string from multiple sources
+    const templateUsedFinal = templateUsed || 
+                             metadata?.templateUsed || 
+                             metadata?.validation?.templateId || 
+                             validationMetadata?.templateId ||
+                             generationMetadata?.templateUsed ||
+                             'standard';
+    
+    const processingTimeFinal = processingTime || metadata?.processingTime || 0;
+
+    // Fix: Create proper validationMetadata JSON object from generation response
+    const validationMetadataFinal = validationMetadata || {
+      isValid: metadata?.validation?.isValid ?? true,
+      validationScore: metadata?.validation?.score ?? metadata?.validationScore ?? 0,
+      validatedAt: new Date().toISOString(),
+      validationVersion: '1.0',
+      templateId: templateUsedFinal,
+      validationTime: metadata?.validation?.validationTime ?? 0,
+      errorCount: metadata?.validation?.errorCount ?? metadata?.validationErrors ?? 0,
+      warningCount: metadata?.validation?.warningCount ?? metadata?.validationWarnings ?? 0,
+      retryCount: metadata?.validation?.retryCount ?? 0,
+      issues: metadata?.validation?.errors ?? metadata?.validationIssues ?? []
+    };
 
     const persona = await prisma.persona.create({
       data: {
@@ -433,6 +465,8 @@ export async function POST(request: NextRequest) {
         location,
         bio,
         quote,
+        email,
+        phone,
         demographics,
         psychographics,
         culturalData,
@@ -441,11 +475,23 @@ export async function POST(request: NextRequest) {
         marketingInsights,
         qualityScore,
         // Enhanced metadata
-        generationMetadata,
-        validationMetadata,
-        culturalDataSource: culturalDataSource || 'unknown',
-        templateUsed,
-        processingTime
+        generationMetadata: {
+          ...generationMetadata,
+          generationMethod,
+          culturalDataSource: culturalDataSourceFinal,
+          templateUsed: templateUsedFinal,
+          processingTime: processingTimeFinal,
+          qlooConstraintsUsed: metadata?.qlooConstraintsUsed || [],
+          validationScore: metadata?.validationScore || 0,
+          validationErrors: metadata?.validationErrors || 0,
+          validationWarnings: metadata?.validationWarnings || 0
+        },
+        validationMetadata: validationMetadataFinal,
+        culturalDataSource: culturalDataSourceFinal,
+        templateUsed: templateUsedFinal,
+        processingTime: processingTimeFinal,
+        // Fix: Save the metadata field
+        metadata
       }
     })
 

@@ -127,6 +127,55 @@ const PersonaSchemaLegacy = z.object({
     brief: z.string().optional()
 });
 
+// Schéma pour Qloo-first (plus permissif que le standard)
+const PersonaSchemaQlooFirst = z.object({
+    id: z.string().optional(),
+    name: z.string().min(1, "Name is required"),
+    age: z.number().min(16, "Age must be at least 16").max(100, "Age must be less than 100"),
+    occupation: z.string().min(1, "Occupation is required"),
+    location: z.string().min(1, "Location is required"),
+    email: z.string().optional(),
+    phone: z.string().optional(),
+    bio: z.string().optional(),
+    quote: z.string().optional(),
+    demographics: z.object({
+        income: z.string().optional(),
+        education: z.string().optional(),
+        familyStatus: z.string().optional()
+    }).optional(),
+    psychographics: z.object({
+        personality: z.array(z.string()).optional(),
+        values: z.array(z.string()).optional(),
+        interests: z.array(z.string()).optional(),
+        lifestyle: z.string().optional()
+    }).optional(),
+    painPoints: z.array(z.string()).optional(),
+    goals: z.array(z.string()).optional(),
+    marketingInsights: z.object({
+        preferredChannels: z.array(z.string()).optional(),
+        messagingTone: z.string().optional(),
+        buyingBehavior: z.string().optional(),
+        decisionFactors: z.array(z.string()).optional(),
+        contentPreferences: z.array(z.string()).optional()
+    }).optional(),
+    qualityScore: z.number().optional(),
+    culturalData: z.object({
+        music: z.array(z.string()).optional(),
+        brand: z.array(z.string()).optional(),
+        restaurant: z.array(z.string()).optional(),
+        movie: z.array(z.string()).optional(),
+        book: z.array(z.string()).optional(),
+        tv: z.array(z.string()).optional(),
+        travel: z.array(z.string()).optional(),
+        fashion: z.array(z.string()).optional(),
+        beauty: z.array(z.string()).optional(),
+        food: z.array(z.string()).optional(),
+        socialMedia: z.array(z.string()).optional()
+    }).optional(),
+    createdAt: z.string().optional(),
+    brief: z.string().optional()
+});
+
 // Schéma pour un tableau de personas
 const PersonasArraySchema = z.array(PersonaSchema).min(1, "At least one persona required");
 
@@ -137,16 +186,16 @@ export class PersonaValidator {
     static parseGeminiResponse(rawResponse: string, brief: string): Partial<Persona>[] {
         try {
             // Étape 1: Nettoyer la réponse
-            const cleanedResponse = this.cleanJsonResponse(rawResponse);
+            const cleanedResponse = PersonaValidator.cleanJsonResponse(rawResponse);
 
             // Étape 2: Parser le JSON
-            const parsedData = this.parseJson(cleanedResponse);
+            const parsedData = PersonaValidator.parseJson(cleanedResponse);
 
             // Étape 3: Valider avec Zod
-            const validatedPersonas = this.validatePersonas(parsedData);
+            const validatedPersonas = PersonaValidator.validatePersonas(parsedData);
 
             // Étape 4: Enrichir avec les métadonnées
-            return this.enrichPersonas(validatedPersonas, brief);
+            return PersonaValidator.enrichPersonas(validatedPersonas, brief);
 
         } catch (error) {
             console.error('Erreur lors du parsing Gemini:', error);
@@ -161,21 +210,45 @@ export class PersonaValidator {
     static parseGeminiResponseLegacy(rawResponse: string, brief: string): Partial<Persona>[] {
         try {
             // Étape 1: Nettoyer la réponse
-            const cleanedResponse = this.cleanJsonResponse(rawResponse);
+            const cleanedResponse = PersonaValidator.cleanJsonResponse(rawResponse);
 
             // Étape 2: Parser le JSON
-            const parsedData = this.parseJson(cleanedResponse);
+            const parsedData = PersonaValidator.parseJson(cleanedResponse);
 
             // Étape 3: Valider avec le schéma legacy plus permissif
-            const validatedPersonas = this.validatePersonasLegacy(parsedData);
+            const validatedPersonas = PersonaValidator.validatePersonasLegacy(parsedData);
 
             // Étape 4: Enrichir avec les métadonnées
-            return this.enrichPersonas(validatedPersonas, brief);
+            return PersonaValidator.enrichPersonas(validatedPersonas, brief);
 
         } catch (error) {
             console.error('Erreur lors du parsing Gemini (legacy):', error);
             console.log('Raw response:', rawResponse);
             throw new PersonaValidationError(`Échec du parsing legacy: ${error instanceof Error ? error.message : 'Erreur inconnue'}`);
+        }
+    }
+
+    /**
+     * Parse et valide une réponse JSON de Gemini avec validation Qloo-first (plus permissive)
+     */
+    static parseGeminiResponseQlooFirst(rawResponse: string, brief: string): Partial<Persona>[] {
+        try {
+            // Étape 1: Nettoyer la réponse
+            const cleanedResponse = PersonaValidator.cleanJsonResponse(rawResponse);
+
+            // Étape 2: Parser le JSON
+            const parsedData = PersonaValidator.parseJson(cleanedResponse);
+
+            // Étape 3: Valider avec le schéma Qloo-first plus permissif
+            const validatedPersonas = PersonaValidator.validatePersonasQlooFirst(parsedData);
+
+            // Étape 4: Enrichir avec les métadonnées
+            return PersonaValidator.enrichPersonas(validatedPersonas, brief);
+
+        } catch (error) {
+            console.error('Erreur lors du parsing Gemini (Qloo-first):', error);
+            console.log('Raw response:', rawResponse);
+            throw new PersonaValidationError(`Échec du parsing Qloo-first: ${error instanceof Error ? error.message : 'Erreur inconnue'}`);
         }
     }
 
@@ -339,6 +412,46 @@ export class PersonaValidator {
 
         if (errors.length > 0) {
             console.warn('Certains personas ont été ignorés (legacy):', errors);
+        }
+
+        return validatedPersonas;
+    }
+
+    /**
+     * Valide les personas avec le schéma Qloo-first plus permissif
+     */
+    private static validatePersonasQlooFirst(data: unknown): any[] {
+        // Vérifier que c'est un tableau
+        if (!Array.isArray(data)) {
+            throw new Error('La réponse doit être un tableau de personas');
+        }
+
+        // Valider chaque persona individuellement pour des erreurs plus précises
+        const validatedPersonas: any[] = [];
+        const errors: string[] = [];
+
+        data.forEach((persona, index) => {
+            try {
+                const validated = PersonaSchemaQlooFirst.parse(persona);
+                validatedPersonas.push(validated);
+            } catch (error) {
+                if (error instanceof z.ZodError) {
+                    const errorMessages = error.issues.map(err =>
+                        `${err.path.join('.')}: ${err.message}`
+                    ).join(', ');
+                    errors.push(`Persona ${index + 1}: ${errorMessages}`);
+                } else {
+                    errors.push(`Persona ${index + 1}: Erreur de validation inconnue`);
+                }
+            }
+        });
+
+        if (validatedPersonas.length === 0) {
+            throw new Error(`Aucun persona valide trouvé. Erreurs: ${errors.join('; ')}`);
+        }
+
+        if (errors.length > 0) {
+            console.warn('Certains personas ont été ignorés (Qloo-first):', errors);
         }
 
         return validatedPersonas;

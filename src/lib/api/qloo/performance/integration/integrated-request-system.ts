@@ -1,7 +1,7 @@
-import { optimizedCache } from './optimized-cache';
-import { advancedOptimizer } from './advanced-performance-optimizer';
-import { intelligentPreloader } from './intelligent-preloader';
-import { realTimeMonitor } from './real-time-monitor';
+import { optimizedCache } from '../cache/optimized-cache';
+import { advancedOptimizer } from '../optimization/advanced-performance-optimizer';
+import { intelligentPreloader } from '../requests/intelligent-preloader';
+import { realTimeMonitor } from '../monitoring/real-time-monitor';
 
 interface QlooRequestParams {
   entityType: string;

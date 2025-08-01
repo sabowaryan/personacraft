@@ -77,6 +77,18 @@ export interface EnrichedPersona extends Persona {
     templateUsed?: string;
     processingTime?: number;
     
+    // Temporary metadata for generation context
+    metadata?: {
+        generationMethod?: string;
+        culturalDataSource?: string;
+        templateUsed?: string;
+        processingTime?: number;
+        qlooConstraintsUsed?: string[];
+        validationScore?: number;
+        validationErrors?: number;
+        validationWarnings?: number;
+    };
+    
     // Computed properties for UI display
     culturalRichness?: 'low' | 'medium' | 'high';
     qualityLevel?: 'excellent' | 'good' | 'fair' | 'poor';

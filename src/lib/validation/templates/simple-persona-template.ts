@@ -35,7 +35,14 @@ export const simplePersonaTemplate: ValidationTemplate = {
                 'name',
                 'age',
                 'occupation',
-                'location'
+                'location',
+                'email',
+                'phone',
+                'quote',
+                'demographics',
+                'psychographics',
+                'behavioral',
+                'professional'
             ]),
             severity: ValidationSeverity.ERROR,
             message: 'Missing required basic fields for simple persona',
@@ -55,7 +62,7 @@ export const simplePersonaTemplate: ValidationTemplate = {
         {
             id: 'demographics-structure',
             type: ValidationRuleType.STRUCTURE,
-            field: 'demographics',
+            field: 'root',
             validator: validateRequiredFields([
                 'demographics.income',
                 'demographics.education',
@@ -69,7 +76,7 @@ export const simplePersonaTemplate: ValidationTemplate = {
         {
             id: 'psychographics-structure',
             type: ValidationRuleType.STRUCTURE,
-            field: 'psychographics',
+            field: 'root',
             validator: validateRequiredFields([
                 'psychographics.personality',
                 'psychographics.values',
@@ -248,7 +255,7 @@ function validateOptionalCulturalData() {
 
         // If cultural data is provided, do basic validation
         if (value && typeof value === 'object') {
-            const culturalFields = ['music', 'brands', 'restaurants', 'movies', 'tv', 'socialMedia'];
+            const culturalFields = ['music', 'brand', 'restaurant', 'movie', 'tv', 'socialMedia'];
             let providedFields = 0;
 
             culturalFields.forEach(field => {
@@ -389,6 +396,8 @@ function getDefaultSimplePersona() {
         age: 35,
         occupation: 'Professionnel',
         location: 'France',
+        email: 'persona@example.com',
+        phone: '+33 1 23 45 67 89',
         bio: 'Persona générique créée comme solution de secours.',
         quote: 'Je recherche des solutions pratiques et efficaces.',
         demographics: {
@@ -401,6 +410,17 @@ function getDefaultSimplePersona() {
             values: ['Efficacité', 'Qualité'],
             interests: ['Technologie', 'Loisirs', 'Famille'],
             lifestyle: 'Équilibre entre vie professionnelle et personnelle'
+        },
+        behavioral: {
+            buyingBehavior: 'Recherche de valeur et de praticité',
+            decisionMaking: 'Analyse coût-bénéfice',
+            communicationStyle: 'Direct et efficace'
+        },
+        professional: {
+            industry: 'Services',
+            experience: '10+ années',
+            skills: ['Gestion', 'Communication', 'Analyse'],
+            goals: ['Évolution de carrière', 'Équilibre vie-travail']
         },
         culturalData: {
             music: ['Pop française', 'Variété'],

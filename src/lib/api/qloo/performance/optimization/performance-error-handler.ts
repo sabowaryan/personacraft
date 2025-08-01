@@ -1,5 +1,6 @@
 import { AdvancedPerformanceOptimizer } from './advanced-performance-optimizer';
-import { RetryManager } from '../../lib/validation/retry-manager';
+import { RetryManager } from '@/lib/validation/retry-manager';
+import { ValidationSeverity, PersonaType } from '@/types/validation';
 
 export enum PerformanceErrorType {
     TIMEOUT = 'TIMEOUT',
@@ -45,9 +46,52 @@ export class PerformanceErrorHandler {
 
         // Use RetryManager for progressive retries
         const retryResult = this.retryManager.shouldRetry(
-            [{ type: performanceError.type as any, message: performanceError.message, field: 'n/a' }], // Simplified error for retryManager
-            { originalRequest: { personaType: 'STANDARD' }, generationAttempt: currentAttempt }, // Simplified context
-            { maxRetries: 3, backoffMultiplier: 2, retryableErrors: [PerformanceErrorType.TIMEOUT as any, PerformanceErrorType.RESOURCE_EXHAUSTION as any] },
+            [{
+                id: `perf-error-${Date.now()}`,
+                type: performanceError.type as any,
+                message: performanceError.message,
+                field: 'performance',
+                severity: ValidationSeverity.ERROR
+            }], // Complete ValidationError for retryManager
+            {
+                originalRequest: { personaType: PersonaType.STANDARD },
+                templateVariables: {},
+                culturalConstraints: {
+                    music: [],
+                    brands: [],
+                    restaurants: [],
+                    movies: [],
+                    tv: [],
+                    books: [],
+                    travel: [],
+                    fashion: [],
+                    beauty: [],
+                    food: [],
+                    socialMedia: []
+                },
+                userSignals: {
+                    demographics: {
+                        ageRange: { min: 18, max: 65 },
+                        location: 'unknown'
+                    },
+                    interests: [],
+                    values: [],
+                    culturalContext: {
+                        language: 'en' as const,
+                        personaCount: 1
+                    }
+                },
+                generationAttempt: currentAttempt,
+                previousErrors: []
+            }, // Complete ValidationContext
+            {
+                maxRetries: 3,
+                backoffMultiplier: 2,
+                retryableErrors: [PerformanceErrorType.TIMEOUT as any, PerformanceErrorType.RESOURCE_EXHAUSTION as any],
+                enhancePromptOnRetry: false,
+                fallbackAfterMaxRetries: true,
+                retryDelay: 1000
+            },
             currentAttempt
         );
 

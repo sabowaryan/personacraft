@@ -1,6 +1,6 @@
-import { optimizedCache } from './optimized-cache';
-import { realTimeMonitor } from './real-time-monitor';
-import { advancedOptimizer } from './advanced-performance-optimizer';
+import { optimizedCache } from '../cache/optimized-cache';
+import { realTimeMonitor } from '../monitoring/real-time-monitor';
+import { advancedOptimizer } from '../optimization/advanced-performance-optimizer';
 
 interface PreloadPattern {
     entityType: string;

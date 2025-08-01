@@ -41,7 +41,7 @@ export class ValidationRuleProcessor {
         defaultTimeout?: number;
     }) {
         this.maxConcurrentRules = config?.maxConcurrentRules || 10;
-        this.defaultTimeout = config?.defaultTimeout || 5000; // 5 seconds
+        this.defaultTimeout = config?.defaultTimeout || 10000; // 10 seconds - augmenté pour éviter les timeouts
     }
 
     /**

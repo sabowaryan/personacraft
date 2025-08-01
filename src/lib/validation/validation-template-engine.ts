@@ -160,15 +160,24 @@ export class ValidationTemplateEngine implements ValidationEngine {
             // If validation fails, attempt repair or fallback using QlooFirstValidator and SchemaRepairEngine
             if (!aggregatedResult.isValid) {
                 if (this.featureFlags.isValidationTypeEnabled('structure')) {
-                    const repairedJson = this.schemaRepairEngine.repairJsonStructure(response);
-                    const repairedPersona = this.schemaRepairEngine.fillMissingFields(JSON.parse(repairedJson), context);
-                    // Re-validate after repair, or integrate repair into the validation process
-                    // For now, just logging the repair attempt
-                    console.log('Attempted schema repair:', repairedPersona);
+                    try {
+                        const responseString = typeof response === 'string' ? response : JSON.stringify(response);
+                        const repairedJson = this.schemaRepairEngine.repairJsonStructure(responseString);
+                        const repairedPersona = this.schemaRepairEngine.fillMissingFields(JSON.parse(repairedJson), context);
+                        // Re-validate after repair, or integrate repair into the validation process
+                        // For now, just logging the repair attempt
+                        console.log('Attempted schema repair:', repairedPersona);
+                    } catch (repairError) {
+                        console.log('Schema repair failed:', repairError instanceof Error ? repairError.message : 'Unknown error');
+                    }
                 }
                 // Apply intelligent fallback if repair is not sufficient or not applicable
-                const fallbackResult = this.qlooFirstValidator.applyIntelligentFallback(response, context);
-                console.log('Applied intelligent fallback:', fallbackResult);
+                try {
+                    const fallbackResult = this.qlooFirstValidator.applyIntelligentFallback(response, context);
+                    console.log('Applied intelligent fallback:', fallbackResult);
+                } catch (fallbackError) {
+                    console.log('Intelligent fallback failed:', fallbackError instanceof Error ? fallbackError.message : 'Unknown error');
+                }
             }
 
             return aggregatedResult;

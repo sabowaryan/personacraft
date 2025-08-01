@@ -1,9 +1,10 @@
 import { Persona, Demographics, Psychographics, CulturalData, MarketingInsights } from '@/types';
+import { EnrichedPersona } from '@/types/enhanced-persona';
 
 /**
  * Valide et nettoie un objet Persona pour s'assurer qu'il a toutes les propriétés requises
  */
-export function validateAndCleanPersona(persona: Partial<Persona>): Persona {
+export function validateAndCleanPersona(persona: Partial<EnrichedPersona>): EnrichedPersona {
   const defaultDemographics: Demographics = {
     income: 'Non spécifié',
     education: 'Non spécifié',
@@ -19,11 +20,11 @@ export function validateAndCleanPersona(persona: Partial<Persona>): Persona {
 
   const defaultCulturalData: CulturalData = {
     music: [],
-    movies: [],
+    movie: [],
     tv: [],
-    books: [],
-    brands: [],
-    restaurants: [],
+    book: [],
+    brand: [],
+    restaurant: [],
     travel: [],
     fashion: [],
     beauty: [],
@@ -45,6 +46,8 @@ export function validateAndCleanPersona(persona: Partial<Persona>): Persona {
     location: persona.location || 'Non spécifié',
     bio: persona.bio || 'Biographie non disponible',
     quote: persona.quote || 'Citation non disponible',
+    email: persona.email,
+    phone: persona.phone,
     demographics: {
       ...defaultDemographics,
       ...persona.demographics
@@ -69,14 +72,21 @@ export function validateAndCleanPersona(persona: Partial<Persona>): Persona {
     },
     qualityScore: persona.qualityScore || 0,
     createdAt: persona.createdAt || new Date().toISOString(),
-    brief: persona.brief
+    brief: persona.brief,
+    // Préserver les métadonnées de génération
+    generationMetadata: persona.generationMetadata,
+    validationMetadata: persona.validationMetadata,
+    culturalDataSource: persona.culturalDataSource,
+    templateUsed: persona.templateUsed,
+    processingTime: persona.processingTime,
+    metadata: persona.metadata
   };
 }
 
 /**
  * Valide un tableau de personas et nettoie chacun d'eux
  */
-export function validateAndCleanPersonas(personas: Partial<Persona>[]): Persona[] {
+export function validateAndCleanPersonas(personas: Partial<EnrichedPersona>[]): EnrichedPersona[] {
   return personas.map(validateAndCleanPersona);
 }
 
@@ -128,7 +138,7 @@ export function calculateQualityScore(persona: Persona): number {
 
   // Données culturelles (10 points)
   if (persona.culturalData.music.length > 0) score += 3;
-  if (persona.culturalData.brands.length > 0) score += 3;
+  if (persona.culturalData.brand.length > 0) score += 3;
   if (persona.culturalData.socialMedia.length > 0) score += 4;
 
   // Marketing insights (10 points)

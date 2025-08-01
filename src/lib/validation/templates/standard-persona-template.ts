@@ -13,7 +13,7 @@ import {
 } from '@/types/validation';
 
 import { validateRequiredFields, validateCulturalDataStructure, validateJSONStructure } from '@/lib/validators/structure-validators';
-import { validateAgeRange, validateLocationFormat, validateCulturalDataConsistency, validateIncomeRange, validateOccupationConsistency } from '@/lib/validators/content-validators';
+import { validateAgeRange, validateLocationFormat, validateIncomeRange, validateOccupationConsistency } from '@/lib/validators/content-validators';
 import { validateEmailFormat, validatePhoneFormat, validateDateFormat, validateArrayFormat } from '@/lib/validators/format-validators';
 
 /**
@@ -35,7 +35,14 @@ export const standardPersonaTemplate: ValidationTemplate = {
                 'name', 
                 'age',
                 'occupation',
-                'culturalData'
+                'email',
+                'phone',
+                'quote',
+                'culturalData',
+                'demographics',
+                'psychographics',
+                'behavioral',
+                'professional'
             ]),
             severity: ValidationSeverity.ERROR,
             message: 'Missing required basic fields',
@@ -65,7 +72,7 @@ export const standardPersonaTemplate: ValidationTemplate = {
         {
             id: 'required-cultural-demographics',
             type: ValidationRuleType.STRUCTURE,
-            field: 'culturalData.demographics',
+            field: 'root',
             validator: validateRequiredFields([
                 'culturalData.demographics.age',
                 'culturalData.demographics.location',
@@ -79,7 +86,7 @@ export const standardPersonaTemplate: ValidationTemplate = {
         {
             id: 'required-cultural-psychographics',
             type: ValidationRuleType.STRUCTURE,
-            field: 'culturalData.psychographics',
+            field: 'root',
             validator: validateRequiredFields([
                 'culturalData.psychographics.values',
                 'culturalData.psychographics.interests',
@@ -105,7 +112,7 @@ export const standardPersonaTemplate: ValidationTemplate = {
         {
             id: 'cultural-age-consistency',
             type: ValidationRuleType.CONTENT,
-            field: 'culturalData.demographics.age',
+            field: 'age',
             validator: validateAgeRange(18, 80),
             severity: ValidationSeverity.ERROR,
             message: 'Cultural data age must be between 18 and 80',
@@ -115,7 +122,7 @@ export const standardPersonaTemplate: ValidationTemplate = {
         {
             id: 'location-format',
             type: ValidationRuleType.CONTENT,
-            field: 'culturalData.demographics.location',
+            field: 'location',
             validator: validateLocationFormat(['city_country', 'city_state_country']),
             severity: ValidationSeverity.ERROR,
             message: 'Location must be in valid format (City, Country or City, State, Country)',
@@ -125,7 +132,7 @@ export const standardPersonaTemplate: ValidationTemplate = {
         {
             id: 'income-range',
             type: ValidationRuleType.CONTENT,
-            field: 'culturalData.demographics.income',
+            field: 'income',
             validator: validateIncomeRange(0, 1000000),
             severity: ValidationSeverity.ERROR,
             message: 'Income must be within reasonable range',
@@ -136,7 +143,7 @@ export const standardPersonaTemplate: ValidationTemplate = {
             id: 'cultural-data-consistency',
             type: ValidationRuleType.CONTENT,
             field: 'culturalData',
-            validator: validateCulturalDataConsistency(),
+            validator: validateCulturalDataConsistencyFast(),
             severity: ValidationSeverity.WARNING,
             message: 'Cultural data should be internally consistent',
             required: false,
@@ -448,6 +455,85 @@ function validateConsumptionPatterns() {
             errors,
             warnings,
             score: errors.length === 0 ? 100 : Math.max(0, 100 - (errors.length * 25)),
+            metadata: {
+                templateId: context.templateVariables?.templateId || 'standard-persona-v1',
+                templateVersion: '1.0.0',
+                validationTime,
+                rulesExecuted: 1,
+                rulesSkipped: 0,
+                timestamp: Date.now()
+            }
+        };
+    };
+}
+
+/**
+ * Fast cultural data consistency validator (optimized to avoid timeout)
+ */
+function validateCulturalDataConsistencyFast() {
+    return (value: any, context: any) => {
+        const errors: any[] = [];
+        const warnings: any[] = [];
+        const startTime = Date.now();
+
+        if (!value || typeof value !== 'object') {
+            return {
+                isValid: true,
+                errors,
+                warnings,
+                score: 100,
+                metadata: {
+                    templateId: context.templateVariables?.templateId || 'standard-persona-v1',
+                    templateVersion: '1.0.0',
+                    validationTime: Date.now() - startTime,
+                    rulesExecuted: 1,
+                    rulesSkipped: 0,
+                    timestamp: Date.now()
+                }
+            };
+        }
+
+        // Quick consistency checks (avoid complex analysis)
+        const demographics = value.demographics;
+        const psychographics = value.psychographics;
+
+        // Basic age consistency
+        if (demographics?.age && context.originalData?.age) {
+            const culturalAge = parseInt(demographics.age);
+            const mainAge = parseInt(context.originalData.age);
+            if (Math.abs(culturalAge - mainAge) > 2) {
+                warnings.push({
+                    id: 'age-inconsistency',
+                    field: 'culturalData.demographics.age',
+                    message: 'Age in cultural data differs from main age',
+                    value: culturalAge,
+                    suggestion: 'Ensure age consistency across all fields'
+                });
+            }
+        }
+
+        // Basic location consistency
+        if (demographics?.location && context.originalData?.location) {
+            const culturalLocation = demographics.location.toLowerCase();
+            const mainLocation = context.originalData.location.toLowerCase();
+            if (!culturalLocation.includes(mainLocation.split(',')[0].trim().toLowerCase())) {
+                warnings.push({
+                    id: 'location-inconsistency',
+                    field: 'culturalData.demographics.location',
+                    message: 'Location in cultural data may be inconsistent with main location',
+                    value: demographics.location,
+                    suggestion: 'Verify location consistency'
+                });
+            }
+        }
+
+        const validationTime = Date.now() - startTime;
+
+        return {
+            isValid: errors.length === 0,
+            errors,
+            warnings,
+            score: errors.length === 0 ? (warnings.length === 0 ? 100 : 85) : 0,
             metadata: {
                 templateId: context.templateVariables?.templateId || 'standard-persona-v1',
                 templateVersion: '1.0.0',

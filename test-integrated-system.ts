@@ -2,8 +2,8 @@
  * Script de test pour le nouveau système intégré Qloo
  */
 
-import { qlooApiAdapter } from './src/lib/api/qloo/qloo-api-adapter';
-import { integratedRequestSystem } from './src/lib/api/qloo/integrated-request-system';
+import { qlooApiAdapter } from './src/lib/api/qloo/performance/integration/qloo-api-adapter';
+import { integratedRequestSystem } from './src/lib/api/qloo/performance/integration/integrated-request-system';
 
 async function testIntegratedSystem() {
     console.log('🧪 Test du système intégré Qloo...\n');

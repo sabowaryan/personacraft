@@ -1,5 +1,5 @@
 import { QlooClient } from './src/lib/api/qloo/client';
-import { PerformanceMonitor } from './src/lib/api/qloo/performance-monitor';
+import { PerformanceMonitor } from './src/lib/api/qloo/performance/monitoring/performance-monitor';
 
 async function testPerformance() {
     const client = new QlooClient();

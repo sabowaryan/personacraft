@@ -101,11 +101,11 @@ function createValidationContext(
     },
     culturalConstraints: {
       music: [],
-      brands: [],
-      restaurants: [],
-      movies: [],
+      brand: [],
+      restaurant: [],
+      movie: [],
       tv: [],
-      books: [],
+      book: [],
       travel: [],
       fashion: [],
       beauty: [],
@@ -411,41 +411,40 @@ export async function POST(request: NextRequest) {
     // Enhanced response with detailed metadata and source tracking
     const response = {
       success: true,
-      personas: validatedPersonas,
+      personas: generationResult.personas,
       timestamp: new Date().toISOString(),
       
-      // Generation metadata for tracking and debugging
+      // Generation metadata (format attendu par le frontend)
       generation: {
-        source: generationResult.metadata.source,
-        method: generationResult.metadata.source === 'qloo-first' ? 'qloo-first' : 'legacy',
-        processingTime: generationResult.metadata.processingTime,
-        personaCount: validatedPersonas.length,
+        source: isQlooFirstEnabled ? 'qloo-first' : 'legacy',
+        method: isQlooFirstEnabled ? 'qloo-first' : 'legacy',
+        processingTime: generationResult.metadata.processingTime || 0,
+        personaCount: generationResult.personas.length,
         requestedCount: briefFormData.personaCount
       },
       
-      // Data source tracking
+      // Sources used
       sources: {
         gemini: true,
-        qloo: generationResult.metadata.qlooDataUsed,
+        qloo: generationResult.metadata.qlooDataUsed || false,
         culturalData: generationResult.metadata.qlooDataUsed ? 'qloo' : 'none'
       },
       
       // Cultural constraints applied (for qloo-first flow)
       culturalConstraints: {
-        applied: generationResult.metadata.culturalConstraintsApplied,
-        count: generationResult.metadata.culturalConstraintsApplied.length
+        applied: generationResult.metadata.culturalConstraintsApplied || [],
+        count: generationResult.metadata.culturalConstraintsApplied?.length || 0
       },
       
       // Validation metadata (when validation was performed)
-      ...(generationResult.metadata.validationResult && {
         validation: {
           enabled: VALIDATION_CONFIG.enabled,
-          isValid: generationResult.metadata.validationResult.isValid,
-          score: generationResult.metadata.validationResult.score,
-          errorCount: generationResult.metadata.validationResult.errors.length,
-          warningCount: generationResult.metadata.validationResult.warnings.length,
-          templateId: generationResult.metadata.validationResult.metadata.templateId,
-          validationTime: generationResult.metadata.validationResult.metadata.validationTime,
+        isValid: generationResult.metadata.validationResult?.isValid || false,
+        score: generationResult.metadata.validationResult?.score || 0,
+        errorCount: generationResult.metadata.validationResult?.errors?.length || 0,
+        warningCount: generationResult.metadata.validationResult?.warnings?.length || 0,
+        templateId: generationResult.metadata.validationResult?.metadata?.templateId || 'unknown',
+        validationTime: generationResult.metadata.validationResult?.metadata?.validationTime || 0,
           retryCount: generationResult.metadata.retryCount || 0,
           // Include validation statistics if available
           ...((generationResult.metadata.validationResult as ExtendedValidationResult)?.validationStats && {
@@ -453,8 +452,7 @@ export async function POST(request: NextRequest) {
             personasValidated: (generationResult.metadata.validationResult as ExtendedValidationResult).validationStats!.personasValidated,
             successfulPersonas: (generationResult.metadata.validationResult as ExtendedValidationResult).validationStats!.successfulPersonas
           })
-        }
-      }),
+      },
       
       // Performance metrics (when available)
       ...(generationResult.metadata.qlooApiCallsCount && {

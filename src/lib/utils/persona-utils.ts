@@ -1,5 +1,18 @@
 import { METADATA_BADGE_CONFIG } from "./METADATA_BADGE_CONFIG";
 import { EnrichedPersona, GenerationMetadata, ValidationMetadata } from '@/types/enhanced-persona';
+import { CulturalData, Demographics, Psychographics, MarketingInsights } from '@/types';
+
+/**
+ * Calculates cultural data richness based on the amount of cultural data available
+ */
+export const calculateCulturalRichness = (culturalData: any): 'low' | 'medium' | 'high' => {
+  if (!culturalData) return 'low';
+
+  const totalItems = Object.values(culturalData).flat().length;
+  if (totalItems > 50) return 'high';
+  if (totalItems > 20) return 'medium';
+  return 'low';
+};
 
 /**
  * Normalizes a persona to ensure it has all required metadata for enhanced UI
@@ -34,40 +47,64 @@ export const normalizePersona = (persona: Partial<EnrichedPersona>): EnrichedPer
 
   const culturalRichness = calculateCulturalRichness(persona.culturalData);
 
+  const defaultCulturalData: CulturalData = {
+    music: [],
+    movie: [],
+    tv: [],
+    book: [],
+    brand: [],
+    restaurant: [],
+    travel: [],
+    fashion: [],
+    beauty: [],
+    food: [],
+    socialMedia: [],
+    podcasts: [],
+    videoGames: [],
+    influencers: []
+  };
+
+  const defaultDemographics: Demographics = {
+    income: '',
+    education: '',
+    familyStatus: ''
+  };
+
+  const defaultPsychographics: Psychographics = {
+    personality: [],
+    values: [],
+    interests: [],
+    lifestyle: ''
+  };
+
+  const defaultMarketingInsights: MarketingInsights = {
+    preferredChannels: [],
+    messagingTone: '',
+    buyingBehavior: ''
+  };
+
   return {
     id: persona.id || '',
     name: persona.name || '',
     age: persona.age || 0,
     occupation: persona.occupation || '',
-    location: persona.location || ",
-    bio: persona.bio || 
-    quote: persona.quote || 
+    location: persona.location || '',
+    bio: persona.bio || '',
+    quote: persona.quote || '',
     qualityScore: persona.qualityScore || 0,
-    culturalData: persona.culturalData || {},
-    demographics: persona.demographics || {},
-    psychographics: persona.psychographics || {},
+    culturalData: persona.culturalData || defaultCulturalData,
+    demographics: persona.demographics || defaultDemographics,
+    psychographics: persona.psychographics || defaultPsychographics,
     painPoints: persona.painPoints || [],
     goals: persona.goals || [],
-    marketingInsights: persona.marketingInsights || {},
+    marketingInsights: persona.marketingInsights || defaultMarketingInsights,
     createdAt: persona.createdAt || new Date().toISOString(),
-    updatedAt: persona.updatedAt || new Date().toISOString(),
     generationMetadata: persona.generationMetadata || defaultMetadata,
     validationMetadata: persona.validationMetadata || defaultValidationData,
     culturalDataSource: persona.culturalDataSource || 'unknown',
     culturalRichness,
     isLegacy: !persona.generationMetadata || persona.generationMetadata.source === 'legacy-fallback'
-};
-
-/**
- * Calculates cultural data richness based on the amount of cultural data available
- */
-export const calculateCulturalRichness = (culturalData: any): 'low' | 'medium' | 'high' => {
-  if (!culturalData) return 'low';
-  
-  const totalItems = Object.values(culturalData).flat().length;
-  if (totalItems > 50) return 'high';
-  if (totalItems > 20) return 'medium';
-  return 'low';
+  };
 };
 
 /**

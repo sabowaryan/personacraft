@@ -5,7 +5,7 @@ import { normalizeLocation, getAgeRange } from '@/lib/api/qloo/mappers';
 import { QlooCacheService, getQlooCacheService } from '@/lib/services/qloo-cache';
 import { QlooBatchProcessor, getQlooBatchProcessor } from '@/lib/services/qloo-batch-processor';
 import { QlooPerformanceMonitor } from '@/lib/services/qloo-performance-monitor';
-import { qlooApiAdapter } from '@/lib/api/qloo/qloo-api-adapter';
+import { qlooApiAdapter } from '@/lib/api/qloo/performance/integration/qloo-api-adapter';
 
 /**
  * Service responsible for extracting signals from BriefFormData and fetching cultural data from Qloo API
@@ -37,7 +37,7 @@ export class QlooSignalExtractor {
                 interests: briefFormData.interests,
                 values: briefFormData.values,
                 culturalContext: {
-                    language: briefFormData.language,
+                    language: briefFormData.language || 'fr', // Valeur par défaut
                     personaCount: briefFormData.personaCount
                 }
             };
@@ -357,8 +357,8 @@ export class QlooSignalExtractor {
             throw new Error('Location is required');
         }
 
-        if (signals.demographics.ageRange.min < 18 || signals.demographics.ageRange.max > 80) {
-            throw new Error('Age range must be between 18 and 80');
+        if (signals.demographics.ageRange.min < 16 || signals.demographics.ageRange.max > 80) {
+            throw new Error('Age range must be between 16 and 80');
         }
 
         if (signals.demographics.ageRange.min >= signals.demographics.ageRange.max) {
@@ -581,11 +581,11 @@ export class QlooSignalExtractor {
     ): CulturalConstraints {
         const constraints: CulturalConstraints = {
             music: batchResults.music || [],
-            brands: batchResults.brand || [],
-            movies: batchResults.movie || [],
+            brand: batchResults.brand || [],
+            movie: batchResults.movie || [],
             tv: batchResults.tv || [],
-            books: batchResults.book || [],
-            restaurants: batchResults.restaurant || [],
+            book: batchResults.book || [],
+            restaurant: batchResults.restaurant || [],
             travel: batchResults.travel || [],
             fashion: batchResults.fashion || [],
             beauty: batchResults.beauty || [],
@@ -647,7 +647,7 @@ export class QlooSignalExtractor {
         let fallbacksApplied = 0;
 
         // Prioritize categories based on persona generation importance
-        const categoryPriority = ['music', 'brands', 'movies', 'tv', 'books', 'restaurants', 'travel', 'fashion', 'beauty', 'food'];
+        const categoryPriority = ['music', 'brand', 'movie', 'tv', 'book', 'restaurant', 'travel', 'fashion', 'beauty', 'food'];
 
         categoryPriority.forEach(categoryKey => {
             const key = categoryKey as keyof CulturalConstraints;
@@ -708,11 +708,11 @@ export class QlooSignalExtractor {
     private getEntityTypePriority(entityType: string): number {
         const priorities: Record<string, number> = {
             music: 5,        // High priority - core cultural signal
-            brands: 5,       // High priority - strong cultural indicator
-            movies: 4,       // Medium-high priority
+            brand: 5,        // High priority - strong cultural indicator
+            movie: 4,        // Medium-high priority
             tv: 4,          // Medium-high priority
-            books: 3,       // Medium priority
-            restaurants: 3, // Medium priority
+            book: 3,        // Medium priority
+            restaurant: 3, // Medium priority
             travel: 2,      // Lower priority
             fashion: 2,     // Lower priority
             beauty: 1,      // Lowest priority
@@ -731,10 +731,10 @@ export class QlooSignalExtractor {
         // Entity types that change frequently get shorter cache
         const volatilityFactors: Record<string, number> = {
             music: 0.8,      // Music trends change quickly
-            movies: 1.2,     // Movies are more stable
-            books: 1.5,      // Books change slowly
-            brands: 1.0,     // Brands are moderately stable
-            restaurants: 0.9, // Restaurant data changes moderately
+            movie: 1.2,      // Movies are more stable
+            book: 1.5,       // Books change slowly
+            brand: 1.0,      // Brands are moderately stable
+            restaurant: 0.9, // Restaurant data changes moderately
             travel: 1.3,     // Travel destinations are stable
             fashion: 0.7,    // Fashion changes quickly
             beauty: 0.9,     // Beauty trends change moderately

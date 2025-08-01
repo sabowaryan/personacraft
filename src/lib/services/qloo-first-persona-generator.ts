@@ -24,6 +24,7 @@ import { getQlooClient } from '@/lib/api/qloo';
 import { ValidationTemplateEngine } from '@/lib/validation/validation-template-engine';
 import { ValidationErrorHandler } from '@/lib/validation/error-handler';
 import { RetryManager } from '@/lib/validation/retry-manager';
+import { createRegistryWithTemplates } from '@/lib/validation/templates';
 import {
     ValidationContext,
     ValidationResult,
@@ -55,7 +56,7 @@ const DEFAULT_CONFIG: QlooFirstGeneratorConfig = {
     enableFallback: true,
     debugMode: false,
     maxRetries: 2,
-    timeoutMs: 30000, // 30 seconds
+    timeoutMs: 45000, // 45 seconds pour les cas B2B complexes
     enableValidation: true,
     validationRetryStrategy: {
         maxRetries: 3,
@@ -88,7 +89,7 @@ export class QlooFirstPersonaGenerator {
         this.promptBuilder = new EnrichedPromptBuilder();
 
         // Initialize validation components
-        this.validationEngine = new ValidationTemplateEngine();
+        this.validationEngine = new ValidationTemplateEngine(createRegistryWithTemplates());
         this.errorHandler = new ValidationErrorHandler(this.config.validationRetryStrategy);
         this.retryManager = new RetryManager();
     }
@@ -226,8 +227,8 @@ export class QlooFirstPersonaGenerator {
             if (this.config.debugMode) {
                 console.log('🎨 Cultural constraints fetched:', {
                     music: culturalConstraints.music.length,
-                    brands: culturalConstraints.brands.length,
-                    restaurants: culturalConstraints.restaurants.length,
+                    brand: culturalConstraints.brand.length,
+                    restaurant: culturalConstraints.restaurant.length,
                     totalConstraints: Object.values(culturalConstraints).reduce((sum, arr) => sum + arr.length, 0)
                 });
             }
@@ -272,7 +273,7 @@ export class QlooFirstPersonaGenerator {
         if (!this.config.enableValidation) {
             // If validation is disabled, use the original method
             return this.generateWithConstraints(
-                briefFormData.brief,
+                briefFormData,
                 culturalConstraints,
                 signals
             );
@@ -316,7 +317,7 @@ export class QlooFirstPersonaGenerator {
 
                 // Generate personas with current parameters
                 const personas = await this.generateWithConstraints(
-                    enhancedPrompt || briefFormData.brief,
+                    briefFormData,
                     culturalConstraints,
                     signals
                 );
@@ -423,7 +424,7 @@ export class QlooFirstPersonaGenerator {
      * @returns Promise<Partial<Persona>[]> - The generated personas
      */
     private async generateWithConstraints(
-        brief: string,
+        briefFormData: BriefFormData,
         culturalConstraints: CulturalConstraints,
         signals: QlooSignals
     ): Promise<Partial<Persona>[]> {
@@ -436,7 +437,7 @@ export class QlooFirstPersonaGenerator {
             }
 
             const enrichedPromptContext: EnrichedPromptContext = {
-                originalBrief: brief,
+                originalBrief: briefFormData.brief,
                 culturalConstraints,
                 userSignals: signals,
                 templateVariables: {
@@ -465,7 +466,7 @@ export class QlooFirstPersonaGenerator {
             }
 
             const geminiClient = getGeminiClient();
-            const personas = await geminiClient.generatePersonas(enrichedPrompt);
+            const personas = await geminiClient.generatePersonas(enrichedPrompt, undefined, { useQlooFirstValidation: true });
             this.performanceMonitor.endStep('geminiRequest');
 
             if (this.config.debugMode) {
@@ -478,7 +479,7 @@ export class QlooFirstPersonaGenerator {
 
             // Since we used cultural constraints in the prompt, the personas should already
             // reflect the cultural data. We don't need post-processing enrichment.
-            const enrichedPersonas = this.integrateCulturalDataIntoPersonas(personas, culturalConstraints);
+            const enrichedPersonas = this.integrateCulturalDataIntoPersonas(personas, culturalConstraints, briefFormData);
             this.performanceMonitor.endStep('culturalIntegration');
 
             // Record resource usage
@@ -506,7 +507,8 @@ export class QlooFirstPersonaGenerator {
      */
     private integrateCulturalDataIntoPersonas(
         personas: Partial<Persona>[],
-        culturalConstraints: CulturalConstraints
+        culturalConstraints: CulturalConstraints,
+        briefFormData: BriefFormData
     ): Partial<Persona>[] {
         return personas.map(persona => ({
             ...persona,
@@ -514,17 +516,31 @@ export class QlooFirstPersonaGenerator {
             // This is mainly for ensuring consistency and adding metadata
             culturalData: {
                 music: culturalConstraints.music,
-                brands: culturalConstraints.brands,
-                restaurants: culturalConstraints.restaurants,
-                movies: culturalConstraints.movies,
+                brand: culturalConstraints.brand,
+                restaurant: culturalConstraints.restaurant,
+                movie: culturalConstraints.movie,
+                book: culturalConstraints.book,
                 tv: culturalConstraints.tv,
-                books: culturalConstraints.books,
                 travel: culturalConstraints.travel,
                 fashion: culturalConstraints.fashion,
                 beauty: culturalConstraints.beauty,
                 food: culturalConstraints.food,
                 socialMedia: culturalConstraints.socialMedia
             },
+            // Métadonnées de génération permanentes
+            generationMetadata: {
+                source: 'qloo-first' as const,
+                method: 'qloo-first',
+                culturalConstraintsUsed: this.getCulturalConstraintsSummary(culturalConstraints),
+                processingTime: this.performanceMetrics.totalProcessingTime,
+                qlooDataUsed: true,
+                templateUsed: this.determineTemplateFromPersonaType(briefFormData),
+                generatedAt: new Date().toISOString(),
+                qlooApiCallsCount: this.performanceMetrics.qlooApiCallsCount,
+                cacheHitRate: this.performanceMetrics.cacheHitRate,
+                retryCount: 0
+            },
+            // Métadonnées temporaires pour compatibilité
             metadata: {
                 qlooConstraintsUsed: this.getCulturalConstraintsSummary(culturalConstraints),
                 generationMethod: 'qloo-first' as const,
@@ -768,9 +784,39 @@ export class QlooFirstPersonaGenerator {
                 console.log(`🔍 Validating ${personas.length} personas with type: ${personaType}`);
             }
 
+            // Get the appropriate template for the persona type
+            const template = this.validationEngine.getTemplateByPersonaType(personaType);
+            if (!template) {
+                console.error(`❌ No validation template found for persona type: ${personaType}`);
+                return {
+                    isValid: false,
+                    score: 0,
+                    errors: [{
+                        id: `template-not-found-${Date.now()}`,
+                        type: ValidationErrorType.TEMPLATE_NOT_FOUND,
+                        message: `No validation template found for persona type: ${personaType}`,
+                        field: 'system',
+                        severity: ValidationSeverity.ERROR
+                    }],
+                    warnings: [],
+                    metadata: {
+                        templateId: 'unknown',
+                        templateVersion: 'unknown',
+                        validationTime: 0,
+                        rulesExecuted: 0,
+                        rulesSkipped: 0,
+                        timestamp: Date.now()
+                    }
+                };
+            }
+
+            if (this.config.debugMode) {
+                console.log(`🔍 Using validation template: ${template.id} (version: ${template.version})`);
+            }
+
             const validationResult = await this.validationEngine.validateResponse(
                 personas,
-                personaType,
+                template.id,
                 validationContext
             );
 
@@ -813,29 +859,51 @@ export class QlooFirstPersonaGenerator {
      * Requirements: 1.1, 3.1
      */
     private determinePersonaType(briefFormData: BriefFormData): PersonaType {
-        const brief = briefFormData.brief.toLowerCase();
-
-        // Check for B2B indicators
+        // Check for B2B indicators in the brief
+        const briefLower = briefFormData.brief.toLowerCase();
         const b2bKeywords = [
-            'business', 'company', 'enterprise', 'corporate', 'b2b', 'professional',
-            'industry', 'organization', 'workplace', 'employee', 'manager', 'executive',
-            'department', 'team', 'client', 'vendor', 'supplier', 'partner'
+            'b2b', 'business', 'enterprise', 'professional', 'corporate',
+            'manager', 'director', 'executive', 'c-level', 'vp', 'vice president',
+            'sales', 'marketing', 'operations', 'finance', 'hr', 'it',
+            'saas', 'software', 'platform', 'solution', 'service'
         ];
 
-        const hasB2BKeywords = b2bKeywords.some(keyword => brief.includes(keyword));
-
-        // Check for simple persona indicators (fewer requirements)
-        const isSimpleRequest = briefFormData.personaCount <= 2 ||
-            brief.length < 100 ||
-            (!briefFormData.interests || briefFormData.interests.length === 0) ||
-            (!briefFormData.values || briefFormData.values.length === 0);
+        const hasB2BKeywords = b2bKeywords.some(keyword => briefLower.includes(keyword));
 
         if (hasB2BKeywords) {
             return PersonaType.B2B;
-        } else if (isSimpleRequest) {
+        }
+
+        // Check for simple persona indicators
+        const simpleKeywords = [
+            'simple', 'basic', 'general', 'consumer', 'individual',
+            'personal', 'casual', 'everyday', 'lifestyle'
+        ];
+
+        const hasSimpleKeywords = simpleKeywords.some(keyword => briefLower.includes(keyword));
+
+        if (hasSimpleKeywords) {
             return PersonaType.SIMPLE;
-        } else {
-            return PersonaType.STANDARD;
+        }
+
+        // Default to standard
+        return PersonaType.STANDARD;
+    }
+
+    /**
+     * Determine the template name based on persona type
+     */
+    private determineTemplateFromPersonaType(briefFormData: BriefFormData): string {
+        const personaType = this.determinePersonaType(briefFormData);
+        
+        switch (personaType) {
+            case PersonaType.B2B:
+                return 'b2b-persona-v1';
+            case PersonaType.SIMPLE:
+                return 'simple-persona-v1';
+            case PersonaType.STANDARD:
+            default:
+                return 'standard-persona-v1';
         }
     }
 
@@ -897,7 +965,7 @@ export class QlooFirstPersonaGenerator {
 
             // Generate with simpler validation
             const personas = await this.generateWithConstraints(
-                briefFormData.brief,
+                briefFormData,
                 culturalConstraints,
                 signals
             );

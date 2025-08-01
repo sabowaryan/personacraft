@@ -34,6 +34,7 @@ export interface MarketingInsights {
   preferredChannels: string[]
   messagingTone: string
   buyingBehavior: string
+  contentPreferences?: string[]
 }
 
 export interface SocialMediaInsights {
@@ -74,6 +75,7 @@ export interface Persona {
   marketingInsights: MarketingInsights
   qualityScore: number
   createdAt: string
+  updatedAt?: string
   brief?: string
   socialMediaInsights?: {
     insights: SocialMediaInsights

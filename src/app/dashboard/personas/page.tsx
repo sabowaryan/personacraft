@@ -12,10 +12,19 @@ import { DEFAULT_EXPORT_CONFIG } from '@/data/form-constants';
 
 // Fonction utilitaire pour convertir les personas legacy vers le format enrichi
 const convertToEnrichedPersona = (persona: any): EnrichedPersona => {
+  // Vérifier si les métadonnées existent et ont un contenu valide
+  const hasValidGenerationMetadata = persona.generationMetadata && 
+    typeof persona.generationMetadata === 'object' && 
+    persona.generationMetadata.source;
+
+  const hasValidValidationMetadata = persona.validationMetadata && 
+    typeof persona.validationMetadata === 'object' && 
+    persona.validationMetadata.templateName;
+
   return {
     ...persona,
-    // Ajouter les métadonnées par défaut si elles n'existent pas
-    generationMetadata: persona.generationMetadata || {
+    // Ajouter les métadonnées par défaut seulement si elles n'existent pas ou sont invalides
+    generationMetadata: hasValidGenerationMetadata ? persona.generationMetadata : {
       source: 'legacy-fallback' as const,
       method: 'legacy-import',
       culturalConstraintsUsed: [],
@@ -25,7 +34,7 @@ const convertToEnrichedPersona = (persona: any): EnrichedPersona => {
       fallbackReason: 'Legacy persona',
       generatedAt: new Date().toISOString()
     },
-    validationMetadata: persona.validationMetadata || {
+    validationMetadata: hasValidValidationMetadata ? persona.validationMetadata : {
       templateName: 'standard',
       validationScore: persona.qualityScore || 75,
       validationDetails: [],
@@ -134,9 +143,39 @@ export default function PersonasPage() {
       const data = await response.json();
 
       if (data.personas && Array.isArray(data.personas)) {
-        // Ajouter chaque nouveau persona via le hook
+        // Ajouter chaque nouveau persona via le hook avec les métadonnées de génération
         for (const personaData of data.personas) {
-          await addPersona(personaData);
+          // Préserver les métadonnées existantes et ajouter les nouvelles si nécessaire
+          const enrichedPersonaData = {
+            ...personaData,
+            // Préserver generationMetadata existant ou utiliser les données de l'API
+            generationMetadata: personaData.generationMetadata || {
+              source: data.generation?.method === 'qloo-first' ? 'qloo-first' : 'legacy-fallback',
+              method: data.generation?.method || 'unknown',
+              culturalConstraintsUsed: data.culturalConstraints?.applied || [],
+              processingTime: data.generation?.processingTime || 0,
+              qlooDataUsed: data.sources?.culturalData === 'qloo',
+              templateUsed: data.validation?.templateId || 'unknown',
+              generatedAt: new Date().toISOString(),
+              qlooApiCallsCount: data.performance?.qlooApiCalls || 0,
+              cacheHitRate: data.performance?.cacheHitRate || 0,
+              retryCount: data.validation?.retryCount || 0
+            },
+            // Métadonnées temporaires pour compatibilité
+            metadata: {
+              ...personaData.metadata,
+              generationMethod: data.generation?.method || 'unknown',
+              culturalDataSource: data.sources?.culturalData || 'unknown',
+              templateUsed: data.validation?.templateId || 'unknown',
+              processingTime: data.generation?.processingTime || 0,
+              qlooConstraintsUsed: data.culturalConstraints?.applied || [],
+              validationScore: data.validation?.score || 0,
+              validationErrors: data.validation?.errorCount || 0,
+              validationWarnings: data.validation?.warningCount || 0
+            }
+          };
+          
+          await addPersona(enrichedPersonaData);
         }
 
         // Incrémenter le compteur de générations

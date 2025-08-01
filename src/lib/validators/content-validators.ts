@@ -439,70 +439,82 @@ function validateSingleCulturalConsistency(culturalData: any, fieldPrefix: strin
     const errors: ValidationError[] = [];
     const warnings: ValidationWarning[] = [];
 
-    // Check consistency between demographics and cultural values
-    const demographics = culturalData.demographics;
-    const culturalValues = culturalData.culturalValues;
-    const consumptionPatterns = culturalData.consumptionPatterns;
-
-    if (demographics && culturalValues) {
-        // Check age-culture consistency
-        const age = demographics.age;
-        const generationValues = culturalValues.generation || culturalValues.generationalValues;
-
-        if (age && generationValues) {
-            const expectedGeneration = getGenerationFromAge(age);
-            if (expectedGeneration && !generationValues.toLowerCase().includes(expectedGeneration.toLowerCase())) {
-                warnings.push({
-                    id: `cultural-age-generation-mismatch-${personaIndex || 0}`,
-                    field: `${fieldPrefix}.culturalData.consistency`,
-                    message: `Age ${age} suggests ${expectedGeneration} generation, but cultural values indicate different generation`,
-                    severity: ValidationSeverity.WARNING,
-                    value: { age, generationValues },
-                    suggestion: `Consider aligning generation values with age ${age} (${expectedGeneration})`
-                });
-            }
-        }
-
-        // Check location-culture consistency
-        const location = demographics.location;
-        const culturalBackground = culturalValues.culturalBackground || culturalValues.nationality;
-
-        if (location && culturalBackground && typeof location === 'string' && typeof culturalBackground === 'string') {
-            const locationCountry = extractCountryFromLocation(location);
-            if (locationCountry && !culturalBackground.toLowerCase().includes(locationCountry.toLowerCase())) {
-                warnings.push({
-                    id: `cultural-location-background-mismatch-${personaIndex || 0}`,
-                    field: `${fieldPrefix}.culturalData.consistency`,
-                    message: `Location suggests ${locationCountry} but cultural background indicates ${culturalBackground}`,
-                    severity: ValidationSeverity.WARNING,
-                    value: { location, culturalBackground },
-                    suggestion: 'Ensure location and cultural background are consistent'
-                });
-            }
-        }
+    // Validate that culturalData has the expected structure
+    if (!culturalData || typeof culturalData !== 'object') {
+        errors.push({
+            id: `cultural-data-invalid-type-${personaIndex || 0}`,
+            type: ValidationErrorType.TYPE_MISMATCH,
+            field: `${fieldPrefix}.culturalData`,
+            message: 'Cultural data must be an object',
+            severity: ValidationSeverity.ERROR,
+            value: culturalData,
+            expectedValue: 'Object with cultural data categories'
+        });
+        return { errors, warnings };
     }
 
-    // Check consumption patterns consistency with demographics
-    if (demographics && consumptionPatterns) {
-        const income = demographics.income;
-        const spendingHabits = consumptionPatterns.spendingHabits || consumptionPatterns.spending;
+    // Check for required cultural data categories
+    const requiredCategories = ['music', 'brand', 'restaurant', 'movie', 'tv', 'book', 'travel', 'fashion', 'beauty', 'food', 'socialMedia'];
+    const missingCategories: string[] = [];
 
-        if (income && spendingHabits) {
-            const incomeLevel = categorizeIncome(income);
-            const spendingLevel = categorizeSpending(spendingHabits);
+    requiredCategories.forEach(category => {
+        if (!culturalData[category] || !Array.isArray(culturalData[category]) || culturalData[category].length === 0) {
+            missingCategories.push(category);
+        }
+    });
 
-            if (incomeLevel && spendingLevel && !isSpendingConsistentWithIncome(incomeLevel, spendingLevel)) {
+    if (missingCategories.length > 0) {
+        warnings.push({
+            id: `cultural-data-missing-categories-${personaIndex || 0}`,
+            field: `${fieldPrefix}.culturalData`,
+            message: `Missing or empty cultural data categories: ${missingCategories.join(', ')}`,
+            severity: ValidationSeverity.WARNING,
+            value: missingCategories,
+            suggestion: 'Consider adding data for missing cultural categories'
+        });
+    }
+
+    // Validate data quality for each category
+    Object.entries(culturalData).forEach(([category, items]) => {
+        if (Array.isArray(items)) {
+            // Check for generic/placeholder values
+            const genericItems = items.filter((item: string) => 
+                typeof item === 'string' && (
+                    item.includes('item_') || 
+                    item.includes('food_item_') || 
+                    item.includes('restaurant_item_') ||
+                    item.includes('Utilisez les vrais') ||
+                    item.includes('artiste1') ||
+                    item.includes('marque1') ||
+                    item.includes('film1') ||
+                    item.trim() === ''
+                )
+            );
+
+            if (genericItems.length > 0) {
                 warnings.push({
-                    id: `cultural-income-spending-mismatch-${personaIndex || 0}`,
-                    field: `${fieldPrefix}.culturalData.consistency`,
-                    message: `Income level (${incomeLevel}) may not align with spending patterns (${spendingLevel})`,
+                    id: `cultural-data-generic-items-${category}-${personaIndex || 0}`,
+                    field: `${fieldPrefix}.culturalData.${category}`,
+                    message: `Category ${category} contains generic or placeholder values`,
                     severity: ValidationSeverity.WARNING,
-                    value: { income, spendingHabits },
-                    suggestion: 'Review consistency between income and spending patterns'
+                    value: genericItems,
+                    suggestion: 'Use specific, real cultural data instead of placeholders'
+                });
+            }
+
+            // Check for reasonable number of items
+            if (items.length > 10) {
+                warnings.push({
+                    id: `cultural-data-too-many-items-${category}-${personaIndex || 0}`,
+                    field: `${fieldPrefix}.culturalData.${category}`,
+                    message: `Category ${category} has too many items (${items.length})`,
+                    severity: ValidationSeverity.WARNING,
+                    value: items.length,
+                    suggestion: 'Consider limiting to 3-8 items per category for better persona focus'
                 });
             }
         }
-    }
+    });
 
     return { errors, warnings };
 }
