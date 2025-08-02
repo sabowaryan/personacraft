@@ -2,9 +2,6 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { EnrichedPersona } from '@/types/enhanced-persona';
-
-// Force dynamic rendering to avoid static generation issues
-export const dynamic = 'force-dynamic';
 import BriefForm from '@/components/forms/BriefForm';
 import { usePersona } from '@/hooks/use-persona';
 import { useExport } from '@/hooks/use-export';
@@ -12,6 +9,9 @@ import { useStackSessions } from '@/hooks/use-stack-sessions';
 
 import { EnhancedPersonaList } from '@/components/personas/EnhancedPersonaList';
 import { DEFAULT_EXPORT_CONFIG } from '@/data/form-constants';
+
+// Force dynamic rendering to avoid static generation issues
+export const dynamic = 'force-dynamic';
 
 // Fonction utilitaire pour convertir les personas legacy vers le format enrichi
 const convertToEnrichedPersona = (persona: any): EnrichedPersona => {
