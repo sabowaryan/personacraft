@@ -37,6 +37,12 @@ export function PersonaProvider({ children }: PersonaProviderProps) {
   const [useDatabase, setUseDatabase] = useState(!bypassAuth);
   const [isGenerating, setIsGenerating] = useState(false);
   const [generationProgress, setGenerationProgress] = useState<{ step: string; progress: number } | null>(null);
+  const [isClient, setIsClient] = useState(false);
+
+  // Éviter l'hydratation mismatch
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
 
   // Memoize personas to prevent unnecessary re-renders
   const memoizedPersonas = useMemo(() => personas, [personas]);
@@ -71,11 +77,13 @@ export function PersonaProvider({ children }: PersonaProviderProps) {
         console.log('✅ Loaded personas from API:', loadedPersonas.length);
         setPersonas(loadedPersonas);
       } else {
-        // Fallback vers localStorage
-        console.log('💾 Falling back to localStorage');
-        const loadedPersonas = PersonaManager.getPersonas();
-        console.log('💾 Loaded personas from localStorage:', loadedPersonas.length);
-        setPersonas(loadedPersonas);
+        // Fallback vers localStorage (seulement côté client)
+        if (isClient) {
+          console.log('💾 Falling back to localStorage');
+          const loadedPersonas = PersonaManager.getPersonas();
+          console.log('💾 Loaded personas from localStorage:', loadedPersonas.length);
+          setPersonas(loadedPersonas);
+        }
       }
     } catch (err) {
       if (isAuthTimeoutError(err)) {

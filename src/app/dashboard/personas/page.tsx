@@ -98,27 +98,30 @@ export default function PersonasPage() {
     loadPersonas();
 
     // Vérifier si on doit ouvrir automatiquement le modal avec des données de template
-    const autoOpenModal = sessionStorage.getItem('autoOpenModal');
-    const templateDataStr = sessionStorage.getItem('templateData');
-    const shouldGoToLastStep = sessionStorage.getItem('goToLastStep');
+    // Seulement côté client pour éviter l'hydratation mismatch
+    if (typeof window !== 'undefined') {
+      const autoOpenModal = sessionStorage.getItem('autoOpenModal');
+      const templateDataStr = sessionStorage.getItem('templateData');
+      const shouldGoToLastStep = sessionStorage.getItem('goToLastStep');
 
-    if (autoOpenModal === 'true' && templateDataStr) {
-      try {
-        const parsedTemplateData = JSON.parse(templateDataStr);
-        setTemplateData(parsedTemplateData);
-        setGoToLastStep(shouldGoToLastStep === 'true');
-        setShowModal(true);
+      if (autoOpenModal === 'true' && templateDataStr) {
+        try {
+          const parsedTemplateData = JSON.parse(templateDataStr);
+          setTemplateData(parsedTemplateData);
+          setGoToLastStep(shouldGoToLastStep === 'true');
+          setShowModal(true);
 
-        // Nettoyer le sessionStorage après utilisation
-        sessionStorage.removeItem('autoOpenModal');
-        sessionStorage.removeItem('templateData');
-        sessionStorage.removeItem('goToLastStep');
-      } catch (error) {
-        console.error('Erreur lors du parsing des données de template:', error);
-        // Nettoyer en cas d'erreur
-        sessionStorage.removeItem('autoOpenModal');
-        sessionStorage.removeItem('templateData');
-        sessionStorage.removeItem('goToLastStep');
+          // Nettoyer le sessionStorage après utilisation
+          sessionStorage.removeItem('autoOpenModal');
+          sessionStorage.removeItem('templateData');
+          sessionStorage.removeItem('goToLastStep');
+        } catch (error) {
+          console.error('Erreur lors du parsing des données de template:', error);
+          // Nettoyer en cas d'erreur
+          sessionStorage.removeItem('autoOpenModal');
+          sessionStorage.removeItem('templateData');
+          sessionStorage.removeItem('goToLastStep');
+        }
       }
     }
   }, [loadPersonas]);

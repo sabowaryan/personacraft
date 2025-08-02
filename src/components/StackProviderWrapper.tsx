@@ -2,6 +2,7 @@
 
 import { StackProvider, StackTheme } from "@stackframe/stack";
 import { stackClientApp } from "@/stack-client";
+import { useState, useEffect } from "react";
 
 interface StackProviderWrapperProps {
   children: React.ReactNode;
@@ -16,10 +17,23 @@ const isAuthDisabled = () => {
 };
 
 export default function StackProviderWrapper({ children, customTheme }: StackProviderWrapperProps) {
+  const [isClient, setIsClient] = useState(false);
+  const [authDisabled, setAuthDisabled] = useState(false);
+
+  useEffect(() => {
+    setIsClient(true);
+    setAuthDisabled(isAuthDisabled());
+  }, []);
+
+  // Éviter l'hydratation mismatch en attendant le côté client
+  if (!isClient) {
+    return <div className="min-h-screen">{children}</div>;
+  }
+
   // Si l'auth est désactivée, retourner directement les enfants sans le provider Stack
-  if (isAuthDisabled()) {
+  if (authDisabled) {
     console.log('🚫 Auth disabled - bypassing StackProvider');
-    return <div style={customTheme}>{children}</div>;
+    return <div className="min-h-screen">{children}</div>;
   }
 
   return (

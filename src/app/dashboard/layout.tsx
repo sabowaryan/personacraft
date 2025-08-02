@@ -5,6 +5,7 @@ import Sidebar from '@/components/dashboard/Sidebar';
 import Header from '@/components/dashboard/Header';
 import LogoWithText from '@/components/LogoWithText';
 import { PersonaProviderWrapper } from '@/contexts/PersonaContextWrapper';
+import ClientOnly from '@/components/ClientOnly';
 
 export default function DashboardLayout({
   children,
@@ -40,64 +41,80 @@ export default function DashboardLayout({
 
   return (
     <PersonaProviderWrapper>
-      <div className="min-h-screen bg-gradient-to-br from-neutral-50 to-blue-50/30 flex">
-        {/* Overlay pour mobile */}
-        {isMobile && sidebarOpen && (
-          <div 
-            className="fixed inset-0 bg-black bg-opacity-50 z-30 md:hidden"
-            onClick={() => setSidebarOpen(false)}
-          />
-        )}
-
-        {/* Sidebar */}
-        <div className={`${
-          isMobile 
-            ? `fixed inset-y-0 left-0 z-50 transform transition-transform duration-300 ${
-                sidebarOpen ? 'translate-x-0' : '-translate-x-full'
-              }`
-            : 'fixed inset-y-0 left-0 z-40'
-        }`}>
-          <Sidebar 
-            isCollapsed={!isMobile && sidebarCollapsed}
-            onToggleCollapse={toggleSidebar}
-            isMobile={isMobile}
-            isOpen={sidebarOpen}
-            onClose={() => setSidebarOpen(false)}
-          />
-        </div>
-        
-        {/* Main content */}
-        <div className={`flex-1 flex flex-col min-w-0 ${
-          !isMobile ? (sidebarCollapsed ? 'ml-16' : 'ml-64') : ''
-        }`}>
-          {/* Bouton menu mobile */}
-          {isMobile && !sidebarOpen && (
-            <div className="md:hidden bg-white/95 backdrop-blur-sm border-b border-neutral-200 px-4 py-3 flex items-center justify-between sticky top-0 z-40">
-              <button
-                onClick={() => setSidebarOpen(true)}
-                className="p-2 rounded-xl hover:bg-neutral-100 transition-colors"
-              >
-                <svg className="w-6 h-6 text-neutral-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-                </svg>
-              </button>
-              <LogoWithText 
-                text="PersonaCraft" 
-                size="sm" 
-                variant="primary"
-              />
+      <ClientOnly
+        fallback={
+          <div className="min-h-screen bg-gradient-to-br from-neutral-50 to-blue-50/30 flex">
+            <div className="flex-1 flex flex-col">
+              <div className="animate-pulse bg-white/50 h-16 border-b border-neutral-200" />
+              <main className="flex-1 p-6">
+                <div className="animate-pulse space-y-4">
+                  <div className="h-8 bg-neutral-200 rounded w-1/3" />
+                  <div className="h-4 bg-neutral-200 rounded w-1/2" />
+                </div>
+              </main>
             </div>
+          </div>
+        }
+      >
+        <div className="min-h-screen bg-gradient-to-br from-neutral-50 to-blue-50/30 flex">
+          {/* Overlay pour mobile */}
+          {isMobile && sidebarOpen && (
+            <div 
+              className="fixed inset-0 bg-black bg-opacity-50 z-30 md:hidden"
+              onClick={() => setSidebarOpen(false)}
+            />
           )}
+
+          {/* Sidebar */}
+          <div className={`${
+            isMobile 
+              ? `fixed inset-y-0 left-0 z-50 transform transition-transform duration-300 ${
+                  sidebarOpen ? 'translate-x-0' : '-translate-x-full'
+                }`
+              : 'fixed inset-y-0 left-0 z-40'
+          }`}>
+            <Sidebar 
+              isCollapsed={!isMobile && sidebarCollapsed}
+              onToggleCollapse={toggleSidebar}
+              isMobile={isMobile}
+              isOpen={sidebarOpen}
+              onClose={() => setSidebarOpen(false)}
+            />
+          </div>
           
-          {/* Header intégré */}
-          {!(isMobile && sidebarOpen) && <Header />}
-          
-          {/* Page content */}
-          <main className="flex-1 overflow-auto">
-            {children}
-          </main>
+          {/* Main content */}
+          <div className={`flex-1 flex flex-col min-w-0 ${
+            !isMobile ? (sidebarCollapsed ? 'ml-16' : 'ml-64') : ''
+          }`}>
+            {/* Bouton menu mobile */}
+            {isMobile && !sidebarOpen && (
+              <div className="md:hidden bg-white/95 backdrop-blur-sm border-b border-neutral-200 px-4 py-3 flex items-center justify-between sticky top-0 z-40">
+                <button
+                  onClick={() => setSidebarOpen(true)}
+                  className="p-2 rounded-xl hover:bg-neutral-100 transition-colors"
+                >
+                  <svg className="w-6 h-6 text-neutral-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                  </svg>
+                </button>
+                <LogoWithText 
+                  text="PersonaCraft" 
+                  size="sm" 
+                  variant="primary"
+                />
+              </div>
+            )}
+            
+            {/* Header intégré */}
+            {!(isMobile && sidebarOpen) && <Header />}
+            
+            {/* Page content */}
+            <main className="flex-1 overflow-auto">
+              {children}
+            </main>
+          </div>
         </div>
-      </div>
+      </ClientOnly>
     </PersonaProviderWrapper>
   )
 }
