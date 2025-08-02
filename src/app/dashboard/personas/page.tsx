@@ -1,7 +1,11 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
+import dynamic from 'next/dynamic';
 import { EnrichedPersona } from '@/types/enhanced-persona';
+
+// Force dynamic rendering to avoid static generation issues
+export const dynamic = 'force-dynamic';
 import BriefForm from '@/components/forms/BriefForm';
 import { usePersona } from '@/hooks/use-persona';
 import { useExport } from '@/hooks/use-export';
@@ -55,7 +59,14 @@ const convertToEnrichedPersona = (persona: any): EnrichedPersona => {
 };
 
 export default function PersonasPage() {
-  // Utilisation des hooks existants
+  // États locaux pour l'UI
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [showModal, setShowModal] = useState(false);
+  const [templateData, setTemplateData] = useState(null);
+  const [goToLastStep, setGoToLastStep] = useState(false);
+  const [isClient, setIsClient] = useState(false);
+
+  // Utilisation des hooks existants - seulement côté client
   const {
     personas,
     selectedPersona,
@@ -76,55 +87,62 @@ export default function PersonasPage() {
 
   const { incrementGenerations } = useStackSessions();
 
-  // États locaux pour l'UI
-  const [isGenerating, setIsGenerating] = useState(false);
-  const [showModal, setShowModal] = useState(false);
-  const [templateData, setTemplateData] = useState(null);
-  const [goToLastStep, setGoToLastStep] = useState(false);
+  // Marquer comme côté client après hydratation
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
 
   // Conversion des personas vers le format enrichi
-  const enrichedPersonas: EnrichedPersona[] = Array.isArray(personas) ? personas.map(convertToEnrichedPersona) : [];
-
-  // Debug: afficher l'état des personas
-  console.log('Debug PersonasPage:', {
-    personas,
-    personasLength: personas?.length,
-    enrichedPersonasLength: enrichedPersonas.length,
-    isArray: Array.isArray(personas)
-  });
+  const enrichedPersonas: EnrichedPersona[] = isClient && Array.isArray(personas) ? personas.map(convertToEnrichedPersona) : [];
 
   // Charger les personas au montage et vérifier les données de template
   useEffect(() => {
+    if (!isClient) return;
+    
     loadPersonas();
 
     // Vérifier si on doit ouvrir automatiquement le modal avec des données de template
-    // Seulement côté client pour éviter l'hydratation mismatch
-    if (typeof window !== 'undefined') {
-      const autoOpenModal = sessionStorage.getItem('autoOpenModal');
-      const templateDataStr = sessionStorage.getItem('templateData');
-      const shouldGoToLastStep = sessionStorage.getItem('goToLastStep');
+    const autoOpenModal = sessionStorage.getItem('autoOpenModal');
+    const templateDataStr = sessionStorage.getItem('templateData');
+    const shouldGoToLastStep = sessionStorage.getItem('goToLastStep');
 
-      if (autoOpenModal === 'true' && templateDataStr) {
-        try {
-          const parsedTemplateData = JSON.parse(templateDataStr);
-          setTemplateData(parsedTemplateData);
-          setGoToLastStep(shouldGoToLastStep === 'true');
-          setShowModal(true);
+    if (autoOpenModal === 'true' && templateDataStr) {
+      try {
+        const parsedTemplateData = JSON.parse(templateDataStr);
+        setTemplateData(parsedTemplateData);
+        setGoToLastStep(shouldGoToLastStep === 'true');
+        setShowModal(true);
 
-          // Nettoyer le sessionStorage après utilisation
-          sessionStorage.removeItem('autoOpenModal');
-          sessionStorage.removeItem('templateData');
-          sessionStorage.removeItem('goToLastStep');
-        } catch (error) {
-          console.error('Erreur lors du parsing des données de template:', error);
-          // Nettoyer en cas d'erreur
-          sessionStorage.removeItem('autoOpenModal');
-          sessionStorage.removeItem('templateData');
-          sessionStorage.removeItem('goToLastStep');
-        }
+        // Nettoyer le sessionStorage après utilisation
+        sessionStorage.removeItem('autoOpenModal');
+        sessionStorage.removeItem('templateData');
+        sessionStorage.removeItem('goToLastStep');
+      } catch (error) {
+        console.error('Erreur lors du parsing des données de template:', error);
+        // Nettoyer en cas d'erreur
+        sessionStorage.removeItem('autoOpenModal');
+        sessionStorage.removeItem('templateData');
+        sessionStorage.removeItem('goToLastStep');
       }
     }
-  }, [loadPersonas]);
+  }, [isClient, loadPersonas]);
+
+  // Afficher un loader pendant l'hydratation
+  if (!isClient) {
+    return (
+      <div className="p-6 max-w-7xl mx-auto space-y-8">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div>
+            <h1 className="text-3xl font-bold text-slate-900">Personas Marketing</h1>
+            <p className="text-slate-600 mt-1">Gérez et analysez vos personas avec des outils avancés</p>
+          </div>
+        </div>
+        <div className="flex items-center justify-center py-12">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-persona-violet"></div>
+        </div>
+      </div>
+    );
+  }
 
 
 

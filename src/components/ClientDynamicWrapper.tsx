@@ -30,7 +30,7 @@ export default function ClientDynamicWrapper({ importPath }: ClientDynamicWrappe
     },
     {
       ssr: false,
-      loading: (loadingProps) => <LoadingSpinner />
+      loading: () => <LoadingSpinner />
     }
   );
 
