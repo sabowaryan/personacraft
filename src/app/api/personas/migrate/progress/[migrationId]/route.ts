@@ -5,15 +5,15 @@ import { getAuthenticatedUser } from '@/lib/auth-utils';
 // For now, we'll import it from a shared module
 import { getMigrationProgress, clearMigrationProgress } from '@/lib/services/migration-progress-service';
 
-interface RouteParams {
-    params: {
+interface RouteContext {
+    params: Promise<{
         migrationId: string;
-    };
+    }>;
 }
 
 export async function GET(
     _request: NextRequest,
-    { params }: RouteParams
+    { params }: RouteContext
 ) {
     try {
         const user = await getAuthenticatedUser();
@@ -24,7 +24,7 @@ export async function GET(
             );
         }
 
-        const { migrationId } = params;
+        const { migrationId } = await params;
 
         if (!migrationId) {
             return NextResponse.json(
@@ -58,7 +58,7 @@ export async function GET(
 
 export async function DELETE(
     _request: NextRequest,
-    { params }: RouteParams
+    { params }: RouteContext
 ) {
     try {
         const user = await getAuthenticatedUser();
@@ -69,7 +69,7 @@ export async function DELETE(
             );
         }
 
-        const { migrationId } = params;
+        const { migrationId } = await params;
 
         if (!migrationId) {
             return NextResponse.json(
