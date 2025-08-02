@@ -59,6 +59,15 @@ const nextConfig = {
         },
       };
     }
+
+    // ✅ Améliorer la stabilité du HMR
+    if (dev) {
+      config.watchOptions = {
+        poll: 1000,
+        aggregateTimeout: 300,
+        ignored: /node_modules/,
+      };
+    }
     
     // ✅ Fix for StackAuth "self is not defined" error
     if (isServer) {
