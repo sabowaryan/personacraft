@@ -41,11 +41,11 @@ export default function OnboardingContent() {
     return (
       <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-blue-50 flex items-center justify-center">
         <div className="text-center">
-          <LogoWithText 
-            size="xl" 
-            variant="primary" 
-            text="PersonaCraft" 
-            className="mb-4 justify-center" 
+          <LogoWithText
+            size="xl"
+            variant="primary"
+            text="PersonaCraft"
+            className="mb-4 justify-center"
           />
           <p className="text-gray-600">Chargement...</p>
         </div>
@@ -68,9 +68,8 @@ export default function OnboardingContent() {
             description="Ces informations nous aident à personnaliser votre expérience PersonaCraft"
             currentStep={currentStep}
             totalSteps={totalSteps}
-          >
-            <BasicInfoStep formData={formData} updateField={updateField} />
-          </OnboardingStep>
+            children={<BasicInfoStep formData={formData} updateField={updateField} />}
+          />
         );
       case 2:
         return (
@@ -79,9 +78,8 @@ export default function OnboardingContent() {
             description="Comment comptez-vous utiliser PersonaCraft pour atteindre vos objectifs ?"
             currentStep={currentStep}
             totalSteps={totalSteps}
-          >
-            <UseCaseStep formData={formData} updateField={updateField} />
-          </OnboardingStep>
+            children={<UseCaseStep formData={formData} updateField={updateField} />}
+          />
         );
       case 3:
         return (
@@ -90,9 +88,8 @@ export default function OnboardingContent() {
             description="Dernière étape ! Dites-nous votre niveau d'expérience avec les personas"
             currentStep={currentStep}
             totalSteps={totalSteps}
-          >
-            <ExperienceStep formData={formData} updateField={updateField} />
-          </OnboardingStep>
+            children={<ExperienceStep formData={formData} updateField={updateField} />}
+          />
         );
       default:
         return null;
@@ -126,11 +123,11 @@ export default function OnboardingContent() {
         {/* Header */}
         <div className="text-center mb-12">
           <Link href="/" className="inline-block">
-            <LogoWithText 
-              size="xl" 
-              variant="primary" 
-              text="PersonaCraft" 
-              className="mb-4 justify-center" 
+            <LogoWithText
+              size="xl"
+              variant="primary"
+              text="PersonaCraft"
+              className="mb-4 justify-center"
             />
           </Link>
           <h1 className="text-3xl font-bold text-gray-900 mb-2">
@@ -172,7 +169,7 @@ export default function OnboardingContent() {
                   >
                     Passer cette étape
                   </button>
-                  
+
                   <button
                     onClick={handleNext}
                     disabled={!canProceed() || isSubmitting}
