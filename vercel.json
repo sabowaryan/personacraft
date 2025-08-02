@@ -1,6 +1,6 @@
 {
   "buildCommand": "prisma generate && prisma db push && next build",
-  "installCommand": "npm install",
+  "installCommand": "npm install --include=dev",
   "env": {
     "PRISMA_GENERATE_SKIP_AUTOINSTALL": "true"
   },

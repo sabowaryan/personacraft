@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { TemplateService, TemplateData } from '@/services/templateService';
-import { Sparkles, Search, Filter, Eye, Zap, Crown, Star, Users, Globe, MapPin, Calendar, Target, Lightbulb, X, ShoppingCart, Briefcase, Smartphone, Heart, GraduationCap, DollarSign, FileText } from 'lucide-react';
+import { Sparkles, Search, Settings, Eye, Zap, Crown, Star, Users, Globe, MapPin, Calendar, Target, Lightbulb, X, ShoppingCart, Briefcase, Smartphone, Heart, GraduationCap, DollarSign, FileText } from 'lucide-react';
 
 export default function TemplatesPage() {
   const router = useRouter();
@@ -93,7 +93,7 @@ export default function TemplatesPage() {
 
             {/* Category Filters avec icônes */}
             <div className="flex items-center gap-3 mb-2">
-              <Filter className="h-4 w-4 text-slate-500" />
+              <Settings className="h-4 w-4 text-slate-500" />
               <span className="text-sm font-medium text-slate-700">Catégories :</span>
             </div>
             <div className="flex flex-wrap gap-2">
