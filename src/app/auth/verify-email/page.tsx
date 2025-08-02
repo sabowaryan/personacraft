@@ -6,6 +6,10 @@ import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Alert } from '@/components/ui/alert';
+import { shouldBypassAuth } from "@/lib/feature-flags";
+
+// Désactiver le pré-rendu statique pour cette page
+export const dynamic = 'force-dynamic';
 
 export default function VerifyEmailPage() {
     const user = useUser();
@@ -16,6 +20,12 @@ export default function VerifyEmailPage() {
     const [resendError, setResendError] = useState('');
 
     useEffect(() => {
+        // Rediriger vers l'accueil si l'auth est désactivée
+        if (shouldBypassAuth()) {
+            router.push('/');
+            return;
+        }
+
         // Si l'utilisateur n'est pas connecté, rediriger vers la connexion
         if (!user) {
             router.push('/auth/signin');
@@ -70,6 +80,11 @@ export default function VerifyEmailPage() {
             router.push('/');
         }
     };
+
+    // Ne pas afficher la page si l'auth est désactivée
+    if (shouldBypassAuth()) {
+        return null;
+    }
 
     // Si l'utilisateur n'est pas connecté, ne rien afficher (redirection en cours)
     if (!user) {

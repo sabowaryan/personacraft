@@ -2,6 +2,9 @@
 // import { StackHandler } from "@stackframe/stack";
 // import { getStackServerApp } from "@/stack-server";
 
+// Désactiver le pré-rendu statique pour cette page
+export const dynamic = 'force-dynamic';
+
 export default async function Handler(props: unknown) {
   // Temporairement désactivé - Stack Auth
   // const stackServerApp = await getStackServerApp();

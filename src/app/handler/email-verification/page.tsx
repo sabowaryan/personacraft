@@ -3,6 +3,10 @@
 import { useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useUser, useStackApp } from '@stackframe/stack';
+import { shouldBypassAuth } from "@/lib/feature-flags";
+
+// Désactiver le pré-rendu statique pour cette page
+export const dynamic = 'force-dynamic';
 
 export default function EmailVerificationPage() {
   const router = useRouter();
@@ -13,6 +17,12 @@ export default function EmailVerificationPage() {
   const [message, setMessage] = useState('');
 
   useEffect(() => {
+    // Rediriger vers l'accueil si l'auth est désactivée
+    if (shouldBypassAuth()) {
+      router.push('/');
+      return;
+    }
+
     const verifyEmail = async () => {
       try {
         const code = searchParams.get('code');
@@ -75,6 +85,11 @@ export default function EmailVerificationPage() {
       }
     }
   };
+
+  // Ne pas afficher la page si l'auth est désactivée
+  if (shouldBypassAuth()) {
+    return null;
+  }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50">

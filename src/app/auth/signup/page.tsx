@@ -4,10 +4,22 @@ import { SignUp, useUser } from "@stackframe/stack";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
+import { shouldBypassAuth } from "@/lib/feature-flags";
+
+// Désactiver le pré-rendu statique pour cette page
+export const dynamic = 'force-dynamic';
 
 export default function CustomSignUpPage() {
   const user = useUser();
   const router = useRouter();
+
+  // Rediriger vers l'accueil si l'auth est désactivée
+  useEffect(() => {
+    if (shouldBypassAuth()) {
+      router.push('/');
+      return;
+    }
+  }, [router]);
 
   // Rediriger si l'utilisateur est déjà connecté
   useEffect(() => {
@@ -20,8 +32,8 @@ export default function CustomSignUpPage() {
     }
   }, [user, router]);
 
-  // Ne pas afficher la page si l'utilisateur est connecté
-  if (user) {
+  // Ne pas afficher la page si l'auth est désactivée ou si l'utilisateur est connecté
+  if (shouldBypassAuth() || user) {
     return null;
   }
 

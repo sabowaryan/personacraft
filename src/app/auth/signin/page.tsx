@@ -4,10 +4,22 @@ import { SignIn, useUser } from "@stackframe/stack";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
+import { shouldBypassAuth } from "@/lib/feature-flags";
+
+// Désactiver le pré-rendu statique pour cette page
+export const dynamic = 'force-dynamic';
 
 export default function CustomSignInPage() {
   const user = useUser();
   const router = useRouter();
+
+  // Rediriger vers l'accueil si l'auth est désactivée
+  useEffect(() => {
+    if (shouldBypassAuth()) {
+      router.push('/');
+      return;
+    }
+  }, [router]);
 
   // Rediriger si l'utilisateur est déjà connecté
   useEffect(() => {
@@ -19,6 +31,11 @@ export default function CustomSignInPage() {
       // Si l'email n'est pas vérifié, laisser Stack Auth gérer la redirection automatique
     }
   }, [user, router]);
+
+  // Ne pas afficher la page si l'auth est désactivée
+  if (shouldBypassAuth()) {
+    return null;
+  }
 
   // Ne pas afficher la page si l'utilisateur est connecté
   if (user) {
