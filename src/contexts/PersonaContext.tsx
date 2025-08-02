@@ -4,8 +4,8 @@ import React, { createContext, useContext, useEffect, useState, ReactNode, useCa
 import { Persona } from '@/types';
 import { PersonaManager } from '@/lib/session';
 import { validateAndCleanPersona } from '@/lib/persona-utils';
-import { useUser } from '@stackframe/stack';
 import { handleApiResponse, isAuthTimeoutError, getErrorMessage } from '@/lib/client-error-utils';
+import { shouldBypassAuth } from '@/lib/feature-flags';
 
 interface PersonaContextType {
   personas: Persona[];
@@ -27,11 +27,14 @@ interface PersonaProviderProps {
 }
 
 export function PersonaProvider({ children }: PersonaProviderProps) {
-  const user = useUser();
+  const bypassAuth = shouldBypassAuth();
+  // En mode développement sans auth, forcer user à null
+  const user = null;
+  
   const [personas, setPersonas] = useState<Persona[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [useDatabase, setUseDatabase] = useState(true);
+  const [useDatabase, setUseDatabase] = useState(!bypassAuth);
   const [isGenerating, setIsGenerating] = useState(false);
   const [generationProgress, setGenerationProgress] = useState<{ step: string; progress: number } | null>(null);
 
@@ -43,13 +46,12 @@ export function PersonaProvider({ children }: PersonaProviderProps) {
     setError(null);
 
     try {
-      console.log('🔍 Debug fetchPersonas:', {
-        useDatabase,
-        user: user ? { id: user.id, email: user.primaryEmail } : null,
-        userExists: !!user
-      });
+      console.log('📡 Fetching personas...');
+      console.log('📡 Bypass Auth:', bypassAuth);
+      console.log('📡 Use Database:', useDatabase);
+      console.log('📡 User:', user);
 
-      if (useDatabase && user) {
+      if (useDatabase && (user || bypassAuth)) {
         // Charger depuis la base de données
         console.log('📡 Fetching personas from API...');
         const response = await fetch('/api/personas');
@@ -95,7 +97,7 @@ export function PersonaProvider({ children }: PersonaProviderProps) {
     } finally {
       setLoading(false);
     }
-  }, [useDatabase, user]);
+  }, [bypassAuth, useDatabase, user]);
 
   const refreshPersonas = useCallback(async () => {
     await fetchPersonas();
@@ -108,7 +110,7 @@ export function PersonaProvider({ children }: PersonaProviderProps) {
     try {
       const cleanedPersona = validateAndCleanPersona(persona);
 
-      if (useDatabase && user) {
+      if (useDatabase && (user || bypassAuth)) {
         // Sauvegarder en base de données
         const response = await fetch('/api/personas', {
           method: 'POST',
@@ -135,14 +137,14 @@ export function PersonaProvider({ children }: PersonaProviderProps) {
     } finally {
       setLoading(false);
     }
-  }, [useDatabase, user]);
+  }, [bypassAuth, useDatabase, user]);
 
   const updatePersona = useCallback(async (id: string, updates: Partial<Persona>) => {
     setLoading(true);
     setError(null);
 
     try {
-      if (useDatabase && user) {
+      if (useDatabase && (user || bypassAuth)) {
         // Mettre à jour en base de données
         const response = await fetch(`/api/personas/${id}`, {
           method: 'PUT',
@@ -173,14 +175,14 @@ export function PersonaProvider({ children }: PersonaProviderProps) {
     } finally {
       setLoading(false);
     }
-  }, [useDatabase, user]);
+  }, [bypassAuth, useDatabase, user]);
 
   const deletePersona = useCallback(async (id: string) => {
     setLoading(true);
     setError(null);
 
     try {
-      if (useDatabase && user) {
+      if (useDatabase && (user || bypassAuth)) {
         // Supprimer de la base de données
         const response = await fetch(`/api/personas/${id}`, {
           method: 'DELETE'
@@ -202,7 +204,7 @@ export function PersonaProvider({ children }: PersonaProviderProps) {
     } finally {
       setLoading(false);
     }
-  }, [useDatabase, user]);
+  }, [bypassAuth, useDatabase, user]);
 
   const generatePersonas = useCallback(async (formData: any): Promise<Persona[]> => {
     setIsGenerating(true);

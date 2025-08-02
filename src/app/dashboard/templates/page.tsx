@@ -29,18 +29,27 @@ export default function TemplatesPage() {
   });
 
   const handleUseTemplate = (template: TemplateData) => {
-    // Convertir le template en données de formulaire et rediriger vers la page personas
-    const briefFormData = TemplateService.templateToBriefFormData(template);
+    try {
+      // Convertir le template en données de formulaire et rediriger vers la page personas
+      const briefFormData = TemplateService.templateToBriefFormData(template);
 
-    // Stocker les données dans le sessionStorage pour les récupérer sur la page personas
-    sessionStorage.setItem('templateData', JSON.stringify(briefFormData));
+      // Stocker les données dans le sessionStorage pour les récupérer sur la page personas
+      sessionStorage.setItem('templateData', JSON.stringify(briefFormData));
 
-    // Indiquer qu'il faut ouvrir le modal automatiquement et aller à la dernière étape
-    sessionStorage.setItem('autoOpenModal', 'true');
-    sessionStorage.setItem('goToLastStep', 'true');
+      // Indiquer qu'il faut ouvrir le modal automatiquement et aller à la dernière étape
+      sessionStorage.setItem('autoOpenModal', 'true');
+      sessionStorage.setItem('goToLastStep', 'true');
 
-    // Rediriger vers la page personas où le briefForm sera auto-rempli et ouvert
-    router.push('/dashboard/personas');
+      // Petit délai pour s'assurer que les données sont stockées
+      setTimeout(() => {
+        // Rediriger vers la page personas où le briefForm sera auto-rempli et ouvert
+        window.location.href = '/dashboard/personas';
+      }, 100);
+    } catch (error) {
+      console.error('Erreur lors de l\'utilisation du template:', error);
+      // Fallback: navigation simple
+      window.location.href = '/dashboard/personas';
+    }
   };
 
   const handlePreviewTemplate = (template: TemplateData) => {
@@ -436,8 +445,10 @@ export default function TemplatesPage() {
                   </button>
                   <button
                     onClick={() => {
-                      handleUseTemplate(selectedTemplate);
+                      // Fermer le modal d'abord
                       setSelectedTemplate(null);
+                      // Puis utiliser le template
+                      handleUseTemplate(selectedTemplate);
                     }}
                     className="flex-2 inline-flex items-center justify-center gap-2 px-8 py-3 text-sm font-medium text-white bg-gradient-to-r from-persona-violet to-secondary hover:from-persona-violet/90 hover:to-secondary/90 rounded-xl transition-all duration-200 shadow-lg hover:shadow-xl hover:shadow-persona-violet/25"
                   >

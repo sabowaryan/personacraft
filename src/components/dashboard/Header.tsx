@@ -7,7 +7,8 @@ import Image from 'next/image';
 import { usePersona } from '@/hooks/use-persona';
 import { useExport } from '@/hooks/use-export';
 import { useStackSessions } from '@/hooks/use-stack-sessions';
-import { useUser } from '@stackframe/stack';
+import { useSafeUser } from '@/hooks/use-safe-user';
+import { shouldBypassAuth } from '@/lib/feature-flags';
 
 interface PageConfig {
   title: string;
@@ -118,17 +119,36 @@ const getPageConfig = (pathname: string, personasCount: number = 0): PageConfig 
 export default function Header() {
   const pathname = usePathname();
   const [showUserMenu, setShowUserMenu] = useState(false);
-  const [currentTime, setCurrentTime] = useState(new Date());
+  const [currentTime, setCurrentTime] = useState<Date | null>(null);
   
   const { personas } = usePersona();
   const { exportAll, isExporting, exportProgress } = useExport();
-  const { stats, currentSession, isLoading } = useStackSessions();
-  const user = useUser();
+  
+  // Always call hooks to avoid violating Rules of Hooks
+  const authBypass = shouldBypassAuth();
+  const stackSessions = useStackSessions();
+  const user = useSafeUser();
+  
+  // Use mock data when auth is bypassed or hooks return null
+  const { stats, isLoading } = (authBypass || !stackSessions) ? {
+    stats: { activeSessions: 1, totalSessions: 1, expiredSessions: 0 },
+    isLoading: false
+  } : stackSessions;
+  
+  // Mock user data when auth is bypassed or user is null
+  const currentUser = (authBypass || !user) ? {
+    displayName: 'Dev User',
+    primaryEmail: 'dev@example.com',
+    profileImageUrl: null,
+    signOut: async () => { window.location.href = '/'; }
+  } : user;
   
   const pageConfig = getPageConfig(pathname, personas?.length || 0);
 
   // Mise à jour de l'heure en temps réel
   useEffect(() => {
+    // Set initial time on client mount to avoid hydration mismatch
+    setCurrentTime(new Date());
     const timer = setInterval(() => setCurrentTime(new Date()), 1000);
     return () => clearInterval(timer);
   }, []);
@@ -157,12 +177,12 @@ export default function Header() {
   const handleSignOut = async () => {
     try {
       // Utiliser la méthode de déconnexion de Stack Auth
-      await user?.signOut();
-      window.location.href = '/auth/signin';
+      await currentUser?.signOut();
+      window.location.href = authBypass ? '/' : '/auth/signin';
     } catch (error) {
       console.error('Erreur lors de la déconnexion:', error);
       // Fallback vers la redirection manuelle
-      window.location.href = '/auth/signin?signout=true';
+      window.location.href = authBypass ? '/' : '/auth/signin?signout=true';
     }
   };
 
@@ -237,10 +257,10 @@ export default function Header() {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
                   <span className="text-blue-700 font-semibold text-xs">
-                    {currentTime.toLocaleTimeString('fr-FR', { 
+                    {currentTime ? currentTime.toLocaleTimeString('fr-FR', { 
                       hour: '2-digit', 
                       minute: '2-digit' 
-                    })}
+                    }) : '--:--'}
                   </span>
                 </div>
               </div>
@@ -258,10 +278,10 @@ export default function Header() {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
                   <span className="text-blue-700 font-semibold text-xs">
-                    {currentTime.toLocaleTimeString('fr-FR', { 
+                    {currentTime ? currentTime.toLocaleTimeString('fr-FR', { 
                       hour: '2-digit', 
                       minute: '2-digit' 
-                    })}
+                    }) : '--:--'}
                   </span>
                 </div>
               </div>
@@ -308,24 +328,24 @@ export default function Header() {
                   className="flex items-center space-x-1 sm:space-x-2 p-1 sm:p-2 rounded-lg hover:bg-neutral-100/80 transition-all duration-200 group"
                 >
                   <div className="w-7 h-7 sm:w-8 sm:h-8 bg-gradient-to-br from-persona-violet to-purple-600 rounded-full flex items-center justify-center text-white text-xs font-bold shadow-md overflow-hidden">
-                    {user?.profileImageUrl ? (
+                    {currentUser?.profileImageUrl ? (
                       <Image 
-                        src={user.profileImageUrl} 
-                        alt={user.displayName || user.primaryEmail || 'User'} 
+                        src={currentUser.profileImageUrl} 
+                        alt={currentUser.displayName || currentUser.primaryEmail || 'User'} 
                         width={32}
                         height={32}
                         className="w-full h-full object-cover rounded-full" 
                       />
                     ) : (
-                      (user?.displayName || user?.primaryEmail || 'U').charAt(0).toUpperCase()
+                      (currentUser?.displayName || currentUser?.primaryEmail || 'U').charAt(0).toUpperCase()
                     )}
                   </div>
                   <div className="hidden lg:block text-left">
                     <p className="text-xs font-semibold text-neutral-900">
-                      {user?.displayName || 'Utilisateur'}
+                      {currentUser?.displayName || 'Utilisateur'}
                     </p>
                     <p className="text-xs text-neutral-500">
-                      {user?.primaryEmail || 'user@example.com'}
+                      {currentUser?.primaryEmail || 'user@example.com'}
                     </p>
                   </div>
                   <svg className={`w-3 h-3 text-neutral-600 transition-transform hidden sm:block ${showUserMenu ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -338,24 +358,24 @@ export default function Header() {
                     <div className="px-3 py-2 border-b border-neutral-100">
                       <div className="flex items-center space-x-2">
                         <div className="w-8 h-8 bg-gradient-to-br from-persona-violet to-purple-600 rounded-full flex items-center justify-center text-white text-xs font-bold overflow-hidden">
-                          {user?.profileImageUrl ? (
+                          {currentUser?.profileImageUrl ? (
                             <Image 
-                              src={user.profileImageUrl} 
-                              alt={user.displayName || user.primaryEmail || 'User'} 
+                              src={currentUser.profileImageUrl} 
+                              alt={currentUser.displayName || currentUser.primaryEmail || 'User'} 
                               width={32}
                               height={32}
                               className="w-full h-full object-cover rounded-full" 
                             />
                           ) : (
-                            (user?.displayName || user?.primaryEmail || 'U').charAt(0).toUpperCase()
+                            (currentUser?.displayName || currentUser?.primaryEmail || 'U').charAt(0).toUpperCase()
                           )}
                         </div>
                         <div>
                           <p className="text-xs font-semibold text-neutral-900">
-                            {user?.displayName || 'Utilisateur'}
+                            {currentUser?.displayName || 'Utilisateur'}
                           </p>
                           <p className="text-xs text-neutral-600">
-                            {user?.primaryEmail || 'user@example.com'}
+                            {currentUser?.primaryEmail || 'user@example.com'}
                           </p>
                         </div>
                       </div>

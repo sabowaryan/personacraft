@@ -14,8 +14,8 @@ export interface FeatureFlags {
  * Configuration des feature flags basée sur les variables d'environnement
  */
 export const featureFlags: FeatureFlags = {
-  // Authentification générale
-  AUTH_ENABLED: process.env.AUTH_ENABLED !== 'false',
+  // Authentification générale - utilise la variable publique pour éviter les problèmes d'hydration
+  AUTH_ENABLED: process.env.NEXT_PUBLIC_AUTH_ENABLED !== 'false',
   
   // Vérification email obligatoire
   EMAIL_VERIFICATION_REQUIRED: process.env.EMAIL_VERIFICATION_REQUIRED !== 'false',
@@ -40,7 +40,8 @@ export function isFeatureEnabled(feature: keyof FeatureFlags): boolean {
 /**
  * Mode développement - désactive toutes les protections d'auth
  */
-export const isDevelopmentMode = process.env.NODE_ENV === 'development' && process.env.DEV_DISABLE_AUTH === 'true';
+export const isDevelopmentMode = process.env.NODE_ENV === 'development' && 
+  process.env.NEXT_PUBLIC_DEV_DISABLE_AUTH === 'true';
 
 /**
  * Vérifie si l'authentification doit être bypassée

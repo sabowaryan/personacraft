@@ -1,5 +1,5 @@
 import { useState, useCallback, useEffect } from 'react'
-import { useUser } from '@stackframe/stack'
+import { useSafeUser } from './use-safe-user'
 
 interface UseBriefsReturn {
   savedBriefs: string[]
@@ -13,7 +13,7 @@ interface UseBriefsReturn {
 const BRIEFS_STORAGE_KEY = 'personacraft_briefs'
 
 export function useBriefs(): UseBriefsReturn {
-  const user = useUser()
+  const user = useSafeUser()
   const [savedBriefs, setSavedBriefs] = useState<string[]>([])
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)

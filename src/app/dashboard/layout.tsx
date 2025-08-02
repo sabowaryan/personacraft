@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import Sidebar from '@/components/dashboard/Sidebar';
 import Header from '@/components/dashboard/Header';
 import LogoWithText from '@/components/LogoWithText';
-import { PersonaProvider } from '@/contexts/PersonaContext';
+import { PersonaProviderWrapper } from '@/contexts/PersonaContextWrapper';
 
 export default function DashboardLayout({
   children,
@@ -39,7 +39,7 @@ export default function DashboardLayout({
   };
 
   return (
-    <PersonaProvider>
+    <PersonaProviderWrapper>
       <div className="min-h-screen bg-gradient-to-br from-neutral-50 to-blue-50/30 flex">
         {/* Overlay pour mobile */}
         {isMobile && sidebarOpen && (
@@ -98,6 +98,6 @@ export default function DashboardLayout({
           </main>
         </div>
       </div>
-    </PersonaProvider>
+    </PersonaProviderWrapper>
   )
 }

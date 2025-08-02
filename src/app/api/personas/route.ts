@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 const { prisma } = await import('@/lib/prisma');
 
 import { getAuthenticatedUser } from '@/lib/auth-utils';
+import { shouldBypassAuth } from '@/lib/feature-flags';
 import { normalizePersona, calculateCulturalRichness } from '@/lib/utils/persona-normalization';
 import {
   EnrichedPersona,
@@ -14,10 +15,13 @@ export async function GET(request: NextRequest) {
   try {
     const user = await getAuthenticatedUser();
 
-    if (!user) {
-
+    // Bypasser l'authentification si les feature flags le permettent
+    if (!user && !shouldBypassAuth()) {
       return NextResponse.json({ error: 'Non autorisé' }, { status: 401 })
     }
+
+    // En mode bypass, utiliser un userId par défaut
+    const userId = user?.id || 'anonymous-user';
 
     // Parse query parameters for filtering and sorting
     const { searchParams } = new URL(request.url);
@@ -25,7 +29,7 @@ export async function GET(request: NextRequest) {
     const sortOptions = parseSortOptions(searchParams);
 
     // Build where clause with filters
-    const whereClause = buildWhereClause(user.id, filters);
+    const whereClause = buildWhereClause(userId, filters);
 
     // Build order by clause
     const orderByClause = buildOrderByClause(sortOptions);
@@ -397,9 +401,14 @@ function calculateFilterOptions(personas: EnrichedPersona[]) {
 export async function POST(request: NextRequest) {
   try {
     const user = await getAuthenticatedUser();
-    if (!user) {
+    
+    // Bypasser l'authentification si les feature flags le permettent
+    if (!user && !shouldBypassAuth()) {
       return NextResponse.json({ error: 'Non autorisé' }, { status: 401 })
     }
+
+    // En mode bypass, utiliser un userId par défaut
+    const userId = user?.id || 'anonymous-user';
 
     const body = await request.json()
     const {
@@ -459,7 +468,7 @@ export async function POST(request: NextRequest) {
 
     const persona = await prisma.persona.create({
       data: {
-        userId: user.id,
+        userId: userId,
         name,
         age,
         occupation,

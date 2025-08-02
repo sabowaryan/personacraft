@@ -1,6 +1,6 @@
 'use client';
 
-import { useUser } from "@stackframe/stack";
+import { useSafeUser } from "./use-safe-user";
 import { useEffect, useState } from "react";
 
 /**
@@ -8,7 +8,7 @@ import { useEffect, useState } from "react";
  */
 export function useAuthStatus() {
   const [isAuthDisabled, setIsAuthDisabled] = useState(false);
-  const stackUser = useUser();
+  const stackUser = useSafeUser();
 
   useEffect(() => {
     // Vérifier si l'auth est désactivée côté client

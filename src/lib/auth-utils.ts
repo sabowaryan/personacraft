@@ -1,4 +1,3 @@
-import { getStackServerApp } from '@/stack-server'
 import { shouldBypassAuth } from '@/lib/feature-flags'
 
 export interface AuthenticatedUser {
@@ -33,9 +32,15 @@ export async function getAuthenticatedUser(timeoutMs: number = 10000, retries: n
     };
   }
 
+  // Importation dynamique de getStackServerApp pour éviter les problèmes SSR
+  const { getStackServerApp } = await import('@/stack-server');
+
   for (let attempt = 0; attempt <= retries; attempt++) {
     try {
       const stackServerApp = await getStackServerApp();
+      if (!stackServerApp) {
+        throw new Error('StackServerApp not available on server side or failed to initialize');
+      }
       const userPromise = stackServerApp.getUser();
       const timeoutPromise = new Promise((_, reject) =>
         setTimeout(() => reject(new Error('Auth timeout')), timeoutMs)
@@ -57,3 +62,4 @@ export async function getAuthenticatedUser(timeoutMs: number = 10000, retries: n
   
   return null;
 }
+

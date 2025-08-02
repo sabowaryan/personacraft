@@ -13,17 +13,12 @@ const nextConfig = {
   },
 
   webpack: (config, { isServer }) => {
+    // Polyfill global pour 'self' côté serveur
     if (isServer) {
-      // Polyfill pour les variables globales du navigateur
-      config.resolve.fallback = {
-        ...config.resolve.fallback,
-        "self": false,
-      };
-      
-      // Définir 'self' globalement pour l'environnement serveur
       config.plugins.push(
         new config.webpack.DefinePlugin({
           'self': 'globalThis',
+          'window': 'globalThis',
         })
       );
     }
@@ -127,4 +122,6 @@ const nextConfig = {
 }
 
 module.exports = nextConfig
+
+
 

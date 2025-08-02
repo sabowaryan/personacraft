@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { validateAndCleanPersonas } from '@/lib/persona-utils';
 import { permissionService } from '@/services/permissionService';
 import { getAuthenticatedUser } from '@/lib/auth-utils';
+import { shouldBypassAuth, isFeatureEnabled } from '@/lib/feature-flags';
 import { getGeminiClient } from '@/lib/api/gemini';
 import { getQlooClient } from '@/lib/api/qloo';
 import { QlooFirstPersonaGenerator } from '@/lib/services/qloo-first-persona-generator';
@@ -371,14 +372,18 @@ export async function POST(request: NextRequest) {
     }
     
     const user = await getAuthenticatedUser();
-    if (!user) {
+    
+    // Bypasser l'authentification si les feature flags le permettent
+    if (!user && !shouldBypassAuth()) {
       return NextResponse.json({ error: 'Authentification requise' }, { status: 401 });
     }
 
-    // Vérifier la limite de personas
-    const canGenerate = await permissionService.checkPersonaLimit(user.id);
-    if (!canGenerate) {
-      return NextResponse.json({ error: 'Limite de personas atteinte pour votre plan.' }, { status: 403 });
+    // Vérifier la limite de personas seulement si les limites sont activées
+    if (user && isFeatureEnabled('PERSONA_LIMITS_ENABLED')) {
+      const canGenerate = await permissionService.checkPersonaLimit(user.id);
+      if (!canGenerate) {
+        return NextResponse.json({ error: 'Limite de personas atteinte pour votre plan.' }, { status: 403 });
+      }
     }
 
     // Check feature flag to determine which flow to use

@@ -1,5 +1,5 @@
 import { useState, useCallback, useEffect } from 'react'
-import { useUser } from '@stackframe/stack'
+import { useSafeUser } from './use-safe-user'
 import { handleApiResponse, isAuthTimeoutError, getErrorMessage } from '@/lib/client-error-utils'
 
 export interface UserPreferences {
@@ -25,7 +25,7 @@ const DEFAULT_PREFERENCES: UserPreferences = {
 }
 
 export function useUserPreferences(): UseUserPreferencesReturn {
-  const user = useUser()
+  const user = useSafeUser()
   const [preferences, setPreferences] = useState<UserPreferences>(DEFAULT_PREFERENCES)
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)

@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react'
-import { useUser } from '@stackframe/stack'
+import { useSafeUser } from './use-safe-user'
 import { StackAuthSessionService, StackSession } from '@/lib/stack-auth-sessions'
+import { shouldBypassAuth } from '@/lib/feature-flags'
 
 interface UseStackSessionsReturn {
   // État
@@ -37,18 +38,37 @@ interface UseStackSessionsReturn {
 }
 
 export function useStackSessions(): UseStackSessionsReturn {
-  const user = useUser();
+  // Check if auth is bypassed
+  const authBypass = shouldBypassAuth();
+  
+  // Use safe user hook
+  const user = useSafeUser();
+  
   const [sessions, setSessions] = useState<StackSession[]>([])
   const [currentSession, setCurrentSession] = useState<StackSession | null>(null)
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [stats, setStats] = useState({
-    totalSessions: 0,
-    activeSessions: 0,
+    totalSessions: authBypass ? 1 : 0,
+    activeSessions: authBypass ? 1 : 0,
     expiredSessions: 0
   })
 
   const refreshSessions = useCallback(async () => {
+    // If auth is bypassed, return mock data
+    if (authBypass) {
+      setIsLoading(false)
+      setError(null)
+      setSessions([])
+      setCurrentSession(null)
+      setStats({
+        totalSessions: 1,
+        activeSessions: 1,
+        expiredSessions: 0
+      })
+      return
+    }
+
     setIsLoading(true)
     setError(null)
 
@@ -72,7 +92,7 @@ export function useStackSessions(): UseStackSessionsReturn {
     } finally {
       setIsLoading(false)
     }
-  }, [user])
+  }, [user, authBypass])
 
   // Charger les sessions au montage et quand l'utilisateur change
   useEffect(() => {
