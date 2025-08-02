@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import dynamic from 'next/dynamic';
 import { EnrichedPersona } from '@/types/enhanced-persona';
 
 // Force dynamic rendering to avoid static generation issues
