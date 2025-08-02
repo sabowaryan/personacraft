@@ -59,21 +59,19 @@ export default function DashboardLayout({
         <div className="min-h-screen bg-gradient-to-br from-neutral-50 to-blue-50/30 flex">
           {/* Overlay pour mobile */}
           {isMobile && sidebarOpen && (
-            <div 
+            <div
               className="fixed inset-0 bg-black bg-opacity-50 z-30 md:hidden"
               onClick={() => setSidebarOpen(false)}
             />
           )}
 
           {/* Sidebar */}
-          <div className={`${
-            isMobile 
-              ? `fixed inset-y-0 left-0 z-50 transform transition-transform duration-300 ${
-                  sidebarOpen ? 'translate-x-0' : '-translate-x-full'
-                }`
+          <div className={`${isMobile
+              ? `fixed inset-y-0 left-0 z-50 transform transition-transform duration-300 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'
+              }`
               : 'fixed inset-y-0 left-0 z-40'
-          }`}>
-            <Sidebar 
+            }`}>
+            <Sidebar
               isCollapsed={!isMobile && sidebarCollapsed}
               onToggleCollapse={toggleSidebar}
               isMobile={isMobile}
@@ -81,11 +79,10 @@ export default function DashboardLayout({
               onClose={() => setSidebarOpen(false)}
             />
           </div>
-          
+
           {/* Main content */}
-          <div className={`flex-1 flex flex-col min-w-0 ${
-            !isMobile ? (sidebarCollapsed ? 'ml-16' : 'ml-64') : ''
-          }`}>
+          <div className={`flex-1 flex flex-col min-w-0 ${!isMobile ? (sidebarCollapsed ? 'ml-16' : 'ml-64') : ''
+            }`}>
             {/* Bouton menu mobile */}
             {isMobile && !sidebarOpen && (
               <div className="md:hidden bg-white/95 backdrop-blur-sm border-b border-neutral-200 px-4 py-3 flex items-center justify-between sticky top-0 z-40">
@@ -97,17 +94,17 @@ export default function DashboardLayout({
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
                   </svg>
                 </button>
-                <LogoWithText 
-                  text="PersonaCraft" 
-                  size="sm" 
+                <LogoWithText
+                  text="PersonaCraft"
+                  size="sm"
                   variant="primary"
                 />
               </div>
             )}
-            
+
             {/* Header intégré */}
             {!(isMobile && sidebarOpen) && <Header />}
-            
+
             {/* Page content */}
             <main className="flex-1 overflow-auto">
               {children}

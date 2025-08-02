@@ -40,15 +40,12 @@ export default function TemplatesPage() {
       sessionStorage.setItem('autoOpenModal', 'true');
       sessionStorage.setItem('goToLastStep', 'true');
 
-      // Petit délai pour s'assurer que les données sont stockées
-      setTimeout(() => {
-        // Rediriger vers la page personas où le briefForm sera auto-rempli et ouvert
-        window.location.href = '/dashboard/personas';
-      }, 100);
+      // Navigation asynchrone avec Next.js router
+      router.push('/dashboard/personas');
     } catch (error) {
       console.error('Erreur lors de l\'utilisation du template:', error);
-      // Fallback: navigation simple
-      window.location.href = '/dashboard/personas';
+      // Fallback: navigation simple avec router
+      router.push('/dashboard/personas');
     }
   };
 

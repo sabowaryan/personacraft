@@ -6,7 +6,7 @@ import BriefForm from '@/components/forms/BriefForm';
 import { usePersona } from '@/hooks/use-persona';
 import { useExport } from '@/hooks/use-export';
 import { useStackSessions } from '@/hooks/use-stack-sessions';
-import { PersonaMigration } from '@/components/personas/PersonaMigration';
+
 import { EnhancedPersonaList } from '@/components/personas/EnhancedPersonaList';
 import { DEFAULT_EXPORT_CONFIG } from '@/data/form-constants';
 
@@ -131,7 +131,7 @@ export default function PersonasPage() {
   const generatePersonas = useCallback(async (formData: any) => {
     setIsGenerating(true);
     try {
-      const response = await fetch('/api/generate-personas', {
+      const response = await fetch('/api/personas/generate', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -250,8 +250,7 @@ export default function PersonasPage() {
         </div>
       </div>
 
-      {/* Migration des personas */}
-      <PersonaMigration />
+  
 
       
 

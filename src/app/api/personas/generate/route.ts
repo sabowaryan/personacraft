@@ -112,8 +112,11 @@ export async function POST(request: NextRequest) {
                                 painPoints: persona.painPoints,
                                 goals: persona.goals,
                                 marketingInsights: persona.marketingInsights,
-                                socialMediaInsights: persona.socialMediaInsights,
+                                // Correction : s'assurer que socialMediaInsights est sauvegardé
+                                socialMediaInsights: persona.socialMediaInsights || undefined,
                                 qualityScore: persona.qualityScore || 0,
+                                // Correction : sauvegarder le champ metadata du persona
+                                metadata: persona.metadata || undefined,
                                 // Enhanced metadata
                                 generationMetadata: {
                                     source: isQlooFirstEnabled ? 'qloo-first' : 'legacy',
@@ -126,6 +129,7 @@ export async function POST(request: NextRequest) {
                                     validationErrors: 'validationResult' in generationResult.metadata ? generationResult.metadata.validationResult?.errors?.length || 0 : 0,
                                     validationWarnings: 'validationResult' in generationResult.metadata ? generationResult.metadata.validationResult?.warnings?.length || 0 : 0
                                 },
+                                // Correction : s'assurer que validationMetadata est correctement sauvegardé
                                 validationMetadata: 'validationResult' in generationResult.metadata && generationResult.metadata.validationResult ? {
                                     isValid: generationResult.metadata.validationResult.isValid,
                                     validationScore: generationResult.metadata.validationResult.score,
