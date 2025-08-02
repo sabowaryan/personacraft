@@ -1,15 +1,15 @@
 'use client';
 
 import { useUser, useStackApp } from '@stackframe/stack';
+
+// Force dynamic rendering to avoid SSG issues with Stack Auth
+export const dynamic = 'force-dynamic';
 import { useRouter } from 'next/navigation';
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Alert } from '@/components/ui/alert';
 import { shouldBypassAuth } from "@/lib/feature-flags";
-
-// Désactiver le pré-rendu statique pour cette page
-export const dynamic = 'force-dynamic';
 
 export default function VerifyEmailPage() {
     const user = useUser();

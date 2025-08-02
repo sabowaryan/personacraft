@@ -1,9 +1,13 @@
 'use client';
 
 import { useUser } from "@stackframe/stack";
+
+// Force dynamic rendering to avoid SSG issues with Stack Auth
+export const dynamic = 'force-dynamic';
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import { useEffect, useState } from "react";
 
 import LogoWithText from "@/components/LogoWithText";
 import OnboardingStep from "@/components/onboarding/OnboardingStep";
@@ -14,6 +18,7 @@ import ExperienceStep from "@/components/onboarding/steps/ExperienceStep";
 import { useOnboardingForm } from "@/hooks/use-onboarding-form";
 
 export default function OnboardingPage() {
+  const [isClient, setIsClient] = useState(false);
   const user = useUser();
   const router = useRouter();
   const {
@@ -28,6 +33,28 @@ export default function OnboardingPage() {
     submitForm,
     skipOnboarding,
   } = useOnboardingForm();
+
+  // Prevent hydration mismatch by waiting for client-side rendering
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+
+  // Show loading state during hydration
+  if (!isClient) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-blue-50 flex items-center justify-center">
+        <div className="text-center">
+          <LogoWithText 
+            size="xl" 
+            variant="primary" 
+            text="PersonaCraft" 
+            className="mb-4 justify-center" 
+          />
+          <p className="text-gray-600">Chargement...</p>
+        </div>
+      </div>
+    );
+  }
 
   // Redirect to signin if user is not authenticated
   if (user === null) {

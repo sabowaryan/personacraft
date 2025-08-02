@@ -1,12 +1,13 @@
 'use client';
 
 import { SignUp, useUser } from "@stackframe/stack";
+
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { shouldBypassAuth } from "@/lib/feature-flags";
 
-// Désactiver le pré-rendu statique pour cette page
+// Force dynamic rendering to avoid SSG issues with Stack Auth
 export const dynamic = 'force-dynamic';
 
 export default function CustomSignUpPage() {

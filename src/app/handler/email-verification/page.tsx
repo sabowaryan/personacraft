@@ -3,9 +3,10 @@
 import { useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useUser, useStackApp } from '@stackframe/stack';
+
 import { shouldBypassAuth } from "@/lib/feature-flags";
 
-// Désactiver le pré-rendu statique pour cette page
+// Force dynamic rendering to avoid SSG issues with Stack Auth
 export const dynamic = 'force-dynamic';
 
 export default function EmailVerificationPage() {
