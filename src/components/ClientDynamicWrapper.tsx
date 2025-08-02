@@ -1,11 +1,9 @@
 'use client';
 
 import dynamic from 'next/dynamic';
-import { ComponentType } from 'react';
 
 interface ClientDynamicWrapperProps {
   importPath: string;
-  loadingComponent?: ComponentType;
 }
 
 const LoadingSpinner = () => (
@@ -14,7 +12,7 @@ const LoadingSpinner = () => (
   </div>
 );
 
-export default function ClientDynamicWrapper({ importPath, loadingComponent: Loading = LoadingSpinner }: ClientDynamicWrapperProps) {
+export default function ClientDynamicWrapper({ importPath }: ClientDynamicWrapperProps) {
   const DynamicComponent = dynamic(
     () => {
       switch (importPath) {
@@ -32,7 +30,7 @@ export default function ClientDynamicWrapper({ importPath, loadingComponent: Loa
     },
     {
       ssr: false,
-      loading: Loading
+      loading: (loadingProps) => <LoadingSpinner />
     }
   );
 
