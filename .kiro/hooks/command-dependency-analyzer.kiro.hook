@@ -1,0 +1,23 @@
+{
+  "enabled": true,
+  "name": "Command Dependency Analyzer",
+  "description": "Analyzes local dependencies and business context when a command is executed in a file to understand the impact before making modifications",
+  "version": "1",
+  "when": {
+    "type": "fileEdited",
+    "patterns": [
+      "src/**/*.ts",
+      "src/**/*.tsx",
+      "src/**/*.js",
+      "src/**/*.jsx",
+      "scripts/**/*.ts",
+      "scripts/**/*.js",
+      "package.json",
+      "prisma/schema.prisma"
+    ]
+  },
+  "then": {
+    "type": "askAgent",
+    "prompt": "A command is being executed in this file. Before making any modifications, analyze:\n\n1. **Local Dependencies**: Examine all imports, exports, and file relationships to understand what this file depends on and what depends on it\n2. **Business Context**: Based on the PersonaCraft product (AI-powered marketing persona generation platform), understand:\n   - How this file fits into the overall architecture (Frontend/Backend/AI Integration/Database/Cache/Auth)\n   - What business functionality it supports (persona generation, cultural enrichment, quality metrics, etc.)\n   - Potential impact on user experience and system performance\n3. **Technical Stack Context**: Consider the technology stack (Next.js 15, React 19, TypeScript, Gemini AI, Qloo API, PostgreSQL, Redis, Stack Auth)\n4. **Risk Assessment**: Identify potential breaking changes or side effects\n\nProvide a comprehensive analysis of the business context and technical dependencies before suggesting any modifications. Focus on understanding the \"why\" behind the code structure and its role in the PersonaCraft ecosystem."
+  }
+}

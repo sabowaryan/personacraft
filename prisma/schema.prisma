@@ -37,6 +37,9 @@ model Persona {
   templateUsed         String?  @db.VarChar(100)
   processingTime       Int?
   
+  // New cultural insights structure
+  culturalInsights     Json?
+  
   user                 User     @relation(fields: [userId], references: [id])
   
   // Indexes for efficient filtering and sorting

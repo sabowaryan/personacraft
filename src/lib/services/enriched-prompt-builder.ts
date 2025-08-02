@@ -11,7 +11,7 @@ import {
     QlooSignals, 
     QlooFirstError 
 } from '@/types/qloo-first';
-import { PromptManager, PROMPTS, PromptType, DEFAULT_PROMPT_VARIABLES } from '@/lib/prompts/gemini-prompts';
+import { DEFAULT_PROMPT_VARIABLES } from '@/lib/prompts/gemini-prompts';
 
 /**
  * Configuration for prompt building
@@ -198,8 +198,12 @@ export class EnrichedPromptBuilder {
             brief: originalBrief
         };
 
+        // Generate location context variables
+        const locationContextVariables = this.generateLocationContext(userSignals.demographics.location);
+        const allVariables = { ...variables, ...locationContextVariables };
+
         // Replace template variables
-        return this.replaceTemplateVariables(templateContent, variables);
+        return this.replaceTemplateVariables(templateContent, allVariables);
     }
 
     /**
@@ -337,29 +341,7 @@ export class EnrichedPromptBuilder {
         return result;
     }
 
-    /**
-     * Find the best point to inject cultural constraints in the prompt
-     */
-    private findInjectionPoint(prompt: string): number {
-        // Look for specific markers in the prompt where we can inject constraints
-        const markers = [
-            'CONTRAINTES IMPORTANTES:',
-            'Pour chaque persona',
-            'Format exact attendu:',
-            'Réponds UNIQUEMENT'
-        ];
 
-        for (const marker of markers) {
-            const index = prompt.indexOf(marker);
-            if (index !== -1) {
-                return index;
-            }
-        }
-
-        // Fallback: inject before the last paragraph
-        const lastParagraphIndex = prompt.lastIndexOf('\n\n');
-        return lastParagraphIndex !== -1 ? lastParagraphIndex : prompt.length * 0.8;
-    }
 
     /**
      * Build the cultural constraints section for the prompt
@@ -423,13 +405,6 @@ export class EnrichedPromptBuilder {
     }
 
     /**
-     * Insert constraints section at the specified point in the prompt
-     */
-    private insertConstraintsAtPoint(prompt: string, constraintsSection: string, injectionPoint: number): string {
-        return prompt.slice(0, injectionPoint) + constraintsSection + prompt.slice(injectionPoint);
-    }
-
-    /**
      * Translate category names based on language with context-aware formatting
      */
     private translateCategoryName(category: string, language: 'fr' | 'en'): string {
@@ -467,6 +442,92 @@ export class EnrichedPromptBuilder {
         };
 
         return frenchTranslations[category] || this.capitalizeFirst(category);
+    }
+
+    /**
+     * Generate location-specific context variables for templates
+     */
+    private generateLocationContext(location: string): Record<string, string> {
+        const locationLower = location.toLowerCase();
+        
+        // Determine location-specific contexts
+        let nameContext = "Nom français typique";
+        let phoneContext = "+33 X XX XX XX XX";
+        let emailContext = "prenom.nom@email.com";
+        let occupationContext = "Métier spécifique et réaliste";
+        let incomeContext = "Tranche de revenus réaliste (ex: 45000-55000€)";
+        let locationSpecific = location;
+
+        // France
+        if (locationLower.includes('france') || locationLower.includes('paris') || 
+            locationLower.includes('lyon') || locationLower.includes('marseille') ||
+            locationLower.includes('toulouse') || locationLower.includes('nice')) {
+            nameContext = "Nom français typique (ex: Marie Dubois, Pierre Martin)";
+            phoneContext = "+33 X XX XX XX XX";
+            emailContext = "prenom.nom@gmail.com ou @orange.fr";
+            occupationContext = "Métier français réaliste";
+            incomeContext = "Tranche de revenus française (ex: 35000-45000€)";
+        }
+        
+        // Canada
+        else if (locationLower.includes('canada') || locationLower.includes('québec') || 
+                 locationLower.includes('montreal') || locationLower.includes('toronto') ||
+                 locationLower.includes('vancouver')) {
+            nameContext = "Nom canadien/québécois (ex: Marie Tremblay, Jean Bouchard)";
+            phoneContext = "+1 XXX XXX-XXXX";
+            emailContext = "prenom.nom@gmail.com ou @hotmail.ca";
+            occupationContext = "Métier canadien réaliste";
+            incomeContext = "Tranche de revenus canadienne (ex: 50000-65000 CAD)";
+        }
+        
+        // Belgium
+        else if (locationLower.includes('belgique') || locationLower.includes('belgium') ||
+                 locationLower.includes('bruxelles') || locationLower.includes('brussels')) {
+            nameContext = "Nom belge typique (ex: Marie Janssens, Pierre Dupont)";
+            phoneContext = "+32 XXX XX XX XX";
+            emailContext = "prenom.nom@gmail.com ou @skynet.be";
+            occupationContext = "Métier belge réaliste";
+            incomeContext = "Tranche de revenus belge (ex: 40000-50000€)";
+        }
+        
+        // Switzerland
+        else if (locationLower.includes('suisse') || locationLower.includes('switzerland') ||
+                 locationLower.includes('genève') || locationLower.includes('zurich')) {
+            nameContext = "Nom suisse typique (ex: Marie Müller, Pierre Dubois)";
+            phoneContext = "+41 XX XXX XX XX";
+            emailContext = "prenom.nom@gmail.com ou @bluewin.ch";
+            occupationContext = "Métier suisse réaliste";
+            incomeContext = "Tranche de revenus suisse (ex: 70000-85000 CHF)";
+        }
+        
+        // USA
+        else if (locationLower.includes('usa') || locationLower.includes('états-unis') ||
+                 locationLower.includes('united states') || locationLower.includes('america')) {
+            nameContext = "American name (e.g., Sarah Johnson, Michael Smith)";
+            phoneContext = "+1 XXX-XXX-XXXX";
+            emailContext = "firstname.lastname@gmail.com";
+            occupationContext = "Realistic American occupation";
+            incomeContext = "American income range (e.g., $45,000-$65,000)";
+        }
+        
+        // UK
+        else if (locationLower.includes('royaume-uni') || locationLower.includes('uk') ||
+                 locationLower.includes('england') || locationLower.includes('london')) {
+            nameContext = "British name (e.g., Sarah Williams, James Brown)";
+            phoneContext = "+44 XXXX XXX XXX";
+            emailContext = "firstname.lastname@gmail.com";
+            occupationContext = "Realistic British occupation";
+            incomeContext = "British income range (e.g., £35,000-£45,000)";
+        }
+
+        return {
+            nameContext,
+            phoneContext,
+            emailContext,
+            occupationContext,
+            incomeContext,
+            locationSpecific
+        };
     }
 
     /**

@@ -1,0 +1,20 @@
+{
+  "enabled": true,
+  "name": "Specs Task Context Hook",
+  "description": "Automatically takes into context all relevant files (modified or linked) when executing a task from a specs file, and uses them to adapt the response or modifications to be made",
+  "version": "1",
+  "when": {
+    "type": "fileEdited",
+    "patterns": [
+      "**/specs/**/*.md",
+      "**/specs/**/*.txt",
+      "**/specs/**/*.json",
+      "**/*spec*.md",
+      "**/*task*.md"
+    ]
+  },
+  "then": {
+    "type": "askAgent",
+    "prompt": "A task is being executed from a specs file. Please analyze the current task context and automatically include all relevant files that are either:\n1. Recently modified files that relate to this task\n2. Files that are linked or referenced in the task\n3. Dependencies or related components mentioned in the task\n\nUse these files as context to:\n- Provide more accurate and contextual responses\n- Suggest appropriate modifications that align with the existing codebase\n- Ensure consistency with the current project structure and patterns\n- Adapt recommendations based on the actual implementation\n\nFocus on the PersonaCraft project structure (Next.js 15, React 19, TypeScript, Prisma, etc.) and ensure all suggestions align with the established architecture and coding patterns."
+  }
+}

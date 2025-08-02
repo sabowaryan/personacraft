@@ -11,6 +11,8 @@ CONTRAINTES IMPORTANTES:
 - Nombre de personas: EXACTEMENT {{personaCount}}
 - Les personas DOIVENT être cohérents avec les données culturelles fournies ci-dessous
 
+{{locationContext}}
+
 {{culturalConstraints}}
 
 INSTRUCTIONS SPÉCIFIQUES:
@@ -25,16 +27,16 @@ FORMAT EXACT ATTENDU (JSON uniquement, pas de texte avant ou après):
 [
   {
     "id": "persona-1",
-    "name": "Prénom Nom réaliste",
+    "name": "{{nameContext}}",
     "age": {{age_number}},
-    "occupation": "Métier spécifique et réaliste",
-    "location": "{{location}}",
-    "email": "prenom.nom@email.com",
-    "phone": "+33 X XX XX XX XX",
+    "occupation": "{{occupationContext}}",
+    "location": "{{locationSpecific}}",
+    "email": "{{emailContext}}",
+    "phone": "{{phoneContext}}",
     "bio": "Biographie courte et engageante (2-3 phrases maximum)",
     "quote": "Citation personnelle qui reflète sa personnalité et ses valeurs",
     "demographics": {
-      "income": "Tranche de revenus réaliste (ex: 45000-55000€)",
+      "income": "{{incomeContext}}",
       "education": "Niveau d'études spécifique",
       "familyStatus": "Situation familiale détaillée"
     },

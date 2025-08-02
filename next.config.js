@@ -8,23 +8,11 @@ const nextConfig = {
   
   // ✅ Optimisations critiques pour Next.js 15
   experimental: {
-    webpackMemoryOptimizations: true, // Nouveau dans Next.js 15
-    optimizePackageImports: ['@google/generative-ai','@stackframe/stack'], // Optimise Gemini seulement
+    webpackMemoryOptimizations: true,
+    optimizePackageImports: ['@google/generative-ai','@stackframe/stack'],
+    // Add build timeout configurations
+    webpackBuildWorker: true,
   },
-
-  webpack: (config, { isServer }) => {
-    // Polyfill global pour 'self' côté serveur
-    if (isServer) {
-      config.plugins.push(
-        new config.webpack.DefinePlugin({
-          'self': 'globalThis',
-          'window': 'globalThis',
-        })
-      );
-    }
-    return config;
-  },
-  
   
   // ✅ Configuration Turbopack (stable dans Next.js 15)
   turbopack: {
@@ -37,17 +25,18 @@ const nextConfig = {
   },
   
   // ✅ Augmenter les timeouts pour éviter les builds qui traînent
-  staticPageGenerationTimeout: 300, // 5 minutes au lieu de 60 secondes
+  staticPageGenerationTimeout: 600, // 10 minutes pour les builds complexes
   
   // ✅ Désactiver les vérifications coûteuses durant le build
   eslint: {
-    ignoreDuringBuilds: true, // Critique pour accélérer le build
+    ignoreDuringBuilds: true,
   },
   
   // ✅ Configuration TypeScript optimisée
   typescript: {
-    ignoreBuildErrors: false, // Gardez false pour la production
+    ignoreBuildErrors: false,
   },
+
   webpack: (config, { dev, isServer }) => {
     // ✅ Optimisation mémoire critique pour Next.js 15
     if (!dev) {

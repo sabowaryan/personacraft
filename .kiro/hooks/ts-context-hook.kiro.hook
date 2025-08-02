@@ -1,0 +1,16 @@
+{
+  "enabled": true,
+  "name": "TypeScript Context Hook",
+  "description": "When executing a task on a TypeScript file in src/, consider imported or linked files in the same directory as context for generation",
+  "version": "1",
+  "when": {
+    "type": "fileEdited",
+    "patterns": [
+      "src/**/*.ts"
+    ]
+  },
+  "then": {
+    "type": "askAgent",
+    "prompt": "When working on this TypeScript file, analyze its imports and dependencies within the same directory. Include the content and context of any imported or linked files in the same folder to provide comprehensive understanding for code generation, refactoring, or analysis tasks. Consider the relationships between files and how changes might affect the broader module structure."
+  }
+}

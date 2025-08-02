@@ -327,7 +327,18 @@ async function executeLegacyFlow(briefFormData: BriefFormData, user: any) {
 
     // Étape 1: Générer les personas de base avec Gemini
     const geminiClient = getGeminiClient();
-    const personas = await geminiClient.generatePersonas(briefFormData.brief, userContext || undefined);
+    const personas = await geminiClient.generatePersonas(
+        briefFormData.brief, 
+        userContext || undefined,
+        {
+            variables: {
+                personaCount: briefFormData.personaCount,
+                minAge: briefFormData.ageRange.min,
+                maxAge: briefFormData.ageRange.max,
+                location: briefFormData.location
+            }
+        }
+    );
 
     // Étape 2: Enrichir avec les données culturelles Qloo
     let enrichedPersonas = personas;

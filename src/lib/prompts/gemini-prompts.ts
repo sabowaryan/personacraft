@@ -68,7 +68,8 @@ export const DEFAULT_PROMPT_VARIABLES = {
     goalsCount: 3,
     channelsCount: 2,
     minQualityScore: 75,
-    maxQualityScore: 95
+    maxQualityScore: 95,
+    location: ''
 };
 
 /**
@@ -95,8 +96,12 @@ export class PromptManager {
         // Remplacer le brief
         prompt = prompt.replace(/\{\{brief\}\}/g, brief);
 
+        // Générer les variables contextuelles basées sur la localisation
+        const locationContextVariables = this.generateLocationContext(finalVariables.location);
+        const allVariables = { ...finalVariables, ...locationContextVariables };
+
         // Remplacer toutes les variables
-        Object.entries(finalVariables).forEach(([key, value]) => {
+        Object.entries(allVariables).forEach(([key, value]) => {
             if (value !== undefined && value !== null) {
                 const regex = new RegExp(`\\{\\{${key}\\}\\}`, 'g');
                 prompt = prompt.replace(regex, value.toString());
@@ -104,6 +109,48 @@ export class PromptManager {
         });
 
         return prompt.trim();
+    }
+
+    /**
+     * Génère les variables contextuelles basées sur la localisation
+     */
+    private static generateLocationContext(location: string): {
+        locationContext: string;
+        nameContext: string;
+        locationSpecific: string;
+        phoneContext: string;
+    } {
+        if (!location || location.trim() === '') {
+            return {
+                locationContext: 'Les personas peuvent être générés pour la France par défaut.',
+                nameContext: 'français',
+                locationSpecific: 'française',
+                phoneContext: 'français'
+            };
+        }
+
+        const locationLower = location.toLowerCase().trim();
+        
+        // Détection de régions/pays spécifiques pour adapter le contexte
+        let contextualInfo = {
+            locationContext: `IMPORTANT: Les personas doivent être adaptés à la localisation "${location}". Utilise des noms, prénoms, villes et références culturelles appropriés à cette région/pays. Les numéros de téléphone et adresses email doivent également correspondre aux formats locaux.`,
+            nameContext: `adapté à la localisation "${location}"`,
+            locationSpecific: `de la région/pays "${location}"`,
+            phoneContext: `au format local de "${location}"`
+        };
+
+        // Adaptations spécifiques pour certaines régions
+        if (locationLower.includes('kinshasa') || locationLower.includes('congo') || locationLower.includes('rdc')) {
+            contextualInfo.locationContext += ' Pour la RDC/Kinshasa, utilise des noms congolais typiques (ex: Mukendi, Kabongo, Tshiala, Mbuyi, Kasongo) et des références culturelles locales.';
+        } else if (locationLower.includes('maroc') || locationLower.includes('casablanca') || locationLower.includes('rabat')) {
+            contextualInfo.locationContext += ' Pour le Maroc, utilise des noms marocains typiques (ex: Amina, Youssef, Fatima, Mohammed, Aicha) et des références culturelles locales.';
+        } else if (locationLower.includes('sénégal') || locationLower.includes('dakar')) {
+            contextualInfo.locationContext += ' Pour le Sénégal, utilise des noms sénégalais typiques (ex: Aminata, Mamadou, Fatou, Ibrahima, Aissatou) et des références culturelles locales.';
+        } else if (locationLower.includes('côte d\'ivoire') || locationLower.includes('abidjan')) {
+            contextualInfo.locationContext += ' Pour la Côte d\'Ivoire, utilise des noms ivoiriens typiques (ex: Adjoua, Kouassi, Akissi, Yao, Aya) et des références culturelles locales.';
+        }
+
+        return contextualInfo;
     }
 
     /**

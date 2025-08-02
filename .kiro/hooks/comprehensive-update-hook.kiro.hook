@@ -1,0 +1,25 @@
+{
+  "enabled": true,
+  "name": "Comprehensive File Update",
+  "description": "Ensures that any update includes all files directly related to the trigger file through imports or naming conventions",
+  "version": "1",
+  "when": {
+    "type": "fileEdited",
+    "patterns": [
+      "src/**/*.ts",
+      "src/**/*.tsx",
+      "src/**/*.js",
+      "src/**/*.jsx",
+      "prisma/**/*.prisma",
+      "scripts/**/*.ts",
+      "scripts/**/*.js",
+      "package.json",
+      "tsconfig.json",
+      "next.config.js"
+    ]
+  },
+  "then": {
+    "type": "askAgent",
+    "prompt": "N'exécute aucune mise à jour sans inclure tous les fichiers directement liés au fichier déclencheur (par import ou par convention de nommage). Analyse le fichier modifié et identifie tous les fichiers qui l'importent, qu'il importe, ou qui suivent des conventions de nommage similaires. Inclus ces fichiers dans toute modification ou mise à jour proposée."
+  }
+}

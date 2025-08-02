@@ -1,12 +1,16 @@
 {
-  "buildCommand": "prisma generate && prisma db push && next build",
-  "installCommand": "npm install --include=dev",
+  "buildCommand": "node scripts/build-cross-platform.js",
+  "installCommand": "npm install --include=dev --timeout=300000",
   "env": {
-    "PRISMA_GENERATE_SKIP_AUTOINSTALL": "true"
+    "PRISMA_GENERATE_SKIP_AUTOINSTALL": "true",
+    "NODE_OPTIONS": "--max-old-space-size=6144",
+    "NEXT_TELEMETRY_DISABLED": "1"
   },
   "functions": {
     "src/app/api/**/*.ts": {
-      "maxDuration": 30
+      "maxDuration": 60
     }
-  }
+  },
+  "regions": ["iad1"],
+  "framework": "nextjs"
 }

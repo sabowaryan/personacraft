@@ -1,5 +1,8 @@
 // Types principaux pour l'application PersonaCraft
 
+// Export cultural insights types
+export * from './cultural-insights';
+
 export interface Demographics {
   income: string
   education: string
@@ -82,6 +85,8 @@ export interface Persona {
     insights: SocialMediaInsights
     platforms: string[]
   }
+  // New cultural insights structure (optional for backward compatibility)
+  culturalInsights?: import('./cultural-insights').CulturalInsights
 }
 
 export interface SessionData {

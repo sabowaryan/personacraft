@@ -4,9 +4,11 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "set NODE_OPTIONS=--max-old-space-size=4096 && prisma generate && next build",
-    "build:fast": "set NODE_OPTIONS=--max-old-space-size=4096 && set SKIP_ENV_VALIDATION=true && prisma generate && next build",
+    "build": "node scripts/build-cross-platform.js",
+    "build:legacy": "set NODE_OPTIONS=--max-old-space-size=6144 && prisma generate && next build",
+    "build:fast": "set NODE_OPTIONS=--max-old-space-size=6144 && set SKIP_ENV_VALIDATION=true && prisma generate && next build",
     "build:optimized": "node scripts/build-cross-platform.js",
+    "build:debug": "set NODE_OPTIONS=--max-old-space-size=6144 && set DEBUG=* && prisma generate && next build",
     "start": "next start",
     "lint": "next lint",
     "test": "vitest",
@@ -17,7 +19,10 @@
     "seed": "ts-node -r tsconfig-paths/register prisma/seed.ts",
     "analyze-bundle": "node src/scripts/analyze-bundle.js",
     "build:analyze": "npm run analyze-bundle && npm run build",
-    "vercel-build": "set NODE_OPTIONS=--max-old-space-size=4096 && prisma generate && prisma db push && next build"
+    "vercel-build": "node scripts/build-cross-platform.js",
+    "clean": "rimraf .next && rimraf node_modules/.cache",
+    "reset": "npm run clean && npm install",
+    "diagnose": "node scripts/diagnose-build.js"
   },
   "dependencies": {
     "@google/generative-ai": "^0.24.1",
@@ -33,13 +38,16 @@
     "@types/react": "^18.0.0",
     "@types/react-dom": "^18.0.0",
     "autoprefixer": "^10.4.0",
+    "chalk": "^5.4.1",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
+    "commander": "^14.0.0",
     "crypto": "^1.0.1",
     "dotenv": "^17.2.1",
     "lucide-react": "^0.468.0",
     "next": "^15.0.0",
     "node-fetch": "^3.3.2",
+    "ora": "^8.2.0",
     "postcss": "^8.4.0",
     "prisma": "^6.12.0",
     "react": "^19.0.0",
@@ -57,6 +65,7 @@
     "@vitest/ui": "^3.2.4",
     "eslint": "^8.0.0",
     "eslint-config-next": "^14.0.0",
+    "rimraf": "^5.0.5",
     "vitest": "^3.2.4"
   },
   "prisma": {
