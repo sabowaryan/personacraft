@@ -1,10 +1,10 @@
-import dynamic from 'next/dynamic';
+import nextDynamic from 'next/dynamic';
 
 // Force dynamic rendering to avoid SSG issues with Stack Auth
 export const dynamic = 'force-dynamic';
 
 // Dynamically import the content component with no SSR
-const SignUpContent = dynamic(() => import('./SignUpContent'), {
+const SignUpContent = nextDynamic(() => import('./SignUpContent'), {
   ssr: false,
   loading: () => (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-blue-50 flex items-center justify-center">
