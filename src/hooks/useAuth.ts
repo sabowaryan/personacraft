@@ -1,9 +1,9 @@
-import { useUser } from '@stackframe/stack';
 import { useEffect, useState } from 'react';
+import { useDevAuth } from './use-dev-auth';
 import { permissionService } from '../services/permissionService';
 
 export function useAuth() {
-  const user = useUser();
+  const user = useDevAuth();
   const [permissions, setPermissions] = useState<string[]>([]);
   const [plan, setPlan] = useState<any>(null);
   const [loading, setLoading] = useState(true);

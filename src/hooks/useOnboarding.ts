@@ -1,11 +1,11 @@
 'use client';
 
 import { useEffect } from 'react';
-import { useUser } from '@stackframe/stack';
+import { useDevAuth } from './use-dev-auth';
 import { useRouter, usePathname } from 'next/navigation';
 
 export function useOnboarding() {
-  const user = useUser();
+  const user = useDevAuth();
   const router = useRouter();
   const pathname = usePathname();
 

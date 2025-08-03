@@ -1,22 +1,11 @@
 import type { Metadata } from 'next'
-import { Inter, Poppins } from 'next/font/google'
 import './globals.css'
 import ConditionalLayout from '@/components/ConditionalLayout'
 import SuspenseWrapper from '@/components/SuspenseWrapper'
 import StackProviderWrapper from '@/components/StackProviderWrapper'
 
-const inter = Inter({
-  subsets: ['latin'],
-  variable: '--font-inter',
-  display: 'swap',
-})
-
-const poppins = Poppins({
-  subsets: ['latin'],
-  weight: ['400', '500', '600', '700'],
-  variable: '--font-poppins',
-  display: 'swap',
-})
+// Use system fonts as fallback to avoid Google Fonts network issues
+const fontVariables = '--font-inter --font-poppins'
 
 export const metadata: Metadata = {
   title: 'PersonaCraft - AI-Powered Marketing Persona Generation',
@@ -95,7 +84,7 @@ export default function RootLayout({
   };
 
   return (
-    <html lang="fr" className={`${inter.variable} ${poppins.variable} scroll-smooth`}>
+    <html lang="fr" className="scroll-smooth">
       <head>
         <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
 
@@ -122,7 +111,7 @@ export default function RootLayout({
         <meta name="msapplication-TileImage" content="/assets/ms-icon-144x144.png" />
         <meta name="theme-color" content="#7C3AED" />
       </head>
-      <body className={`${inter.className} antialiased`}>
+      <body className="antialiased font-sans">
         <StackProviderWrapper customTheme={customTheme}>
           <SuspenseWrapper>
             <ConditionalLayout>

@@ -6,20 +6,16 @@ const nextConfig = {
     QLOO_API_URL: process.env.QLOO_API_URL,
   },
   
-  // ✅ Force dynamic rendering for dashboard and auth pages
-  async generateStaticParams() {
-    return [];
-  },
-  
   // ✅ Optimisations critiques pour Next.js 15
   experimental: {
     webpackMemoryOptimizations: true,
-    optimizePackageImports: ['@google/generative-ai','@stackframe/stack'],
+    optimizePackageImports: ['@google/generative-ai'],
     // Add build timeout configurations
     webpackBuildWorker: true,
-    // Force dynamic rendering for specific routes
-    dynamicIO: true,
   },
+  
+  // Move serverComponentsExternalPackages to the correct location
+ 
   
   // ✅ Configuration Turbopack (stable dans Next.js 15)
   turbopack: {
@@ -65,13 +61,26 @@ const nextConfig = {
       };
     }
     
-    // ✅ Fix for StackAuth "self is not defined" error
+    
+    
     if (isServer) {
       config.resolve.fallback = {
         ...config.resolve.fallback,
         crypto: false,
         stream: false,
         util: false,
+        fs: false,
+        path: false,
+      };
+    } else {
+      // Client-side fallbacks for Stack Auth
+      config.resolve.fallback = {
+        ...config.resolve.fallback,
+        crypto: require.resolve('crypto-browserify'),
+        stream: require.resolve('stream-browserify'),
+        util: require.resolve('util'),
+        fs: false,
+        path: require.resolve('path-browserify'),
       };
     }
 
@@ -84,14 +93,7 @@ const nextConfig = {
           minSize: 20000,
           maxSize: 244000,
           cacheGroups: {
-            // ✅ Séparer Stack Auth dans son propre chunk
-            stackauth: {
-              test: /[\\/]node_modules[\\/]@stackframe[\\/]/,
-              name: 'stackauth',
-              chunks: 'all',
-              priority: 20,
-              enforce: true,
-            },
+           
             prompts: {
               test: /[\\/](prompts|validators)[\\/]/,
               name: 'prompts-validators',

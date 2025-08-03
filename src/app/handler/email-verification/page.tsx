@@ -2,8 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { useUser, useStackApp } from '@stackframe/stack';
-
+import { useDevAuth } from '@/hooks/use-dev-auth';
 import { shouldBypassAuth } from "@/lib/feature-flags";
 
 // Force dynamic rendering to avoid SSG issues with Stack Auth
@@ -12,8 +11,7 @@ export const dynamic = 'force-dynamic';
 export default function EmailVerificationPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const user = useUser();
-  const app = useStackApp();
+  const user = useDevAuth();
   const [status, setStatus] = useState<'loading' | 'success' | 'error'>('loading');
   const [message, setMessage] = useState('');
 
@@ -35,29 +33,30 @@ export default function EmailVerificationPage() {
           return;
         }
 
-        // Utiliser l'API native de Stack Auth pour vérifier l'email
+        // Simuler la vérification d'email en mode dev
         try {
-          await app.verifyEmail(code);
+          console.log('🔐 Mock email verification:', { code });
+          
+          // Simuler un délai d'API
+          await new Promise(resolve => setTimeout(resolve, 1500));
+          
+          // En mode dev, on considère que la vérification réussit toujours
+          setStatus('success');
+          setMessage('Email vérifié avec succès !');
 
-          // Attendre que l'état utilisateur soit mis à jour
-          if (user && user.primaryEmailVerified) {
-            setStatus('success');
-            setMessage('Email vérifié avec succès !');
-
-            // Rediriger après succès - vérifier si l'onboarding est nécessaire
-            setTimeout(() => {
-              // Si l'utilisateur n'a pas encore fait l'onboarding, l'y rediriger
-              const isOnboarded = user?.clientReadOnlyMetadata?.onboardedAt;
-              
-              if (!isOnboarded) {
-                router.push('/onboarding');
-              } else {
-                const redirectUrl = afterAuthReturnTo ?
-                  decodeURIComponent(afterAuthReturnTo) : '/dashboard';
-                router.push(redirectUrl);
-              }
-            }, 2000);
-          }
+          // Rediriger après succès - vérifier si l'onboarding est nécessaire
+          setTimeout(() => {
+            // Si l'utilisateur n'a pas encore fait l'onboarding, l'y rediriger
+            const isOnboarded = user?.clientReadOnlyMetadata?.onboardedAt;
+            
+            if (!isOnboarded) {
+              router.push('/onboarding');
+            } else {
+              const redirectUrl = afterAuthReturnTo ?
+                decodeURIComponent(afterAuthReturnTo) : '/dashboard';
+              router.push(redirectUrl);
+            }
+          }, 2000);
         } catch (verifyError) {
           console.error('Erreur lors de la vérification du code:', verifyError);
           setStatus('error');
@@ -72,13 +71,15 @@ export default function EmailVerificationPage() {
     };
 
     verifyEmail();
-  }, [searchParams, router, app, user]);
+  }, [searchParams, router, user]);
 
   // Fonction pour renvoyer l'email de vérification
   const resendVerificationEmail = async () => {
     if (user && !user.primaryEmailVerified) {
       try {
-        await user.sendVerificationEmail();
+        // Simuler le renvoi d'email en mode dev
+        console.log('🔐 Mock resend verification email for:', user.primaryEmail);
+        await new Promise(resolve => setTimeout(resolve, 1000));
         setMessage('Email de vérification renvoyé');
       } catch (error) {
         console.error('Erreur lors du renvoi:', error);

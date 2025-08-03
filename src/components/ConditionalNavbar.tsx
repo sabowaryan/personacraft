@@ -1,20 +1,34 @@
 'use client';
 
-import NavbarWithAuth from './NavbarWithAuth';
+import { useState, useEffect } from 'react';
 import NavbarWithoutAuth from './NavbarWithoutAuth';
 
 export default function ConditionalNavbar() {
-  // Utiliser les variables d'environnement publiques côté client
-  const authEnabled = process.env.NEXT_PUBLIC_AUTH_ENABLED !== 'false';
-  const devDisableAuth = process.env.NEXT_PUBLIC_DEV_DISABLE_AUTH === 'true';
-  const isDev = process.env.NODE_ENV === 'development';
+  const [isClient, setIsClient] = useState(false);
+  const [NavbarWithAuth, setNavbarWithAuth] = useState<any>(null);
   
-  // Désactiver l'auth si explicitement désactivée ou en mode dev avec flag
-  const shouldShowAuthNavbar = authEnabled && !(isDev && devDisableAuth);
+  useEffect(() => {
+    setIsClient(true);
+    
+    // Only load NavbarWithAuth if auth is enabled
+    const authEnabled = process.env.NEXT_PUBLIC_AUTH_ENABLED !== 'false';
+    const devDisableAuth = process.env.NEXT_PUBLIC_DEV_DISABLE_AUTH === 'true';
+    const isDev = process.env.NODE_ENV === 'development';
+    const shouldShowAuthNavbar = authEnabled && !(isDev && devDisableAuth);
+    
+    if (shouldShowAuthNavbar) {
+      import('./NavbarWithAuth').then((module) => {
+        setNavbarWithAuth(() => module.default);
+      }).catch((error) => {
+        console.warn('NavbarWithAuth not available, falling back to NavbarWithoutAuth:', error);
+      });
+    }
+  }, []);
   
-  if (shouldShowAuthNavbar) {
-    return <NavbarWithAuth />;
+  // During SSR or while loading, show the no-auth navbar
+  if (!isClient || !NavbarWithAuth) {
+    return <NavbarWithoutAuth />;
   }
   
-  return <NavbarWithoutAuth />;
+  return <NavbarWithAuth />;
 }

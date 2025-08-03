@@ -1,22 +1,24 @@
-import { useUser } from '@stackframe/stack'
+import { useDevAuth } from '@/hooks/use-dev-auth'
 import { shouldBypassAuth } from '@/lib/feature-flags'
 
 /**
- * Hook sécurisé pour utiliser useUser avec les feature flags
- * Retourne null si l'auth est désactivée pour éviter les erreurs
+ * Hook sécurisé pour utiliser l'authentification avec les feature flags
+ * Utilise le système dev auth quand l'auth Stack est désactivée
  */
 export function useSafeUser() {
   try {
-    // Si l'auth est bypassée, retourner null
+    // Si l'auth est bypassée, utiliser le dev auth
     if (shouldBypassAuth()) {
-      return null;
+      return useDevAuth();
     }
     
-    // Sinon, utiliser le hook normal
-    return useUser();
+    // En mode production sans Stack Auth, retourner null
+    // (Dans un vrai déploiement, vous pourriez vouloir utiliser un autre système d'auth ici)
+    console.warn('Auth enabled but Stack Auth not available - returning null');
+    return null;
   } catch (error) {
-    // En cas d'erreur (ex: provider manquant), retourner null
-    console.warn('useUser hook failed, likely due to missing StackProvider:', error);
+    // En cas d'erreur, retourner null
+    console.warn('Auth hook failed:', error);
     return null;
   }
 }

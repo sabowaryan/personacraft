@@ -7,7 +7,7 @@ import { useState, useEffect } from 'react';
 import { Button } from './ui/button';
 import LogoWithText from './LogoWithText';
 import { isFeatureEnabled } from '@/lib/feature-flags';
-import { useUser } from '@stackframe/stack';
+import { useDevAuth } from '@/hooks/use-dev-auth';
 
 // Types pour les thèmes de sections
 type SectionTheme = {
@@ -102,19 +102,19 @@ export default function NavbarWithAuth() {
     const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
     const [currentSection, setCurrentSection] = useState('hero');
     const [isMounted, setIsMounted] = useState(false);
-    
-    // Utilisation directe du hook Stack Auth
-    const user = useUser();
-    
+
+    // Utilisation du hook dev auth
+    const user = useDevAuth();
+
     // S'assurer que le composant est monté côté client
     useEffect(() => {
         setIsMounted(true);
     }, []);
-    
+
     // États d'authentification - seulement après montage côté client
     const isUserAuthenticated = isMounted && user && (!isFeatureEnabled('EMAIL_VERIFICATION_REQUIRED') || user.primaryEmailVerified);
     const isUserLoggedButUnverified = isMounted && user && isFeatureEnabled('EMAIL_VERIFICATION_REQUIRED') && !user.primaryEmailVerified;
-    
+
     // Hook pour détecter le scroll et les sections - seulement après montage
     useEffect(() => {
         if (!isMounted) return;
@@ -175,7 +175,7 @@ export default function NavbarWithAuth() {
 
         return () => window.removeEventListener('scroll', handleScroll);
     }, [pathname, isMounted]);
-    
+
     // Affichage de chargement pendant l'hydratation
     if (!isMounted) {
         return (
@@ -283,20 +283,10 @@ export default function NavbarWithAuth() {
                                     className="flex items-center space-x-3 text-sm rounded-full focus:outline-none focus:ring-2 focus:ring-violet-500 focus:ring-offset-2 transition-all duration-200"
                                 >
                                     <div className="w-8 h-8 bg-gradient-to-r from-violet-500 to-purple-600 rounded-full flex items-center justify-center text-white font-medium">
-                                        {user?.profileImageUrl ? (
-                                            <Image
-                                                src={user.profileImageUrl}
-                                                alt={user.displayName || user.primaryEmail || 'User'}
-                                                width={32}
-                                                height={32}
-                                                className="w-8 h-8 rounded-full object-cover"
-                                            />
-                                        ) : (
-                                            user?.displayName ? user.displayName.charAt(0).toUpperCase() : (user?.primaryEmail || 'U').charAt(0).toUpperCase()
-                                        )}
+                                        {(user?.primaryEmail || 'U').charAt(0).toUpperCase()}
                                     </div>
                                     <span className={`hidden md:block font-medium ${currentTheme.text}`}>
-                                        {user?.displayName || user?.primaryEmail || 'User'}
+                                        {user?.primaryEmail || 'User'}
                                     </span>
                                     <svg className={`w-4 h-4 ${currentTheme.text}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
@@ -530,20 +520,10 @@ export default function NavbarWithAuth() {
                         <div className="pt-4 pb-2 border-t border-gray-200 dark:border-gray-600 mt-4">
                             <div className="flex items-center px-3 py-2 mb-3">
                                 <div className="w-8 h-8 bg-gradient-to-r from-violet-500 to-purple-600 rounded-full flex items-center justify-center text-white font-medium mr-3">
-                                    {user?.profileImageUrl ? (
-                                        <Image
-                                            src={user.profileImageUrl}
-                                            alt={user.displayName || user.primaryEmail || 'User'}
-                                            width={32}
-                                            height={32}
-                                            className="w-8 h-8 rounded-full object-cover"
-                                        />
-                                    ) : (
-                                        (user?.displayName || user?.primaryEmail || 'User').charAt(0).toUpperCase()
-                                    )}
+                                    {(user?.primaryEmail || 'U').charAt(0).toUpperCase()}
                                 </div>
                                 <div>
-                                    <div className="text-sm font-medium text-gray-900 dark:text-gray-100">{user?.displayName || user?.primaryEmail || 'User'}</div>
+                                    <div className="text-sm font-medium text-gray-900 dark:text-gray-100">{user?.primaryEmail || 'User'}</div>
                                     <div className="text-xs text-gray-500 dark:text-gray-400">{user?.primaryEmail || 'No email'}</div>
                                 </div>
                             </div>

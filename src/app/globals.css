@@ -1,4 +1,3 @@
-@import url("https://fonts.googleapis.com/css2?family=Inter:wght@...&display=swap");
 @import "tailwindcss";
 
 @theme {
@@ -9,7 +8,7 @@
   --color-error: #EF4444;
   --color-background: #FAFAFA;
   --color-text: #1F2937;
-  --font-sans: "Inter", "Poppins", ui-sans-serif, sans-serif;
+  --font-sans: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
 }
 
 @layer base {

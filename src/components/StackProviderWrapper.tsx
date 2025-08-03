@@ -1,46 +1,30 @@
 'use client';
 
-import { StackProvider, StackTheme } from "@stackframe/stack";
-import { stackClientApp } from "@/stack-client";
 import { useState, useEffect } from "react";
+import { shouldBypassAuth } from "@/lib/feature-flags";
 
 interface StackProviderWrapperProps {
   children: React.ReactNode;
-  customTheme: any;
+  customTheme?: any; // Made optional since we're not using Stack Auth themes
 }
-
-// Vérification côté client si l'auth est désactivée
-const isAuthDisabled = () => {
-  if (typeof window === 'undefined') return false;
-  return process.env.NEXT_PUBLIC_AUTH_ENABLED === 'false' || 
-         (process.env.NODE_ENV === 'development' && process.env.NEXT_PUBLIC_DEV_DISABLE_AUTH === 'true');
-};
 
 export default function StackProviderWrapper({ children, customTheme }: StackProviderWrapperProps) {
   const [isClient, setIsClient] = useState(false);
-  const [authDisabled, setAuthDisabled] = useState(false);
 
   useEffect(() => {
     setIsClient(true);
-    setAuthDisabled(isAuthDisabled());
   }, []);
 
-  // Éviter l'hydratation mismatch en attendant le côté client
-  if (!isClient) {
+  // During SSR or when auth is bypassed, just return children
+  if (!isClient || shouldBypassAuth()) {
+    if (shouldBypassAuth() && isClient) {
+      console.log('🚫 Auth disabled - using dev auth system');
+    }
     return <div className="min-h-screen">{children}</div>;
   }
 
-  // Si l'auth est désactivée, retourner directement les enfants sans le provider Stack
-  if (authDisabled) {
-    console.log('🚫 Auth disabled - bypassing StackProvider');
-    return <div className="min-h-screen">{children}</div>;
-  }
-
-  return (
-    <StackProvider app={stackClientApp}>
-      <StackTheme theme={customTheme}>
-        {children}
-      </StackTheme>
-    </StackProvider>
-  );
+  // If we reach here, auth is enabled but Stack Auth is not available
+  // This should not happen in the current setup, but we'll handle it gracefully
+  console.warn('Auth enabled but Stack Auth not configured - falling back to dev mode');
+  return <div className="min-h-screen">{children}</div>;
 }

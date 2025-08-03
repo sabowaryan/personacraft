@@ -33,7 +33,7 @@ const getPageConfig = (pathname: string, personasCount: number = 0): PageConfig 
       breadcrumb: [{ label: 'Dashboard' }]
     };
   }
-  
+
   if (pathname === '/dashboard/personas') {
     return {
       title: 'Mes Personas',
@@ -50,7 +50,7 @@ const getPageConfig = (pathname: string, personasCount: number = 0): PageConfig 
       ]
     };
   }
-  
+
   if (pathname.startsWith('/dashboard/personas/')) {
     return {
       title: 'Détail Persona',
@@ -68,7 +68,7 @@ const getPageConfig = (pathname: string, personasCount: number = 0): PageConfig 
       ]
     };
   }
-  
+
   if (pathname === '/dashboard/templates') {
     return {
       title: 'Templates',
@@ -85,7 +85,7 @@ const getPageConfig = (pathname: string, personasCount: number = 0): PageConfig 
       ]
     };
   }
-  
+
   if (pathname === '/dashboard/analytics') {
     return {
       title: 'Analytics',
@@ -102,7 +102,7 @@ const getPageConfig = (pathname: string, personasCount: number = 0): PageConfig 
       ]
     };
   }
-  
+
   return {
     title: 'Dashboard',
     subtitle: 'PersonaCraft - AI-Powered Marketing Personas',
@@ -120,21 +120,21 @@ export default function Header() {
   const pathname = usePathname();
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [currentTime, setCurrentTime] = useState<Date | null>(null);
-  
+
   const { personas } = usePersona();
   const { exportAll, isExporting, exportProgress } = useExport();
-  
+
   // Always call hooks to avoid violating Rules of Hooks
   const authBypass = shouldBypassAuth();
   const stackSessions = useStackSessions();
   const user = useSafeUser();
-  
+
   // Use mock data when auth is bypassed or hooks return null
   const { stats, isLoading } = (authBypass || !stackSessions) ? {
     stats: { activeSessions: 1, totalSessions: 1, expiredSessions: 0 },
     isLoading: false
   } : stackSessions;
-  
+
   // Mock user data when auth is bypassed or user is null
   const currentUser = (authBypass || !user) ? {
     displayName: 'Dev User',
@@ -142,7 +142,7 @@ export default function Header() {
     profileImageUrl: null,
     signOut: async () => { window.location.href = '/'; }
   } : user;
-  
+
   const pageConfig = getPageConfig(pathname, personas?.length || 0);
 
   // Mise à jour de l'heure en temps réel
@@ -190,7 +190,7 @@ export default function Header() {
     <header className="sticky top-0 z-30 bg-white/95 backdrop-blur-sm border-b border-neutral-200/60 shadow-sm">
       {/* Gradient Background */}
       <div className={`absolute inset-0 bg-gradient-to-r ${pageConfig.gradient} opacity-5`}></div>
-      
+
       <div className="relative">
         <div className="px-2 py-2 sm:px-4 sm:py-3">
           {/* Breadcrumb */}
@@ -204,8 +204,8 @@ export default function Header() {
                     </svg>
                   )}
                   {item.href ? (
-                    <Link 
-                      href={item.href} 
+                    <Link
+                      href={item.href}
                       className="hover:text-persona-violet transition-colors font-medium whitespace-nowrap"
                     >
                       {item.label}
@@ -251,15 +251,15 @@ export default function Header() {
                     <span className="text-green-600 ml-1">sessions</span>
                   </div>
                 </div>
-                
+
                 <div className="flex items-center space-x-2 px-3 py-1.5 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg border border-blue-200/50">
                   <svg className="w-3 h-3 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
                   <span className="text-blue-700 font-semibold text-xs">
-                    {currentTime ? currentTime.toLocaleTimeString('fr-FR', { 
-                      hour: '2-digit', 
-                      minute: '2-digit' 
+                    {currentTime ? currentTime.toLocaleTimeString('fr-FR', {
+                      hour: '2-digit',
+                      minute: '2-digit'
                     }) : '--:--'}
                   </span>
                 </div>
@@ -278,9 +278,9 @@ export default function Header() {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
                   <span className="text-blue-700 font-semibold text-xs">
-                    {currentTime ? currentTime.toLocaleTimeString('fr-FR', { 
-                      hour: '2-digit', 
-                      minute: '2-digit' 
+                    {currentTime ? currentTime.toLocaleTimeString('fr-FR', {
+                      hour: '2-digit',
+                      minute: '2-digit'
                     }) : '--:--'}
                   </span>
                 </div>
@@ -329,12 +329,12 @@ export default function Header() {
                 >
                   <div className="w-7 h-7 sm:w-8 sm:h-8 bg-gradient-to-br from-persona-violet to-purple-600 rounded-full flex items-center justify-center text-white text-xs font-bold shadow-md overflow-hidden">
                     {currentUser?.profileImageUrl ? (
-                      <Image 
-                        src={currentUser.profileImageUrl} 
-                        alt={currentUser.displayName || currentUser.primaryEmail || 'User'} 
+                      <Image
+                        src={currentUser.profileImageUrl}
+                        alt={currentUser.displayName || currentUser.primaryEmail || 'User'}
                         width={32}
                         height={32}
-                        className="w-full h-full object-cover rounded-full" 
+                        className="w-full h-full object-cover rounded-full"
                       />
                     ) : (
                       (currentUser?.displayName || currentUser?.primaryEmail || 'U').charAt(0).toUpperCase()
@@ -359,12 +359,12 @@ export default function Header() {
                       <div className="flex items-center space-x-2">
                         <div className="w-8 h-8 bg-gradient-to-br from-persona-violet to-purple-600 rounded-full flex items-center justify-center text-white text-xs font-bold overflow-hidden">
                           {currentUser?.profileImageUrl ? (
-                            <Image 
-                              src={currentUser.profileImageUrl} 
-                              alt={currentUser.displayName || currentUser.primaryEmail || 'User'} 
+                            <Image
+                              src={currentUser.profileImageUrl}
+                              alt={currentUser.displayName || currentUser.primaryEmail || 'User'}
                               width={32}
                               height={32}
-                              className="w-full h-full object-cover rounded-full" 
+                              className="w-full h-full object-cover rounded-full"
                             />
                           ) : (
                             (currentUser?.displayName || currentUser?.primaryEmail || 'U').charAt(0).toUpperCase()
@@ -380,7 +380,7 @@ export default function Header() {
                         </div>
                       </div>
                     </div>
-                    
+
                     <div className="py-1">
                       <button className="w-full text-left px-3 py-2 text-xs text-neutral-700 hover:bg-neutral-50 flex items-center space-x-2 transition-colors">
                         <svg className="w-4 h-4 text-neutral-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -405,9 +405,9 @@ export default function Header() {
                         <span>Paramètres</span>
                       </button>
                     </div>
-                    
+
                     <div className="border-t border-neutral-100 pt-1">
-                      <button 
+                      <button
                         onClick={handleSignOut}
                         className="w-full text-left px-3 py-2 text-xs text-red-600 hover:bg-red-50 flex items-center space-x-2 transition-colors"
                       >

@@ -1,14 +1,18 @@
 'use client';
 
-import { SignIn, useUser } from "@stackframe/stack";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { shouldBypassAuth } from "@/lib/feature-flags";
+import { useDevAuth } from "@/hooks/use-dev-auth";
 
 export default function SignInContent() {
-  const user = useUser();
+  const user = useDevAuth();
   const router = useRouter();
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState('');
 
   // Rediriger vers l'accueil si l'auth est désactivée
   useEffect(() => {
@@ -70,7 +74,68 @@ export default function SignInContent() {
               </p>
             </div>
 
-            <SignIn fullPage={true} automaticRedirect={true} />
+            {/* Custom Sign In Form for Dev Mode */}
+            <form onSubmit={(e) => {
+              e.preventDefault();
+              setIsLoading(true);
+              setError('');
+              
+              // In dev mode, just redirect to dashboard
+              setTimeout(() => {
+                router.push('/dashboard');
+              }, 1000);
+            }} className="space-y-4">
+              {error && (
+                <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
+                  {error}
+                </div>
+              )}
+              
+              <div>
+                <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
+                  Email
+                </label>
+                <input
+                  id="email"
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                  placeholder="dev@example.com"
+                  required
+                />
+              </div>
+              
+              <div>
+                <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
+                  Mot de passe
+                </label>
+                <input
+                  id="password"
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                  placeholder="••••••••"
+                  required
+                />
+              </div>
+              
+              <button
+                type="submit"
+                disabled={isLoading}
+                className="w-full bg-purple-600 text-white py-2 px-4 rounded-lg hover:bg-purple-700 focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              >
+                {isLoading ? (
+                  <div className="flex items-center justify-center space-x-2">
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                    <span>Connexion...</span>
+                  </div>
+                ) : (
+                  'Se connecter'
+                )}
+              </button>
+            </form>
 
             <div className="mt-6 text-center">
               <p className="text-sm text-gray-600">

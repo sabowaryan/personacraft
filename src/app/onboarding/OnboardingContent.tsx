@@ -1,6 +1,5 @@
 'use client';
 
-import { useUser } from "@stackframe/stack";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { ChevronLeft, ChevronRight } from "lucide-react";
@@ -13,10 +12,11 @@ import BasicInfoStep from "@/components/onboarding/steps/BasicInfoStep";
 import UseCaseStep from "@/components/onboarding/steps/UseCaseStep";
 import ExperienceStep from "@/components/onboarding/steps/ExperienceStep";
 import { useOnboardingForm } from "@/hooks/use-onboarding-form";
+import { useDevAuth } from "@/hooks/use-dev-auth";
 
 export default function OnboardingContent() {
   const [isClient, setIsClient] = useState(false);
-  const user = useUser();
+  const user = useDevAuth();
   const router = useRouter();
   const {
     formData,

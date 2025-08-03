@@ -46,10 +46,9 @@ export default function DemoPage() {
               <div className="aspect-video relative">
                 {/* YouTube Video Embed */}
                 <iframe
-                  className="absolute inset-0 w-full h-full"
+                  className="absolute inset-0 w-full h-full border-0"
                   src="https://www.youtube.com/embed/dQw4w9WgXcQ?si=example&autoplay=0&rel=0&modestbranding=1"
                   title="Démonstration Personacraft - Créer des personas marketing avec l'IA"
-                  frameBorder="0"
                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                   allowFullScreen
                 ></iframe>

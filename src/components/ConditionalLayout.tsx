@@ -10,7 +10,7 @@ interface ConditionalLayoutProps {
 
 export default function ConditionalLayout({ children }: ConditionalLayoutProps) {
   const pathname = usePathname();
-  
+
   // Routes qui ne doivent pas avoir la navbar et le footer marketing
   const excludedRoutes = ['/dashboard'];
   const shouldExcludeLayout = excludedRoutes.some(route => pathname.startsWith(route));

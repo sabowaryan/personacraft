@@ -1,15 +1,15 @@
 'use client';
 
-import { useUser } from '@stackframe/stack';
 import { useRouter } from 'next/navigation';
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Alert } from '@/components/ui/alert';
 import { shouldBypassAuth } from "@/lib/feature-flags";
+import { useDevAuth } from "@/hooks/use-dev-auth";
 
 export default function VerifyEmailContent() {
-    const user = useUser();
+    const user = useDevAuth();
     const router = useRouter();
     const [isResending, setIsResending] = useState(false);
     const [resendMessage, setResendMessage] = useState('');

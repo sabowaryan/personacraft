@@ -1,6 +1,6 @@
 'use client';
 
-import { useUser } from '@stackframe/stack';
+import { useSafeUser } from '@/hooks/use-safe-user';
 
 export interface OnboardingData {
   company: string;
@@ -12,7 +12,7 @@ export interface OnboardingData {
 }
 
 export function useOnboardingData() {
-  const user = useUser();
+  const user = useSafeUser();
   
   const onboardingData = user?.clientReadOnlyMetadata as OnboardingData | undefined;
   
