@@ -1,7 +1,6 @@
 import ClientDynamicWrapper from '@/components/ClientDynamicWrapper';
 
-// Force dynamic rendering to avoid SSG issues with Stack Auth
-export const dynamic = 'force-dynamic';
+// Can now be static since we're using dev auth
 
 export default function CustomSignUpPage() {
   return <ClientDynamicWrapper importPath="signup" />;

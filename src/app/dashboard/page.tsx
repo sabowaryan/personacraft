@@ -1,6 +1,6 @@
 import DashboardClient from './DashboardClient';
 
-// Force dynamic rendering to avoid static generation issues
+// Keep dynamic rendering (user-dependent content)
 export const dynamic = 'force-dynamic';
 
 export default function Dashboard() {

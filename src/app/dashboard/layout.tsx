@@ -1,4 +1,4 @@
-// Force dynamic rendering for all dashboard pages
+// Keep dynamic rendering for dashboard pages (user-dependent content)
 export const dynamic = 'force-dynamic';
 
 import DashboardLayoutClient from './DashboardLayoutClient';
