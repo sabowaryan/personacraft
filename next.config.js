@@ -6,12 +6,19 @@ const nextConfig = {
     QLOO_API_URL: process.env.QLOO_API_URL,
   },
   
+  // ✅ Force dynamic rendering for dashboard and auth pages
+  async generateStaticParams() {
+    return [];
+  },
+  
   // ✅ Optimisations critiques pour Next.js 15
   experimental: {
     webpackMemoryOptimizations: true,
     optimizePackageImports: ['@google/generative-ai','@stackframe/stack'],
     // Add build timeout configurations
     webpackBuildWorker: true,
+    // Force dynamic rendering for specific routes
+    dynamicIO: true,
   },
   
   // ✅ Configuration Turbopack (stable dans Next.js 15)
