@@ -66,7 +66,6 @@ export default function PersonasClient() {
   const {
     personas,
     selectedPersona,
-    isLoading,
     error,
     loadPersonas,
     addPersona,
@@ -75,7 +74,6 @@ export default function PersonasClient() {
   } = usePersona();
 
   const {
-    exportPersonas,
     exportAll,
     isExporting,
     exportProgress
@@ -91,19 +89,23 @@ export default function PersonasClient() {
   // Conversion des personas vers le format enrichi
   const enrichedPersonas: EnrichedPersona[] = isClient && Array.isArray(personas) ? personas.map(convertToEnrichedPersona) : [];
 
-  // Charger les personas au montage et vérifier les données de template
+  // Charger les personas au montage
   useEffect(() => {
     if (!isClient) return;
-    
     loadPersonas();
+  }, [isClient, loadPersonas]);
+
+  // Gérer les données de template séparément
+  useEffect(() => {
+    if (!isClient) return;
 
     // Vérifier si on doit ouvrir automatiquement le modal avec des données de template
-    const autoOpenModal = sessionStorage.getItem('autoOpenModal');
-    const templateDataStr = sessionStorage.getItem('templateData');
-    const shouldGoToLastStep = sessionStorage.getItem('goToLastStep');
+    try {
+      const autoOpenModal = sessionStorage.getItem('autoOpenModal');
+      const templateDataStr = sessionStorage.getItem('templateData');
+      const shouldGoToLastStep = sessionStorage.getItem('goToLastStep');
 
-    if (autoOpenModal === 'true' && templateDataStr) {
-      try {
+      if (autoOpenModal === 'true' && templateDataStr) {
         const parsedTemplateData = JSON.parse(templateDataStr);
         setTemplateData(parsedTemplateData);
         setGoToLastStep(shouldGoToLastStep === 'true');
@@ -113,32 +115,19 @@ export default function PersonasClient() {
         sessionStorage.removeItem('autoOpenModal');
         sessionStorage.removeItem('templateData');
         sessionStorage.removeItem('goToLastStep');
-      } catch (error) {
-        console.error('Erreur lors du parsing des données de template:', error);
-        // Nettoyer en cas d'erreur
+      }
+    } catch (error) {
+      console.error('Erreur lors du parsing des données de template:', error);
+      // Nettoyer en cas d'erreur
+      try {
         sessionStorage.removeItem('autoOpenModal');
         sessionStorage.removeItem('templateData');
         sessionStorage.removeItem('goToLastStep');
+      } catch (cleanupError) {
+        console.error('Erreur lors du nettoyage du sessionStorage:', cleanupError);
       }
     }
-  }, [isClient, loadPersonas]);
-
-  // Afficher un loader pendant l'hydratation
-  if (!isClient) {
-    return (
-      <div className="p-6 max-w-7xl mx-auto space-y-8">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-          <div>
-            <h1 className="text-3xl font-bold text-slate-900">Personas Marketing</h1>
-            <p className="text-slate-600 mt-1">Gérez et analysez vos personas avec des outils avancés</p>
-          </div>
-        </div>
-        <div className="flex items-center justify-center py-12">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-persona-violet"></div>
-        </div>
-      </div>
-    );
-  }
+  }, [isClient]);
 
   const generatePersonas = useCallback(async (formData: any) => {
     setIsGenerating(true);
@@ -229,6 +218,23 @@ export default function PersonasClient() {
       alert('Erreur lors de l\'export');
     }
   }, [exportAll]);
+
+  // Afficher un loader pendant l'hydratation
+  if (!isClient) {
+    return (
+      <div className="p-6 max-w-7xl mx-auto space-y-8">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div>
+            <h1 className="text-3xl font-bold text-slate-900">Personas Marketing</h1>
+            <p className="text-slate-600 mt-1">Gérez et analysez vos personas avec des outils avancés</p>
+          </div>
+        </div>
+        <div className="flex items-center justify-center py-12">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="p-6 max-w-7xl mx-auto space-y-8">
